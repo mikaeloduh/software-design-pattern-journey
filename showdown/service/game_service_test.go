@@ -9,14 +9,29 @@ import (
 )
 
 func TestNewGame(t *testing.T) {
-	t.Run("test new game with player", func(t *testing.T) {
-		p1 := entity.NewPlayer("TestName1")
-		p2 := entity.NewPlayer("TestName2")
-		p3 := entity.NewPlayer("TestName3")
-		p4 := entity.NewPlayer("TestName4")
-		game := NewGame(p1, p2, p3, p4)
+	p1 := entity.NewPlayer(1)
+	p2 := entity.NewPlayer(2)
+	p3 := entity.NewPlayer(3)
+	p4 := entity.NewPlayer(4)
+	var game *Game
+
+	t.Run("Test creating game with player", func(t *testing.T) {
+		game = NewGame(p1, p2, p3, p4)
 
 		assert.IsType(t, &Game{}, game)
 		assert.Equal(t, 4, len(game.Players))
+	})
+
+	t.Run("should successfully rename the player", func(t *testing.T) {
+
+		p1.SetName("TestPlayer1")
+		p2.SetName("TestPlayer2")
+		p3.SetName("TestPlayer3")
+		p4.SetName("TestPlayer4")
+
+		assert.Equal(t, "TestPlayer1", p1.Name())
+		assert.Equal(t, "TestPlayer2", p2.Name())
+		assert.Equal(t, "TestPlayer3", p3.Name())
+		assert.Equal(t, "TestPlayer4", p4.Name())
 	})
 }
