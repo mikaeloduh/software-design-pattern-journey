@@ -1,5 +1,7 @@
 package entity
 
+import "math/rand"
+
 type Suit string
 
 const (
@@ -34,6 +36,13 @@ type Card struct {
 
 type Deck struct {
 	Cards []Card
+}
+
+func (d *Deck) Shuffle() {
+	for i := range d.Cards {
+		j := rand.Intn(i + 1)
+		d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
+	}
 }
 
 func NewDeck() *Deck {
