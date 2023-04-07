@@ -39,8 +39,18 @@ func TestNewGame(t *testing.T) {
 	})
 
 	t.Run("cards in a shuffled deck should be random ordered", func(t *testing.T) {
-		deck.Shuffle()
+		game.Init()
 
 		assert.NotEqual(t, entity.Card{Suit: entity.Spades, Rank: entity.Ace}, deck.Cards[0])
+	})
+
+	t.Run("when draw is finished, every player should have 13 hand card", func(t *testing.T) {
+		game.DrawLoop()
+
+		assert.IsType(t, entity.Card{}, p1.HandCards[0])
+		assert.Equal(t, 13, len(p1.HandCards))
+		assert.Equal(t, 13, len(p2.HandCards))
+		assert.Equal(t, 13, len(p3.HandCards))
+		assert.Equal(t, 13, len(pAI.HandCards))
 	})
 }

@@ -38,6 +38,12 @@ type Deck struct {
 	Cards []Card
 }
 
+func (d *Deck) DrawCard() Card {
+	card := d.Cards[0]
+	d.Cards = d.Cards[1:]
+	return card
+}
+
 func (d *Deck) Shuffle() {
 	for i := range d.Cards {
 		j := rand.Intn(i + 1)
