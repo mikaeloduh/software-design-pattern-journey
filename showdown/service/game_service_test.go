@@ -9,14 +9,14 @@ import (
 )
 
 func TestNewGame(t *testing.T) {
-	p1 := entity.NewPlayer(1)
-	p2 := entity.NewPlayer(2)
-	p3 := entity.NewPlayer(3)
-	p4 := entity.NewPlayer(4)
+	p1 := entity.NewHumanPlayer(1)
+	p2 := entity.NewHumanPlayer(2)
+	p3 := entity.NewHumanPlayer(3)
+	p4 := entity.NewHumanPlayer(4)
 	var deck *entity.Deck
 	var game *Game
 
-	t.Run("Test creating game with player and deck", func(t *testing.T) {
+	t.Run("Test creating game with human player and deck", func(t *testing.T) {
 		deck = entity.NewDeck()
 		game = NewGame(p1, p2, p3, p4, deck)
 

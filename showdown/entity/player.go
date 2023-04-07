@@ -1,25 +1,22 @@
 package entity
 
-type IPlayer interface {
-}
-
-type Player struct {
+type HumanPlayer struct {
 	id   int
 	name string
 }
 
-func NewPlayer(id int) *Player {
-	return &Player{id: id}
+func NewHumanPlayer(id int) *HumanPlayer {
+	return &HumanPlayer{id: id}
 }
 
-func (p *Player) Id() int {
+func (p *HumanPlayer) Id() int {
 	return p.id
 }
 
-func (p *Player) Name() string {
+func (p *HumanPlayer) Name() string {
 	return p.name
 }
 
-func (p *Player) SetName(name string) {
+func (p *HumanPlayer) SetName(name string) {
 	p.name = name
 }
