@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,12 +56,28 @@ func TestNewGame(t *testing.T) {
 		assert.Equal(t, 52-rounds*4, len(game.deck.Cards))
 	})
 
-	t.Run("Testing game over: game should be end after 13th rounds, and printout the result", func(t *testing.T) {
+	t.Run("Testing game over: game should be end after 13th rounds", func(t *testing.T) {
 		game.takeTurnLoop()
 
 		assert.Equal(t, 0, len(p1.HandCards))
 		assert.Equal(t, 0, len(p2.HandCards))
 		assert.Equal(t, 0, len(p3.HandCards))
 		assert.Equal(t, 0, len(pAI.HandCards))
+	})
+
+	t.Run("Testing game result: winner's name and points", func(t *testing.T) {
+		winner := game.gameResult()
+
+		fmt.Printf("winner: %+v\n", winner)
+
+		assert.NotEmpty(t, winner)
+		for i := range game.Players {
+			p := game.Players[i]
+			if p != winner {
+				fmt.Printf("looser: %+v\n", p)
+
+				assert.Greater(t, winner.Point(), p.Point())
+			}
+		}
 	})
 }

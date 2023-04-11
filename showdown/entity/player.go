@@ -7,6 +7,10 @@ type HumanPlayer struct {
 	point     int
 }
 
+func (p *HumanPlayer) Point() int {
+	return p.point
+}
+
 func (p *HumanPlayer) AddPoint() {
 	p.point += 1
 }

@@ -38,6 +38,18 @@ func (g *Game) takeTurnLoop() {
 	}
 }
 
+func (g *Game) gameResult() entity.IPlayer {
+	max := 0
+	var win int
+	for i, p := range g.Players {
+		if p.Point() > max {
+			max = p.Point()
+			win = i
+		}
+	}
+	return g.Players[win]
+}
+
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {
 	return &Game{
 		Players: []entity.IPlayer{p1, p2, p3, p4},

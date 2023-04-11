@@ -6,4 +6,5 @@ type IPlayer interface {
 	GetDrawCard(deck *Deck)
 	TakeTurn() Card
 	AddPoint()
+	Point() int
 }

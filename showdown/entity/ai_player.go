@@ -7,6 +7,10 @@ type AIPlayer struct {
 	point     int
 }
 
+func (ai *AIPlayer) Point() int {
+	return ai.point
+}
+
 func (ai *AIPlayer) AddPoint() {
 	ai.point += 1
 }
