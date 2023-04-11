@@ -2,13 +2,13 @@ package entity
 
 import "math/rand"
 
-type Suit string
+type Suit int
 
 const (
-	Clubs    Suit = "Clubs"
-	Diamonds Suit = "Diamonds"
-	Hearts   Suit = "Hearts"
-	Spades   Suit = "Spades"
+	Clubs    Suit = 0
+	Diamonds Suit = 1
+	Hearts   Suit = 2
+	Spades   Suit = 3
 )
 
 type Rank int
@@ -34,13 +34,23 @@ type Card struct {
 	Rank Rank
 }
 
+func (c *Card) IsGreater(other Card) bool {
+	if c.Rank > other.Rank {
+		return true
+	} else if c.Rank < other.Rank {
+		return false
+	} else {
+		if c.Suit > other.Suit {
+			return true
+		} else {
+			return false
+		}
+	}
+}
+
 type Deck struct {
 	Cards []Card
 }
-
-//func (p *HumanPlayer) FlopCard() *Card {
-//
-//}
 
 func (d *Deck) DrawCard() Card {
 	card := d.Cards[0]

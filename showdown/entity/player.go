@@ -11,7 +11,7 @@ func (p *HumanPlayer) AddPoint() {
 	p.point += 1
 }
 
-func (p *HumanPlayer) TakeTurn() *Card {
+func (p *HumanPlayer) TakeTurn() Card {
 	// 1. exchange?
 
 	// 2. show
@@ -19,7 +19,7 @@ func (p *HumanPlayer) TakeTurn() *Card {
 	showCard := p.HandCards[play]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:play], p.HandCards[play+1:]...)...)
 
-	return &showCard
+	return showCard
 }
 
 func (p *HumanPlayer) GetDrawCard(deck *Deck) {

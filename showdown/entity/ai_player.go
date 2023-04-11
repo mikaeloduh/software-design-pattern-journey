@@ -11,7 +11,7 @@ func (ai *AIPlayer) AddPoint() {
 	ai.point += 1
 }
 
-func (ai *AIPlayer) TakeTurn() *Card {
+func (ai *AIPlayer) TakeTurn() Card {
 	// 1. exchange?
 
 	// 2. show
@@ -19,7 +19,7 @@ func (ai *AIPlayer) TakeTurn() *Card {
 	showCard := ai.HandCards[play]
 	ai.HandCards = append([]Card{}, append(ai.HandCards[0:play], ai.HandCards[play+1:]...)...)
 
-	return &showCard
+	return showCard
 }
 
 func (ai *AIPlayer) Id() int {

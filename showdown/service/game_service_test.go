@@ -48,11 +48,11 @@ func TestNewGame(t *testing.T) {
 		game.DrawLoop()
 
 		assert.IsType(t, entity.Card{}, p1.HandCards[0])
-		assert.Equal(t, 13, len(p1.HandCards))
-		assert.Equal(t, 13, len(p2.HandCards))
-		assert.Equal(t, 13, len(p3.HandCards))
-		assert.Equal(t, 13, len(pAI.HandCards))
-		assert.Equal(t, 52-13*4, len(game.deck.Cards))
+		assert.Equal(t, rounds, len(p1.HandCards))
+		assert.Equal(t, rounds, len(p2.HandCards))
+		assert.Equal(t, rounds, len(p3.HandCards))
+		assert.Equal(t, rounds, len(pAI.HandCards))
+		assert.Equal(t, 52-rounds*4, len(game.deck.Cards))
 	})
 
 	t.Run("Testing game over: game should be end after 13th rounds, and printout the result", func(t *testing.T) {
@@ -64,10 +64,3 @@ func TestNewGame(t *testing.T) {
 		assert.Equal(t, 0, len(pAI.HandCards))
 	})
 }
-
-//func specifiedCard(player entity.IPlayer, cards []entity.Card) {
-//	player.
-//		player.GetDrawCard(&entity.Deck{
-//		Cards: cards,
-//	})
-//}

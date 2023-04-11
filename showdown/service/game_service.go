@@ -3,18 +3,19 @@ package service
 import "showdown/entity"
 
 type Game struct {
-	Players     []entity.IPlayer
-	deck        entity.Deck
-	MuckedCards [4]entity.Card
-	Winner      entity.IPlayer
+	Players []entity.IPlayer
+	deck    entity.Deck
+	Winner  entity.IPlayer
 }
+
+const rounds int = 13
 
 func (g *Game) Init() {
 	g.deck.Shuffle()
 }
 
 func (g *Game) DrawLoop() {
-	for i := 0; i < 13; i++ {
+	for i := 0; i < rounds; i++ {
 		g.Players[0].GetDrawCard(&g.deck)
 		g.Players[1].GetDrawCard(&g.deck)
 		g.Players[2].GetDrawCard(&g.deck)
@@ -23,14 +24,18 @@ func (g *Game) DrawLoop() {
 }
 
 func (g *Game) takeTurnLoop() {
-	g.MuckedCards = [4]entity.Card{}
-	for i := 0; i < 13; i++ {
-		_ = g.Players[0].TakeTurn()
-		_ = g.Players[1].TakeTurn()
-		_ = g.Players[2].TakeTurn()
-		_ = g.Players[3].TakeTurn()
-	}
+	muckedCards := make([]entity.Card, len(g.Players))
 
+	for i := 0; i < rounds; i++ {
+		muckedCards[0] = g.Players[0].TakeTurn()
+		muckedCards[1] = g.Players[1].TakeTurn()
+		muckedCards[2] = g.Players[2].TakeTurn()
+		muckedCards[3] = g.Players[3].TakeTurn()
+
+		win := showDown(muckedCards)
+
+		g.Players[win].AddPoint()
+	}
 }
 
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {
@@ -38,4 +43,19 @@ func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.
 		Players: []entity.IPlayer{p1, p2, p3, p4},
 		deck:    *deck,
 	}
+}
+
+func showDown(cards []entity.Card) int {
+	if len(cards) == 0 {
+		return 0
+	}
+	max := cards[0]
+	imax := 0
+	for i, card := range cards {
+		if card.IsGreater(max) {
+			max = card
+			imax = i
+		}
+	}
+	return imax
 }

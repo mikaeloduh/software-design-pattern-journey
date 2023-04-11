@@ -4,6 +4,6 @@ type IPlayer interface {
 	Id() int
 	Name() string
 	GetDrawCard(deck *Deck)
-	TakeTurn() *Card
+	TakeTurn() Card
 	AddPoint()
 }
