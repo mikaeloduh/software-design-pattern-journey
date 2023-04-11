@@ -65,7 +65,7 @@ func TestNewGame(t *testing.T) {
 		assert.Equal(t, 0, len(pAI.HandCards))
 	})
 
-	t.Run("Testing game result: winner's name and points", func(t *testing.T) {
+	t.Run("Testing game result: winner's points should be the highest one", func(t *testing.T) {
 		winner := game.gameResult()
 
 		fmt.Printf("winner: %+v\n", winner)
