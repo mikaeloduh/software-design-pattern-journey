@@ -6,8 +6,17 @@ type HumanPlayer struct {
 	HandCards []Card
 }
 
-func NewHumanPlayer(id int) *HumanPlayer {
-	return &HumanPlayer{id: id}
+func (p *HumanPlayer) TakeTurn(deck *Deck) {
+	// 1. exchange?
+
+	// 2. show
+	play := 0
+	deck.Table[p.id] = p.HandCards[play]
+	p.HandCards = append([]Card{}, append(p.HandCards[0:play], p.HandCards[play+1:]...)...)
+}
+
+func (p *HumanPlayer) GetDrawCard(deck *Deck) {
+	p.HandCards = append(p.HandCards, deck.DrawCard())
 }
 
 func (p *HumanPlayer) Id() int {
@@ -22,6 +31,6 @@ func (p *HumanPlayer) SetName(name string) {
 	p.name = name
 }
 
-func (p *HumanPlayer) GetDrawCard(deck *Deck) {
-	p.HandCards = append(p.HandCards, deck.DrawCard())
+func NewHumanPlayer(id int) *HumanPlayer {
+	return &HumanPlayer{id: id}
 }

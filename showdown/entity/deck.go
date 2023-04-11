@@ -36,7 +36,12 @@ type Card struct {
 
 type Deck struct {
 	Cards []Card
+	Table [4]Card
 }
+
+//func (p *HumanPlayer) FlopCard() *Card {
+//
+//}
 
 func (d *Deck) DrawCard() Card {
 	card := d.Cards[0]

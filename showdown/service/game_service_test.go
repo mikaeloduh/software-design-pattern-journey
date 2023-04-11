@@ -9,10 +9,10 @@ import (
 )
 
 func TestNewGame(t *testing.T) {
-	p1 := entity.NewHumanPlayer(1)
-	p2 := entity.NewHumanPlayer(2)
-	p3 := entity.NewHumanPlayer(3)
-	pAI := entity.NewAIPlayer(4)
+	p1 := entity.NewHumanPlayer(0)
+	p2 := entity.NewHumanPlayer(1)
+	p3 := entity.NewHumanPlayer(2)
+	pAI := entity.NewAIPlayer(3)
 	var deck *entity.Deck
 	var game *Game
 
@@ -52,5 +52,22 @@ func TestNewGame(t *testing.T) {
 		assert.Equal(t, 13, len(p2.HandCards))
 		assert.Equal(t, 13, len(p3.HandCards))
 		assert.Equal(t, 13, len(pAI.HandCards))
+		assert.Equal(t, 52-13*4, len(game.deck.Cards))
+	})
+
+	t.Run("Testing game over: game should be end after 13th rounds", func(t *testing.T) {
+		game.takeTurnLoop()
+
+		assert.Equal(t, 0, len(p1.HandCards))
+		assert.Equal(t, 0, len(p2.HandCards))
+		assert.Equal(t, 0, len(p3.HandCards))
+		assert.Equal(t, 0, len(pAI.HandCards))
 	})
 }
+
+//func specifiedCard(player entity.IPlayer, cards []entity.Card) {
+//	player.
+//		player.GetDrawCard(&entity.Deck{
+//		Cards: cards,
+//	})
+//}
