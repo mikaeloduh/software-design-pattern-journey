@@ -55,7 +55,7 @@ func TestNewGame(t *testing.T) {
 		assert.Equal(t, 52-13*4, len(game.deck.Cards))
 	})
 
-	t.Run("Testing game over: game should be end after 13th rounds", func(t *testing.T) {
+	t.Run("Testing game over: game should be end after 13th rounds, and printout the result", func(t *testing.T) {
 		game.takeTurnLoop()
 
 		assert.Equal(t, 0, len(p1.HandCards))

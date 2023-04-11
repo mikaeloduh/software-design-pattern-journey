@@ -4,15 +4,22 @@ type HumanPlayer struct {
 	id        int
 	name      string
 	HandCards []Card
+	point     int
 }
 
-func (p *HumanPlayer) TakeTurn(deck *Deck) {
+func (p *HumanPlayer) AddPoint() {
+	p.point += 1
+}
+
+func (p *HumanPlayer) TakeTurn() *Card {
 	// 1. exchange?
 
 	// 2. show
 	play := 0
-	deck.Table[p.id] = p.HandCards[play]
+	showCard := p.HandCards[play]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:play], p.HandCards[play+1:]...)...)
+
+	return &showCard
 }
 
 func (p *HumanPlayer) GetDrawCard(deck *Deck) {

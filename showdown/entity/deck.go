@@ -36,7 +36,6 @@ type Card struct {
 
 type Deck struct {
 	Cards []Card
-	Table [4]Card
 }
 
 //func (p *HumanPlayer) FlopCard() *Card {

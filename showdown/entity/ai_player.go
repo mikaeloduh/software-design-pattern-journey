@@ -4,15 +4,22 @@ type AIPlayer struct {
 	id        int
 	name      string
 	HandCards []Card
+	point     int
 }
 
-func (ai *AIPlayer) TakeTurn(deck *Deck) {
+func (ai *AIPlayer) AddPoint() {
+	ai.point += 1
+}
+
+func (ai *AIPlayer) TakeTurn() *Card {
 	// 1. exchange?
 
 	// 2. show
 	play := 0
-	deck.Table[ai.id] = ai.HandCards[play]
+	showCard := ai.HandCards[play]
 	ai.HandCards = append([]Card{}, append(ai.HandCards[0:play], ai.HandCards[play+1:]...)...)
+
+	return &showCard
 }
 
 func (ai *AIPlayer) Id() int {
