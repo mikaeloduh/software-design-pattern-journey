@@ -16,10 +16,10 @@ func (g *Game) Init() {
 
 func (g *Game) DrawLoop() {
 	for i := 0; i < rounds; i++ {
-		g.Players[0].GetDrawCard(&g.deck)
-		g.Players[1].GetDrawCard(&g.deck)
-		g.Players[2].GetDrawCard(&g.deck)
-		g.Players[3].GetDrawCard(&g.deck)
+		g.Players[0].GetCard(g.deck.DrawCard())
+		g.Players[1].GetCard(g.deck.DrawCard())
+		g.Players[2].GetCard(g.deck.DrawCard())
+		g.Players[3].GetCard(g.deck.DrawCard())
 	}
 }
 

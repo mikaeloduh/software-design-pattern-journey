@@ -26,8 +26,8 @@ func (p *HumanPlayer) TakeTurn() Card {
 	return showCard
 }
 
-func (p *HumanPlayer) GetDrawCard(deck *Deck) {
-	p.HandCards = append(p.HandCards, deck.DrawCard())
+func (p *HumanPlayer) GetCard(card Card) {
+	p.HandCards = append(p.HandCards, card)
 }
 
 func (p *HumanPlayer) Id() int {

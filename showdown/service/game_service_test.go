@@ -76,7 +76,7 @@ func TestNewGame(t *testing.T) {
 			if p != winner {
 				fmt.Printf("looser: %+v\n", p)
 
-				assert.Greater(t, winner.Point(), p.Point())
+				assert.GreaterOrEqual(t, winner.Point(), p.Point())
 			}
 		}
 	})

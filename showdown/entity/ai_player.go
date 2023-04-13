@@ -34,8 +34,8 @@ func (ai *AIPlayer) Name() string {
 	return ai.name
 }
 
-func (ai *AIPlayer) GetDrawCard(deck *Deck) {
-	ai.HandCards = append(ai.HandCards, deck.DrawCard())
+func (ai *AIPlayer) GetCard(card Card) {
+	ai.HandCards = append(ai.HandCards, card)
 }
 
 func NewAIPlayer(id int) *AIPlayer {
