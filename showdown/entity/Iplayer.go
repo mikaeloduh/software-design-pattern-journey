@@ -7,4 +7,6 @@ type IPlayer interface {
 	TakeTurn() Card
 	AddPoint()
 	Point() int
+	MeExchangeYourCard(player IPlayer)
+	YouExchangeMyCard(card Card) Card
 }

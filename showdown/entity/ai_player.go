@@ -7,6 +7,16 @@ type AIPlayer struct {
 	point     int
 }
 
+func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (ai *AIPlayer) YouExchangeMyCard(card Card) Card {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (ai *AIPlayer) Point() int {
 	return ai.point
 }
@@ -16,9 +26,9 @@ func (ai *AIPlayer) AddPoint() {
 }
 
 func (ai *AIPlayer) TakeTurn() Card {
-	// 1. exchange?
+	// TODO: 1. exchange?
 
-	// 2. show
+	// 2. Show card
 	play := 0
 	showCard := ai.HandCards[play]
 	ai.HandCards = append([]Card{}, append(ai.HandCards[0:play], ai.HandCards[play+1:]...)...)

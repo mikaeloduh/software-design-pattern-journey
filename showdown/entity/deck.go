@@ -14,8 +14,8 @@ const (
 type Rank int
 
 const (
-	Ace   Rank = 1
-	Two   Rank = 2
+	Ace   Rank = 14
+	Two   Rank = 15
 	Three Rank = 3
 	Four  Rank = 4
 	Five  Rank = 5
@@ -68,7 +68,7 @@ func (d *Deck) Shuffle() {
 func NewDeck() *Deck {
 	deck := Deck{}
 	for _, suit := range []Suit{Spades, Hearts, Diamonds, Clubs} {
-		for rank := Ace; rank <= King; rank++ {
+		for rank := Three; rank <= Two; rank++ {
 			deck.Cards = append(deck.Cards, Card{Rank: rank, Suit: suit})
 		}
 	}

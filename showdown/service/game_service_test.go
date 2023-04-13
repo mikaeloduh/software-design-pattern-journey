@@ -9,7 +9,7 @@ import (
 	"showdown/entity"
 )
 
-func TestNewGame(t *testing.T) {
+func TestRunAGamePeacefully(t *testing.T) {
 	p1 := entity.NewHumanPlayer(0)
 	p2 := entity.NewHumanPlayer(1)
 	p3 := entity.NewHumanPlayer(2)
@@ -23,9 +23,7 @@ func TestNewGame(t *testing.T) {
 
 		assert.IsType(t, &Game{}, game)
 		assert.Equal(t, 4, len(game.Players))
-
 		assert.Equal(t, 52, len(deck.Cards))
-		assert.Equal(t, entity.Card{Suit: entity.Spades, Rank: entity.Ace}, deck.Cards[0])
 	})
 
 	t.Run("should successfully rename the human player", func(t *testing.T) {
@@ -41,8 +39,11 @@ func TestNewGame(t *testing.T) {
 
 	t.Run("cards in a shuffled deck should be random ordered", func(t *testing.T) {
 		game.Init()
+		c1 := game.deck.Cards[0]
+		game.Init()
+		c2 := game.deck.Cards[0]
 
-		assert.NotEqual(t, entity.Card{Suit: entity.Spades, Rank: entity.Ace}, deck.Cards[0])
+		assert.NotEqual(t, c1, c2)
 	})
 
 	t.Run("when draw is finished, every player should have 13 hand card", func(t *testing.T) {
@@ -79,5 +80,39 @@ func TestNewGame(t *testing.T) {
 				assert.GreaterOrEqual(t, winner.Point(), p.Point())
 			}
 		}
+	})
+}
+
+func TestRunAGameBloodily(t *testing.T) {
+	p1 := entity.NewHumanPlayer(0)
+	p2 := entity.NewHumanPlayer(1)
+	p3 := entity.NewHumanPlayer(2)
+	p4 := entity.NewHumanPlayer(3)
+	var deck *entity.Deck
+	var game *Game
+
+	t.Run("Test creating game with human player, AI player, and new deck", func(t *testing.T) {
+		deck = entity.NewDeck()
+		game = NewGame(p1, p2, p3, p4, deck)
+
+		assert.IsType(t, &Game{}, game)
+		assert.Equal(t, 4, len(game.Players))
+
+		assert.Equal(t, 52, len(deck.Cards))
+	})
+
+	t.Run("testing exchange cards: two cards should be exchanged from a player to another", func(t *testing.T) {
+		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
+		diamondThree := entity.Card{Suit: entity.Diamonds, Rank: entity.Three}
+		game.Players[0].GetCard(bigBlackTwo)
+		game.Players[1].GetCard(diamondThree)
+
+		assert.Equal(t, bigBlackTwo, p1.HandCards[0])
+		assert.Equal(t, diamondThree, p2.HandCards[0])
+
+		p1.MeExchangeYourCard(p2)
+
+		assert.Equal(t, diamondThree, p1.HandCards[0])
+		assert.Equal(t, bigBlackTwo, p2.HandCards[0])
 	})
 }

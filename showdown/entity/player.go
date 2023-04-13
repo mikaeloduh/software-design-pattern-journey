@@ -7,6 +7,23 @@ type HumanPlayer struct {
 	point     int
 }
 
+func (p *HumanPlayer) YouExchangeMyCard(card Card) Card {
+	// TODO: Choose a card
+	myCard := p.HandCards[0]
+	p.HandCards[0] = card
+
+	return myCard
+}
+
+func (p *HumanPlayer) MeExchangeYourCard(player IPlayer) {
+	// TODO: Choose a card
+	c := p.HandCards[0]
+
+	// Exchange it
+	ex := player.YouExchangeMyCard(c)
+	p.HandCards[0] = ex
+}
+
 func (p *HumanPlayer) Point() int {
 	return p.point
 }
