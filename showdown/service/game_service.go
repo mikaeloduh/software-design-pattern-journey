@@ -1,6 +1,9 @@
 package service
 
-import "showdown/entity"
+import (
+	"fmt"
+	"showdown/entity"
+)
 
 type Game struct {
 	Players []entity.IPlayer
@@ -27,10 +30,11 @@ func (g *Game) takeTurnLoop() {
 	muckedCards := make([]entity.Card, len(g.Players))
 
 	for i := 0; i < rounds; i++ {
-		muckedCards[0] = g.Players[0].TakeTurn()
-		muckedCards[1] = g.Players[1].TakeTurn()
-		muckedCards[2] = g.Players[2].TakeTurn()
-		muckedCards[3] = g.Players[3].TakeTurn()
+		fmt.Printf("==Round %d ==\n", i)
+		muckedCards[0] = g.Players[0].TakeTurn(g.Players)
+		muckedCards[1] = g.Players[1].TakeTurn(g.Players)
+		muckedCards[2] = g.Players[2].TakeTurn(g.Players)
+		muckedCards[3] = g.Players[3].TakeTurn(g.Players)
 
 		win := showDown(muckedCards)
 

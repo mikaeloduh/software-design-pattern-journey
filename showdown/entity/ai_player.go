@@ -1,5 +1,10 @@
 package entity
 
+import (
+	"errors"
+	"fmt"
+)
+
 type AIPlayer struct {
 	id        int
 	name      string
@@ -7,14 +12,35 @@ type AIPlayer struct {
 	point     int
 }
 
-func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) error {
-	//TODO implement me
-	panic("implement me")
+func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
+	if len(ai.HandCards) < 1 {
+		fmt.Printf("AI %d us fucking up", ai.id)
+		return Card{}, errors.New(fmt.Sprintf("AI %d does not have enough cards to proceed with the exchange.", ai.id))
+	}
+
+	// TODO: Choose a card input
+	myCard := ai.HandCards[0]
+	ai.HandCards[0] = card
+
+	return myCard, nil
 }
 
-func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
-	//TODO implement me
-	panic("implement me")
+func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) error {
+	if len(ai.HandCards) < 1 {
+		fmt.Println("yr fucking up")
+		return errors.New(fmt.Sprintf("Player %d (AI) does not have enough cards to proceed with the exchange.", ai.id))
+	}
+
+	// TODO: Choose a card input
+	c := ai.HandCards[0]
+
+	ex, err := player.YouExchangeMyCard(c)
+	if err != nil {
+		return err
+	}
+	ai.HandCards[0] = ex
+
+	return nil
 }
 
 func (ai *AIPlayer) Point() int {
@@ -25,7 +51,7 @@ func (ai *AIPlayer) AddPoint() {
 	ai.point += 1
 }
 
-func (ai *AIPlayer) TakeTurn() Card {
+func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 	// TODO: 1. exchange?
 
 	// 2. Show card

@@ -4,7 +4,7 @@ type IPlayer interface {
 	Id() int
 	Name() string
 	GetCard(card Card)
-	TakeTurn() Card
+	TakeTurn(players []IPlayer) Card
 	AddPoint()
 	Point() int
 	MeExchangeYourCard(player IPlayer) error
