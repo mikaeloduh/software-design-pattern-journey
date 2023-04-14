@@ -7,12 +7,12 @@ type AIPlayer struct {
 	point     int
 }
 
-func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) {
+func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (ai *AIPlayer) YouExchangeMyCard(card Card) Card {
+func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	//TODO implement me
 	panic("implement me")
 }

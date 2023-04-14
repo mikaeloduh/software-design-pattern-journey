@@ -104,8 +104,8 @@ func TestRunAGameBloodily(t *testing.T) {
 	t.Run("testing exchange cards: two cards should be exchanged from a player to another", func(t *testing.T) {
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
 		diamondThree := entity.Card{Suit: entity.Diamonds, Rank: entity.Three}
-		game.Players[0].GetCard(bigBlackTwo)
-		game.Players[1].GetCard(diamondThree)
+		p1.GetCard(bigBlackTwo)
+		p2.GetCard(diamondThree)
 
 		assert.Equal(t, bigBlackTwo, p1.HandCards[0])
 		assert.Equal(t, diamondThree, p2.HandCards[0])
@@ -114,5 +114,18 @@ func TestRunAGameBloodily(t *testing.T) {
 
 		assert.Equal(t, diamondThree, p1.HandCards[0])
 		assert.Equal(t, bigBlackTwo, p2.HandCards[0])
+	})
+
+	t.Run("testing exchange cards: exchange card should not proceed if player has run out of hand cards", func(t *testing.T) {
+		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
+		p3.GetCard(bigBlackTwo)
+
+		assert.Equal(t, bigBlackTwo, p3.HandCards[0])
+		assert.Empty(t, p4.HandCards)
+
+		p3.MeExchangeYourCard(p4)
+
+		assert.Equal(t, bigBlackTwo, p3.HandCards[0])
+		assert.Empty(t, p4.HandCards)
 	})
 }

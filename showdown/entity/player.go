@@ -1,5 +1,7 @@
 package entity
 
+import "errors"
+
 type HumanPlayer struct {
 	id        int
 	name      string
@@ -7,21 +9,33 @@ type HumanPlayer struct {
 	point     int
 }
 
-func (p *HumanPlayer) YouExchangeMyCard(card Card) Card {
+func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
+	if len(p.HandCards) < 1 {
+		return Card{}, errors.New("not enough card")
+	}
+
 	// TODO: Choose a card
 	myCard := p.HandCards[0]
 	p.HandCards[0] = card
 
-	return myCard
+	return myCard, nil
 }
 
-func (p *HumanPlayer) MeExchangeYourCard(player IPlayer) {
+func (p *HumanPlayer) MeExchangeYourCard(player IPlayer) error {
+	if len(p.HandCards) < 1 {
+		return errors.New("not enough card")
+	}
+
 	// TODO: Choose a card
 	c := p.HandCards[0]
 
-	// Exchange it
-	ex := player.YouExchangeMyCard(c)
+	ex, err := player.YouExchangeMyCard(c)
+	if err != nil {
+		return errors.New("not enough card")
+	}
 	p.HandCards[0] = ex
+
+	return nil
 }
 
 func (p *HumanPlayer) Point() int {
