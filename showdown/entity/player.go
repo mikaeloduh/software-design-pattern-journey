@@ -17,15 +17,29 @@ type HumanPlayer struct {
 	who          IPlayer
 }
 
+func (p *HumanPlayer) inputBool() bool {
+	// TODO: stdin
+	rand.Seed(time.Now().UnixNano())
+
+	return rand.Intn(2) == 1
+}
+
+func (p *HumanPlayer) inputNum(min int, max int) int {
+	// TODO: stdin
+	rand.Seed(time.Now().UnixNano())
+
+	return min + rand.Intn(max-min+1)
+}
+
 func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	if len(p.HandCards) < 1 {
 		fmt.Printf("Player %d us fucking up", p.id)
 		return Card{}, errors.New(fmt.Sprintf("Player %d does not have enough cards to proceed with the exchange.", p.id))
 	}
 
-	// TODO: Choose a card input
-	myCard := p.HandCards[0]
-	p.HandCards[0] = card
+	toPlay := p.inputNum(0, len(p.HandCards)-1)
+	myCard := p.HandCards[toPlay]
+	p.HandCards[toPlay] = card
 
 	return myCard, nil
 }
@@ -36,14 +50,14 @@ func (p *HumanPlayer) MeExchangeYourCard(player IPlayer) error {
 		return errors.New(fmt.Sprintf("Player %d (You) does not have enough cards to proceed with the exchange.", p.id))
 	}
 
-	// TODO: Choose a card input
-	c := p.HandCards[0]
+	toPlay := p.inputNum(0, len(p.HandCards)-1)
+	c := p.HandCards[toPlay]
 
 	ex, err := player.YouExchangeMyCard(c)
 	if err != nil {
 		return err
 	}
-	p.HandCards[0] = ex
+	p.HandCards[toPlay] = ex
 
 	return nil
 }
@@ -57,16 +71,17 @@ func (p *HumanPlayer) AddPoint() {
 }
 
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
-	// 1. exchange?
 	fmt.Printf("Player %d taking turn...\n", p.id)
 
+	// 1. exchange
 	if !p.usedExchange {
-		wantExchange := randomBool() // TODO: input
+		wantExchange := p.inputBool() // TODO: inputNum
 		if wantExchange {
 			var toExchangeCard func()
 			toExchangeCard = func() {
 				fmt.Println("before exchange")
-				p.who = players[(p.id+1)%4] // TODO: input
+				toExchange := p.inputNum(0, 3)
+				p.who = players[toExchange]
 				if err := p.MeExchangeYourCard(p.who); err != nil {
 					fmt.Println("try another exchange")
 					toExchangeCard()
@@ -84,7 +99,7 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	}
 
 	// 2. show
-	toPlay := 0 // TODO: input
+	toPlay := p.inputNum(0, len(p.HandCards)-1)
 	showCard := p.HandCards[toPlay]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)
 
@@ -109,10 +124,4 @@ func (p *HumanPlayer) SetName(name string) {
 
 func NewHumanPlayer(id int) *HumanPlayer {
 	return &HumanPlayer{id: id, count: 3, usedExchange: false}
-}
-
-func randomBool() bool {
-	rand.Seed(time.Now().UnixNano())
-
-	return rand.Intn(2) == 1
 }

@@ -2,9 +2,8 @@ package service
 
 import (
 	"fmt"
-	"testing"
-
 	"github.com/stretchr/testify/assert"
+	"testing"
 
 	"showdown/entity"
 )
@@ -96,7 +95,7 @@ func TestRunAGameBloodily(t *testing.T) {
 		assert.Equal(t, bigBlackTwo, p1.HandCards[0])
 		assert.Equal(t, diamondThree, p2.HandCards[0])
 
-		p1.MeExchangeYourCard(p2)
+		_ = p1.MeExchangeYourCard(p2)
 
 		assert.Equal(t, diamondThree, p1.HandCards[0])
 		assert.Equal(t, bigBlackTwo, p2.HandCards[0])
@@ -112,7 +111,7 @@ func TestRunAGameBloodily(t *testing.T) {
 		assert.Equal(t, bigBlackTwo, p3.HandCards[0])
 		assert.Empty(t, p4.HandCards)
 
-		p3.MeExchangeYourCard(p4)
+		_ = p3.MeExchangeYourCard(p4)
 
 		assert.Equal(t, bigBlackTwo, p3.HandCards[0])
 		assert.Empty(t, p4.HandCards)
