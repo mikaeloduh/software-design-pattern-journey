@@ -13,11 +13,18 @@ type Game struct {
 
 const rounds int = 13
 
-func (g *Game) Init() {
+func (g *Game) Run() {
+	g.init()
+	g.drawLoop()
+	g.takeTurnLoop()
+	g.gameResult()
+}
+
+func (g *Game) init() {
 	g.Deck.Shuffle()
 }
 
-func (g *Game) DrawLoop() {
+func (g *Game) drawLoop() {
 	for i := 0; i < rounds; i++ {
 		g.Players[0].GetCard(g.Deck.DrawCard())
 		g.Players[1].GetCard(g.Deck.DrawCard())
