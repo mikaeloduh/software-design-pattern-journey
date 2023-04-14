@@ -3,20 +3,22 @@ package service
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"testing"
+	"time"
 
 	"showdown/entity"
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
-	p1 := entity.NewHumanPlayer(0)
-	p2 := entity.NewHumanPlayer(1)
-	p3 := entity.NewHumanPlayer(2)
-	pAI := entity.NewAIPlayer(3)
+	p1 := entity.NewHumanPlayer(0, MockInput{})
+	p2 := entity.NewHumanPlayer(1, MockInput{})
+	p3 := entity.NewHumanPlayer(2, MockInput{})
+	pAI := entity.NewAIPlayer(3, MockInput{})
 	var deck *entity.Deck
 	var game *Game
 
-	t.Run("Test creating game with human player, AI player, and new deck", func(t *testing.T) {
+	t.Run("Test creating game with human player, AI player, and new Deck", func(t *testing.T) {
 		deck = entity.NewDeck()
 		game = NewGame(p1, p2, p3, pAI, deck)
 
@@ -36,11 +38,11 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.Equal(t, "AI has no name", pAI.Name())
 	})
 
-	t.Run("cards in a shuffled deck should be random ordered", func(t *testing.T) {
+	t.Run("cards in a shuffled Deck should be random ordered", func(t *testing.T) {
 		game.Init()
-		c1 := game.deck.Cards[0]
+		c1 := game.Deck.Cards[0]
 		game.Init()
-		c2 := game.deck.Cards[0]
+		c2 := game.Deck.Cards[0]
 
 		assert.NotEqual(t, c1, c2)
 	})
@@ -53,7 +55,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.Equal(t, rounds, len(p2.HandCards))
 		assert.Equal(t, rounds, len(p3.HandCards))
 		assert.Equal(t, rounds, len(pAI.HandCards))
-		assert.Equal(t, 52-rounds*4, len(game.deck.Cards))
+		assert.Equal(t, 52-rounds*4, len(game.Deck.Cards))
 	})
 
 	t.Run("Testing game over: game should be end after 13th rounds", func(t *testing.T) {
@@ -85,8 +87,8 @@ func TestRunAGamePeacefully(t *testing.T) {
 func TestRunAGameBloodily(t *testing.T) {
 
 	t.Run("testing exchange cards: two cards should be exchanged from a player to another", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(0)
-		p2 := entity.NewHumanPlayer(1)
+		p1 := entity.NewHumanPlayer(0, MockInput{})
+		p2 := entity.NewHumanPlayer(1, MockInput{})
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
 		diamondThree := entity.Card{Suit: entity.Diamonds, Rank: entity.Three}
 		p1.GetCard(bigBlackTwo)
@@ -103,8 +105,8 @@ func TestRunAGameBloodily(t *testing.T) {
 
 	t.Run("testing exchange cards: exchange card should not proceed if player has run out of hand cards", func(t *testing.T) {
 
-		p3 := entity.NewHumanPlayer(2)
-		p4 := entity.NewHumanPlayer(3)
+		p3 := entity.NewHumanPlayer(2, MockInput{})
+		p4 := entity.NewHumanPlayer(3, MockInput{})
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
 		p3.GetCard(bigBlackTwo)
 
@@ -118,10 +120,10 @@ func TestRunAGameBloodily(t *testing.T) {
 	})
 
 	t.Run("test takeTurnLoop with exchange step and have no problem", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(0)
-		p2 := entity.NewHumanPlayer(1)
-		p3 := entity.NewHumanPlayer(2)
-		p4 := entity.NewHumanPlayer(3)
+		p1 := entity.NewHumanPlayer(0, MockInput{})
+		p2 := entity.NewHumanPlayer(1, MockInput{})
+		p3 := entity.NewHumanPlayer(2, MockInput{})
+		p4 := entity.NewHumanPlayer(3, MockInput{})
 		deck := entity.NewDeck()
 		game := NewGame(p1, p2, p3, p4, deck)
 
@@ -148,4 +150,18 @@ func TestRunAGameBloodily(t *testing.T) {
 			}
 		}
 	})
+}
+
+type MockInput struct{}
+
+func (i MockInput) InputNum(min int, max int) int {
+	rand.Seed(time.Now().UnixNano())
+
+	return min + rand.Intn(max-min+1)
+}
+
+func (i MockInput) InputBool() bool {
+	rand.Seed(time.Now().UnixNano())
+
+	return rand.Intn(2) == 1
 }

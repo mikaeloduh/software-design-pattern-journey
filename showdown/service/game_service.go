@@ -7,22 +7,22 @@ import (
 
 type Game struct {
 	Players []entity.IPlayer
-	deck    entity.Deck
+	Deck    entity.Deck
 	Winner  entity.IPlayer
 }
 
 const rounds int = 13
 
 func (g *Game) Init() {
-	g.deck.Shuffle()
+	g.Deck.Shuffle()
 }
 
 func (g *Game) DrawLoop() {
 	for i := 0; i < rounds; i++ {
-		g.Players[0].GetCard(g.deck.DrawCard())
-		g.Players[1].GetCard(g.deck.DrawCard())
-		g.Players[2].GetCard(g.deck.DrawCard())
-		g.Players[3].GetCard(g.deck.DrawCard())
+		g.Players[0].GetCard(g.Deck.DrawCard())
+		g.Players[1].GetCard(g.Deck.DrawCard())
+		g.Players[2].GetCard(g.Deck.DrawCard())
+		g.Players[3].GetCard(g.Deck.DrawCard())
 	}
 }
 
@@ -57,10 +57,11 @@ func (g *Game) gameResult() entity.IPlayer {
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {
 	return &Game{
 		Players: []entity.IPlayer{p1, p2, p3, p4},
-		deck:    *deck,
+		Deck:    *deck,
 	}
 }
 
+// helper
 func showDown(cards []entity.Card) int {
 	if len(cards) == 0 {
 		return 0

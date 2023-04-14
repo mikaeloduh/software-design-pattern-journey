@@ -3,41 +3,28 @@ package entity
 import (
 	"errors"
 	"fmt"
-	"math/rand"
-	"time"
 )
 
 type HumanPlayer struct {
-	id           int
-	name         string
-	HandCards    []Card
-	point        int
-	usedExchange bool
-	count        int
-	who          IPlayer
-}
-
-func (p *HumanPlayer) inputBool() bool {
-	// TODO: stdin
-	rand.Seed(time.Now().UnixNano())
-
-	return rand.Intn(2) == 1
-}
-
-func (p *HumanPlayer) inputNum(min int, max int) int {
-	// TODO: stdin
-	rand.Seed(time.Now().UnixNano())
-
-	return min + rand.Intn(max-min+1)
+	id              int
+	name            string
+	HandCards       []Card
+	point           int
+	usedExchange    bool
+	count           int
+	whoExchangeWith IPlayer
+	Input
 }
 
 func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	if len(p.HandCards) < 1 {
-		fmt.Printf("Player %d us fucking up", p.id)
-		return Card{}, errors.New(fmt.Sprintf("Player %d does not have enough cards to proceed with the exchange.", p.id))
+		err := errors.New(fmt.Sprintf("Player %d does not have enough cards to proceed with the exchange.", p.id))
+		fmt.Printf("Error: %v", err)
+		return Card{}, err
 	}
 
-	toPlay := p.inputNum(0, len(p.HandCards)-1)
+	fmt.Printf("Select your card to exchange: ")
+	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	myCard := p.HandCards[toPlay]
 	p.HandCards[toPlay] = card
 
@@ -46,11 +33,13 @@ func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 
 func (p *HumanPlayer) MeExchangeYourCard(player IPlayer) error {
 	if len(p.HandCards) < 1 {
-		fmt.Println("yr fucking up")
-		return errors.New(fmt.Sprintf("Player %d (You) does not have enough cards to proceed with the exchange.", p.id))
+		err := errors.New(fmt.Sprintf("Player %d (You) does not have enough cards to proceed with the exchange.", p.id))
+		fmt.Printf("Error: %v", err)
+		return err
 	}
 
-	toPlay := p.inputNum(0, len(p.HandCards)-1)
+	fmt.Printf("Select your card to exchange: ")
+	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	c := p.HandCards[toPlay]
 
 	ex, err := player.YouExchangeMyCard(c)
@@ -71,19 +60,16 @@ func (p *HumanPlayer) AddPoint() {
 }
 
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("Player %d taking turn...\n", p.id)
+	fmt.Printf("Player %d is taking turn...\n", p.id)
 
 	// 1. exchange
 	if !p.usedExchange {
-		wantExchange := p.inputBool() // TODO: inputNum
-		if wantExchange {
+		fmt.Printf("Exchange or not? (Y/N)")
+		if p.InputBool() {
 			var toExchangeCard func()
 			toExchangeCard = func() {
-				fmt.Println("before exchange")
-				toExchange := p.inputNum(0, 3)
-				p.who = players[toExchange]
-				if err := p.MeExchangeYourCard(p.who); err != nil {
-					fmt.Println("try another exchange")
+				p.whoExchangeWith = players[p.InputNum(0, 3)]
+				if err := p.MeExchangeYourCard(p.whoExchangeWith); err != nil {
 					toExchangeCard()
 				}
 			}
@@ -93,13 +79,14 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	} else {
 		p.count--
 		if p.count == 0 {
-			fmt.Println("before exchange back")
-			_ = p.MeExchangeYourCard(p.who)
+			fmt.Println("Exchange back")
+			_ = p.MeExchangeYourCard(p.whoExchangeWith)
 		}
 	}
 
 	// 2. show
-	toPlay := p.inputNum(0, len(p.HandCards)-1)
+	fmt.Printf("Select your card to show: ")
+	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	showCard := p.HandCards[toPlay]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)
 
@@ -122,6 +109,6 @@ func (p *HumanPlayer) SetName(name string) {
 	p.name = name
 }
 
-func NewHumanPlayer(id int) *HumanPlayer {
-	return &HumanPlayer{id: id, count: 3, usedExchange: false}
+func NewHumanPlayer(id int, input Input) *HumanPlayer {
+	return &HumanPlayer{id: id, count: 3, usedExchange: false, Input: input}
 }
