@@ -111,7 +111,7 @@ func (p *HumanPlayer) SetName(name string) {
 }
 
 func (p *HumanPlayer) ReName() {
-	fmt.Printf("Player %d enter you name: ", p.id)
+	fmt.Printf("Player %d please enter your name: ", p.id)
 	p.SetName(p.InputString())
 }
 
