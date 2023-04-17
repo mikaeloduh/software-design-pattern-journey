@@ -1,6 +1,9 @@
 package entity
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 type Suit int
 
@@ -46,6 +49,50 @@ func (c *Card) IsGreater(other Card) bool {
 			return false
 		}
 	}
+}
+
+func (c *Card) String() string {
+	var suitName string
+	switch c.Suit {
+	case Clubs:
+		suitName = "♠"
+	case Diamonds:
+		suitName = "♦"
+	case Hearts:
+		suitName = "♥"
+	case Spades:
+		suitName = "♣"
+	}
+	var rankName string
+	switch c.Rank {
+	case Ace:
+		rankName = "A"
+	case Two:
+		rankName = "2"
+	case Three:
+		rankName = "3"
+	case Four:
+		rankName = "4"
+	case Five:
+		rankName = "5"
+	case Six:
+		rankName = "6"
+	case Seven:
+		rankName = "7"
+	case Eight:
+		rankName = "8"
+	case Nine:
+		rankName = "9"
+	case Ten:
+		rankName = "10"
+	case Jack:
+		rankName = "J"
+	case Queen:
+		rankName = "Q"
+	case King:
+		rankName = "K"
+	}
+	return fmt.Sprintf("%s %s", rankName, suitName)
 }
 
 type Deck struct {

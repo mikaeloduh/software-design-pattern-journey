@@ -15,7 +15,7 @@ func main() {
 	p1 := entity.NewHumanPlayer(userId1, entity.UserInput{})
 	p2 := entity.NewHumanPlayer(userId2, entity.UserInput{})
 	p3 := entity.NewHumanPlayer(userId3, entity.UserInput{})
-	p4 := entity.NewHumanPlayer(userId4, entity.AIInput{})
+	p4 := entity.NewAIPlayer(userId4, entity.AIInput{})
 	deck := entity.NewDeck()
 
 	game := service.NewGame(p1, p2, p3, p4, deck)

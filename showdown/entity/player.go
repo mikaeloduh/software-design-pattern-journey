@@ -23,7 +23,7 @@ func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 		return Card{}, err
 	}
 
-	fmt.Printf("Select your card to exchange: ")
+	fmt.Printf("Player %s, please select your card to exchange back: ", p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	myCard := p.HandCards[toPlay]
 	p.HandCards[toPlay] = card
@@ -31,18 +31,18 @@ func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	return myCard, nil
 }
 
-func (p *HumanPlayer) MeExchangeYourCard(player IPlayer) error {
+func (p *HumanPlayer) MeExchangeYourCard(otherPlayer IPlayer) error {
 	if len(p.HandCards) < 1 {
-		err := errors.New(fmt.Sprintf("Player %d (You) does not have enough cards to proceed with the exchange.", p.id))
+		err := errors.New(fmt.Sprintf("Player %d (You) don't have enough cards to proceed with the exchange.", p.id))
 		fmt.Printf("Error: %v", err)
 		return err
 	}
 
-	fmt.Printf("Select your card to exchange: ")
+	fmt.Printf("Please select your card to exchange: ")
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	c := p.HandCards[toPlay]
 
-	ex, err := player.YouExchangeMyCard(c)
+	ex, err := otherPlayer.YouExchangeMyCard(c)
 	if err != nil {
 		return err
 	}
@@ -60,14 +60,15 @@ func (p *HumanPlayer) AddPoint() {
 }
 
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("Player %d is taking turn...\n", p.id)
+	fmt.Printf("\n* Now is player %s 's turn.\n", p.name)
 
 	// 1. exchange
 	if !p.usedExchange {
-		fmt.Printf("Exchange or not? (Y/N)")
+		fmt.Printf("Player %s, do you want to exchange hand card? ", p.name)
 		if p.InputBool() {
 			var toExchangeCard func()
 			toExchangeCard = func() {
+				fmt.Printf("Which player do you want to exchange cards with? ")
 				p.whoExchangeWith = players[p.InputNum(0, 3)]
 				if err := p.MeExchangeYourCard(p.whoExchangeWith); err != nil {
 					toExchangeCard()
@@ -85,7 +86,7 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	}
 
 	// 2. show
-	fmt.Printf("Select your card to show: ")
+	fmt.Printf("Player %s, please select a card to show ", p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	showCard := p.HandCards[toPlay]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)

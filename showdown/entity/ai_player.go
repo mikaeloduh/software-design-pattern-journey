@@ -23,7 +23,7 @@ func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
 		return Card{}, err
 	}
 
-	fmt.Printf("AI is selection card...")
+	fmt.Printf("Player (AI) is selecting card...\n")
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	myCard := ai.HandCards[toPlay]
 	ai.HandCards[toPlay] = card
@@ -38,7 +38,7 @@ func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) error {
 		return err
 	}
 
-	fmt.Printf("AI is selection card...")
+	fmt.Printf("Player (AI) is selecting card...\n")
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	c := ai.HandCards[toPlay]
 
@@ -60,15 +60,16 @@ func (ai *AIPlayer) AddPoint() {
 }
 
 func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("Player %d (AI) is taking turn...\n", ai.id)
+	fmt.Printf("\n* Now is Player %d (AI) 's turn.\n", ai.id)
 
 	// 1. exchange?
 	if !ai.usedExchange {
 		if ai.InputBool() {
-			fmt.Printf("Player %d (AI) want to exchange card ", ai.id)
+			fmt.Printf("Player %d (AI) wants to exchange card \n", ai.id)
 			var toExchangeCard func()
 			toExchangeCard = func() {
 				ai.whoExchangeWith = players[ai.InputNum(0, 3)]
+				fmt.Printf("Player %d (AI) wants to exchange card with player %s \n", ai.id, ai.whoExchangeWith.Name())
 				if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
 					toExchangeCard()
 				}
@@ -85,7 +86,7 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 	}
 
 	// 2. Show card
-	fmt.Printf("AI is selecting card to show...")
+	fmt.Printf("Player (AI) is selecting card to show...\n")
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	showCard := ai.HandCards[toPlay]
 	ai.HandCards = append([]Card{}, append(ai.HandCards[0:toPlay], ai.HandCards[toPlay+1:]...)...)
