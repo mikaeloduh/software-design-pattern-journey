@@ -102,6 +102,13 @@ func (ai *AIPlayer) Name() string {
 	return ai.name
 }
 
+func (ai *AIPlayer) SetName(name string) {
+}
+
+func (ai *AIPlayer) ReName() {
+	fmt.Println("You cannot name an AI.")
+}
+
 func (ai *AIPlayer) GetCard(card Card) {
 	ai.HandCards = append(ai.HandCards, card)
 }

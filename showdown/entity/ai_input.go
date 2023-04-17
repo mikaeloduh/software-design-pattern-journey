@@ -7,6 +7,11 @@ import (
 
 type AIInput struct{}
 
+func (i AIInput) InputString() string {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (AIInput) InputNum(min int, max int) int {
 	rand.Seed(time.Now().UnixNano())
 

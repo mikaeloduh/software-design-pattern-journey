@@ -14,6 +14,7 @@ const rounds int = 13
 
 func (g *Game) Run() {
 	g.init()
+	g.renamePlayer()
 	g.drawLoop()
 	g.takeTurnLoop()
 	g.gameResult()
@@ -21,6 +22,12 @@ func (g *Game) Run() {
 
 func (g *Game) init() {
 	g.Deck.Shuffle()
+}
+
+func (g *Game) renamePlayer() {
+	for i := range g.Players {
+		g.Players[i].ReName()
+	}
 }
 
 func (g *Game) drawLoop() {

@@ -148,6 +148,10 @@ func TestRunAGameBloodily(t *testing.T) {
 
 type MockInput struct{}
 
+func (i MockInput) InputString() string {
+	return "TestString"
+}
+
 func (i MockInput) InputNum(min int, max int) int {
 	rand.Seed(time.Now().UnixNano())
 

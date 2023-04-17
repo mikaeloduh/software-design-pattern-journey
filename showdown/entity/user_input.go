@@ -11,6 +11,13 @@ import (
 
 type UserInput struct{}
 
+func (i UserInput) InputString() string {
+	reader := bufio.NewScanner(os.Stdin)
+	reader.Scan()
+
+	return strings.TrimSpace(reader.Text())
+}
+
 func (i UserInput) InputNum(min int, max int) int {
 	fmt.Print("(", min, " ~ ", max, ")")
 
