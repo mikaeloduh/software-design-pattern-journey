@@ -7,8 +7,7 @@ import (
 
 type Game struct {
 	Players []entity.IPlayer
-	Deck    entity.Deck
-	Winner  entity.IPlayer
+	Deck    *entity.Deck
 }
 
 const rounds int = 13
@@ -66,7 +65,7 @@ func (g *Game) gameResult() entity.IPlayer {
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {
 	return &Game{
 		Players: []entity.IPlayer{p1, p2, p3, p4},
-		Deck:    *deck,
+		Deck:    deck,
 	}
 }
 

@@ -24,7 +24,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 
 		assert.IsType(t, &Game{}, game)
 		assert.Equal(t, 4, len(game.Players))
-		assert.Equal(t, 52, len(deck.Cards))
+		assert.Equal(t, 52, len(game.Deck.Cards))
 	})
 
 	t.Run("should successfully rename the human player", func(t *testing.T) {
