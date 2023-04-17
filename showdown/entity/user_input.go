@@ -13,18 +13,23 @@ type UserInput struct{}
 
 func (i UserInput) InputString() string {
 	reader := bufio.NewScanner(os.Stdin)
-	reader.Scan()
 
-	return strings.TrimSpace(reader.Text())
+	for {
+		reader.Scan()
+		text := strings.TrimSpace(reader.Text())
+		if text != "" {
+			return text
+		}
+		fmt.Print("Invalid input. Please enter a non-empty string: ")
+	}
 }
 
 func (i UserInput) InputNum(min int, max int) int {
-	fmt.Print("(", min, " ~ ", max, ")")
+	fmt.Print("(", min, " ~ ", max, "): ")
 
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print(": ")
 		input, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
@@ -33,12 +38,12 @@ func (i UserInput) InputNum(min int, max int) int {
 		input = strings.TrimSpace(input)
 		num, err := strconv.Atoi(input)
 		if err != nil {
-			fmt.Print("Invalid input. Please enter a number")
+			fmt.Print("Invalid input. Please enter a number: ")
 			continue
 		}
 
 		if num < min || num > max {
-			fmt.Print("Invalid input. Number must be between ", min, " and ", max)
+			fmt.Print("Invalid input. Number must be between ", min, " and ", max, ": ")
 			continue
 		}
 
@@ -47,12 +52,11 @@ func (i UserInput) InputNum(min int, max int) int {
 }
 
 func (i UserInput) InputBool() bool {
-	fmt.Print("(y/n)")
+	fmt.Print("(y/n): ")
 
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Print(": ")
 		scanner.Scan()
 		if err := scanner.Err(); err != nil {
 			fmt.Fprintln(os.Stderr, "reading standard input:", err)
@@ -64,7 +68,7 @@ func (i UserInput) InputBool() bool {
 		} else if input == "n" {
 			return false
 		} else {
-			fmt.Print("Invalid input, please try again")
+			fmt.Print("Invalid input, please try again: ")
 		}
 	}
 }
