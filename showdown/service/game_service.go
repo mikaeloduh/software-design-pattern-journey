@@ -26,10 +26,9 @@ func (g *Game) init() {
 
 func (g *Game) drawLoop() {
 	for i := 0; i < rounds; i++ {
-		g.Players[0].GetCard(g.Deck.DrawCard())
-		g.Players[1].GetCard(g.Deck.DrawCard())
-		g.Players[2].GetCard(g.Deck.DrawCard())
-		g.Players[3].GetCard(g.Deck.DrawCard())
+		for i := range g.Players {
+			g.Players[i].GetCard(g.Deck.DrawCard())
+		}
 	}
 }
 
@@ -38,10 +37,9 @@ func (g *Game) takeTurnLoop() {
 
 	for i := 0; i < rounds; i++ {
 		fmt.Printf("==Round %d ==\n", i)
-		muckedCards[0] = g.Players[0].TakeTurn(g.Players)
-		muckedCards[1] = g.Players[1].TakeTurn(g.Players)
-		muckedCards[2] = g.Players[2].TakeTurn(g.Players)
-		muckedCards[3] = g.Players[3].TakeTurn(g.Players)
+		for i := range g.Players {
+			muckedCards[i] = g.Players[i].TakeTurn(g.Players)
+		}
 
 		win := showDown(muckedCards)
 
