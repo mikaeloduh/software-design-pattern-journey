@@ -6,13 +6,13 @@ import (
 )
 
 type AIPlayer struct {
-	id           int
-	name         string
-	HandCards    []Card
-	point        int
-	usedExchange bool
-	count        int
-	who          IPlayer
+	id              int
+	name            string
+	HandCards       []Card
+	point           int
+	usedExchange    bool
+	count           int
+	whoExchangeWith IPlayer
 	Input
 }
 
@@ -68,8 +68,8 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 			fmt.Printf("Player %d (AI) want to exchange card ", ai.id)
 			var toExchangeCard func()
 			toExchangeCard = func() {
-				ai.who = players[ai.InputNum(0, 3)]
-				if err := ai.MeExchangeYourCard(ai.who); err != nil {
+				ai.whoExchangeWith = players[ai.InputNum(0, 3)]
+				if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
 					toExchangeCard()
 				}
 			}
@@ -80,7 +80,7 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 		ai.count--
 		if ai.count == 0 {
 			fmt.Println("Exchange back")
-			_ = ai.MeExchangeYourCard(ai.who)
+			_ = ai.MeExchangeYourCard(ai.whoExchangeWith)
 		}
 	}
 
