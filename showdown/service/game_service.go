@@ -47,16 +47,15 @@ func (g *Game) takeTurnLoop() {
 }
 
 func (g *Game) gameResult() entity.IPlayer {
+	var winner entity.IPlayer
 	max := 0
-	var win int
-	for i, p := range g.Players {
-		if p.Point() > max {
-			max = p.Point()
-			win = i
+	for i := range g.Players {
+		if g.Players[i].Point() > max {
+			max = g.Players[i].Point()
+			winner = g.Players[i]
 		}
 	}
 
-	winner := g.Players[win]
 	fmt.Printf("The Winner is: %s\n", winner.Name())
 
 	return winner
