@@ -1,13 +1,13 @@
 package service
 
 import (
-	"fmt"
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
 	"time"
 
 	"showdown/entity"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
@@ -70,14 +70,11 @@ func TestRunAGamePeacefully(t *testing.T) {
 	t.Run("Testing game result: winner's points should be the highest one", func(t *testing.T) {
 		winner := game.gameResult()
 
-		fmt.Printf("winner: %+v\n", winner)
-
 		assert.NotEmpty(t, winner)
 		for i := range game.Players {
 			p := game.Players[i]
 			if p != winner {
-				fmt.Printf("looser: %+v\n", p)
-
+				//fmt.Printf("looser: %+v\n", p)
 				assert.GreaterOrEqual(t, winner.Point(), p.Point())
 			}
 		}
@@ -138,14 +135,11 @@ func TestRunAGameBloodily(t *testing.T) {
 
 		winner := game.gameResult()
 
-		fmt.Printf("winner: %+v\n", winner)
-
 		assert.NotEmpty(t, winner)
 		for i := range game.Players {
 			p := game.Players[i]
 			if p != winner {
-				fmt.Printf("looser: %+v\n", p)
-
+				//fmt.Printf("looser: %+v\n", p)
 				assert.GreaterOrEqual(t, winner.Point(), p.Point())
 			}
 		}

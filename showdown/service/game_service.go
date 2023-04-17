@@ -58,7 +58,11 @@ func (g *Game) gameResult() entity.IPlayer {
 			win = i
 		}
 	}
-	return g.Players[win]
+
+	winner := g.Players[win]
+	fmt.Printf("The Winner is: %s\n", winner.Name())
+
+	return winner
 }
 
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {

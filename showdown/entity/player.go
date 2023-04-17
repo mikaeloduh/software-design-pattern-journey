@@ -110,5 +110,11 @@ func (p *HumanPlayer) SetName(name string) {
 }
 
 func NewHumanPlayer(id int, input Input) *HumanPlayer {
-	return &HumanPlayer{id: id, count: 3, usedExchange: false, Input: input}
+	return &HumanPlayer{
+		id:           id,
+		name:         fmt.Sprintf("Player-%d", id),
+		count:        3,
+		usedExchange: false,
+		Input:        input,
+	}
 }
