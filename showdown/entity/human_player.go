@@ -23,7 +23,6 @@ func (p *HumanPlayer) SetId(i int) {
 func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	if len(p.HandCards) < 1 {
 		err := errors.New(fmt.Sprintf("%s does not have enough cards to proceed with the exchange.", p.name))
-		fmt.Printf("Error: %v", err)
 		return Card{}, err
 	}
 
@@ -49,6 +48,7 @@ func (p *HumanPlayer) MeExchangeYourCard(otherPlayer IPlayer) error {
 
 	ex, err := otherPlayer.YouExchangeMyCard(c)
 	if err != nil {
+		fmt.Printf("Error: %v", err)
 		return err
 	}
 	p.HandCards[toPlay] = ex
@@ -66,21 +66,21 @@ func (p *HumanPlayer) AddPoint() {
 
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	fmt.Printf("\n* Now is %s 's turn.\n", p.name)
-
 	printCards(p.HandCards)
+
+	var toExchangeCard func()
+	toExchangeCard = func() {
+		fmt.Printf("Which player do you want to exchange cards with? ")
+		p.whoExchangeWith = players[p.InputNum(0, len(players)-1)]
+		if err := p.MeExchangeYourCard(p.whoExchangeWith); err != nil {
+			toExchangeCard()
+		}
+	}
 
 	// 1. exchange
 	if !p.usedExchange {
 		fmt.Printf("%s, do you want to exchange hand card? ", p.name)
 		if p.InputBool() {
-			var toExchangeCard func()
-			toExchangeCard = func() {
-				fmt.Printf("Which player do you want to exchange cards with? ")
-				p.whoExchangeWith = players[p.InputNum(0, len(players)-1)]
-				if err := p.MeExchangeYourCard(p.whoExchangeWith); err != nil {
-					toExchangeCard()
-				}
-			}
 			toExchangeCard()
 			p.usedExchange = true
 		}

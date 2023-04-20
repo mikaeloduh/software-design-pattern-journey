@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	p1 := entity.NewHumanPlayer(entity.UserInput{})
-	p2 := entity.NewHumanPlayer(entity.UserInput{})
-	p3 := entity.NewHumanPlayer(entity.UserInput{})
+	p1 := entity.NewHumanPlayer(entity.HumanInput{})
+	p2 := entity.NewHumanPlayer(entity.HumanInput{})
+	p3 := entity.NewHumanPlayer(entity.HumanInput{})
 	p4 := entity.NewAIPlayer(entity.AIInput{})
 
 	deck := entity.NewDeck()
