@@ -13,7 +13,7 @@ type HumanPlayer struct {
 	usedExchange    bool
 	count           int
 	whoExchangeWith IPlayer
-	Input
+	IInput
 }
 
 func (p *HumanPlayer) SetId(i int) {
@@ -136,10 +136,10 @@ func (p *HumanPlayer) Rename() {
 	}
 }
 
-func NewHumanPlayer(input Input) *HumanPlayer {
+func NewHumanPlayer(input IInput) *HumanPlayer {
 	return &HumanPlayer{
 		count:        3,
 		usedExchange: false,
-		Input:        input,
+		IInput:       input,
 	}
 }

@@ -13,7 +13,7 @@ type AIPlayer struct {
 	usedExchange    bool
 	count           int
 	whoExchangeWith IPlayer
-	Input
+	IInput
 }
 
 func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
@@ -62,18 +62,19 @@ func (ai *AIPlayer) AddPoint() {
 func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 	fmt.Printf("\n* Now is %s (AI) 's turn.\n", ai.name)
 
+	var toExchangeCard func()
+	toExchangeCard = func() {
+		ai.whoExchangeWith = players[ai.InputNum(0, len(players)-1)]
+		fmt.Printf("%s (AI) wants to exchange card with %s \n", ai.name, ai.whoExchangeWith.Name())
+		if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
+			toExchangeCard()
+		}
+	}
+
 	// 1. exchange?
 	if !ai.usedExchange {
 		if ai.InputBool() {
 			fmt.Printf("%s (AI) wants to exchange card \n", ai.name)
-			var toExchangeCard func()
-			toExchangeCard = func() {
-				ai.whoExchangeWith = players[ai.InputNum(0, len(players)-1)]
-				fmt.Printf("%s (AI) wants to exchange card with %s \n", ai.name, ai.whoExchangeWith.Name())
-				if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
-					toExchangeCard()
-				}
-			}
 			toExchangeCard()
 			ai.usedExchange = true
 		}
@@ -86,7 +87,7 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 	}
 
 	// 2. Show card
-	fmt.Printf("Player (AI) is selecting card to show...\n")
+	fmt.Printf("%s (AI) is selecting card to show...\n", ai.name)
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	showCard := ai.HandCards[toPlay]
 	ai.HandCards = append([]Card{}, append(ai.HandCards[0:toPlay], ai.HandCards[toPlay+1:]...)...)
@@ -116,9 +117,9 @@ func (ai *AIPlayer) GetCard(card Card) {
 	ai.HandCards = append(ai.HandCards, card)
 }
 
-func NewAIPlayer(input Input) *AIPlayer {
+func NewAIPlayer(input IInput) *AIPlayer {
 	return &AIPlayer{
-		name:  "PlayerAI",
-		Input: input,
+		name:   "PlayerAI",
+		IInput: input,
 	}
 }
