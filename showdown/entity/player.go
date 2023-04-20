@@ -23,6 +23,7 @@ func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 		return Card{}, err
 	}
 
+	printCards(p.HandCards)
 	fmt.Printf("Player %s, please select your card to exchange back: ", p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	myCard := p.HandCards[toPlay]
@@ -62,6 +63,8 @@ func (p *HumanPlayer) AddPoint() {
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	fmt.Printf("\n* Now is player %s 's turn.\n", p.name)
 
+	printCards(p.HandCards)
+
 	// 1. exchange
 	if !p.usedExchange {
 		fmt.Printf("Player %s, do you want to exchange hand card? ", p.name)
@@ -92,6 +95,16 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)
 
 	return showCard
+}
+
+func printCards(cards []Card) {
+	for i, c := range cards {
+		if i%5 == 0 && i != 0 {
+			fmt.Print("\n")
+		}
+		fmt.Printf("%2d : [%4s ]  ", i, c.String())
+	}
+	fmt.Print("\n")
 }
 
 func (p *HumanPlayer) GetCard(card Card) {

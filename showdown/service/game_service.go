@@ -39,17 +39,35 @@ func (g *Game) drawLoop() {
 }
 
 func (g *Game) takeTurnLoop() {
-	muckedCards := make([]entity.Card, len(g.Players))
 
 	for i := 0; i < rounds; i++ {
-		fmt.Printf("\n======== Round %d ========\n", i)
+		fmt.Printf("\n============== Round %d ==============\n", i)
+		muckedCards := make([]entity.Card, len(g.Players))
+
 		for i := range g.Players {
 			muckedCards[i] = g.Players[i].TakeTurn(g.Players)
 		}
 
-		win := showDown(muckedCards)
+		roundWin := showDown(muckedCards)
 
-		g.Players[win].AddPoint()
+		fmt.Printf("\n* Round %d end\n", i)
+		for _, v := range muckedCards {
+			fmt.Printf("[%4s ]   ", v.String())
+		}
+		fmt.Print("\n")
+		for i := range muckedCards {
+			fmt.Printf("Player %d  ", i)
+		}
+		fmt.Print("\n")
+		for i := 0; i <= roundWin; i++ {
+			if i == roundWin {
+				fmt.Printf("  win     ")
+			}
+			fmt.Printf("          ")
+		}
+		fmt.Print("\n")
+
+		g.Players[roundWin].AddPoint()
 	}
 }
 
@@ -63,7 +81,7 @@ func (g *Game) gameResult() entity.IPlayer {
 		}
 	}
 
-	fmt.Printf("\n======== Game Over ========\nThe Winner is: %s\n", winner.Name())
+	fmt.Printf("\n============== Game Over ==============\nThe Winner is: %s\n", winner.Name())
 
 	return winner
 }
