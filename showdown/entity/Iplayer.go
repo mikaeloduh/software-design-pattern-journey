@@ -2,8 +2,10 @@ package entity
 
 type IPlayer interface {
 	Id() int
+	SetId(int)
 	Name() string
-	ReName()
+	SetName(name string)
+	Rename()
 	GetCard(card Card)
 	TakeTurn(players []IPlayer) Card
 	AddPoint()

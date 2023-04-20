@@ -18,7 +18,7 @@ type AIPlayer struct {
 
 func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	if len(ai.HandCards) < 1 {
-		err := errors.New(fmt.Sprintf("Player %d (AI) does not have enough cards to proceed with the exchange.", ai.id))
+		err := errors.New(fmt.Sprintf("%s (AI) does not have enough cards to proceed with the exchange.", ai.name))
 		fmt.Printf("Error: %v", err)
 		return Card{}, err
 	}
@@ -60,16 +60,16 @@ func (ai *AIPlayer) AddPoint() {
 }
 
 func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("\n* Now is Player %d (AI) 's turn.\n", ai.id)
+	fmt.Printf("\n* Now is %s (AI) 's turn.\n", ai.name)
 
 	// 1. exchange?
 	if !ai.usedExchange {
 		if ai.InputBool() {
-			fmt.Printf("Player %d (AI) wants to exchange card \n", ai.id)
+			fmt.Printf("%s (AI) wants to exchange card \n", ai.name)
 			var toExchangeCard func()
 			toExchangeCard = func() {
 				ai.whoExchangeWith = players[ai.InputNum(0, len(players)-1)]
-				fmt.Printf("Player %d (AI) wants to exchange card with player %s \n", ai.id, ai.whoExchangeWith.Name())
+				fmt.Printf("%s (AI) wants to exchange card with %s \n", ai.name, ai.whoExchangeWith.Name())
 				if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
 					toExchangeCard()
 				}
@@ -98,27 +98,27 @@ func (ai *AIPlayer) Id() int {
 	return ai.id
 }
 
+func (ai *AIPlayer) SetId(i int) {
+	ai.id = i
+}
+
 func (ai *AIPlayer) Name() string {
 	return ai.name
 }
 
 func (ai *AIPlayer) SetName(_ string) {
-	//TODO implement me
-	panic("implement me")
 }
 
-func (ai *AIPlayer) ReName() {
-	fmt.Println("You cannot name an AI.")
+func (ai *AIPlayer) Rename() {
 }
 
 func (ai *AIPlayer) GetCard(card Card) {
 	ai.HandCards = append(ai.HandCards, card)
 }
 
-func NewAIPlayer(id int, input Input) *AIPlayer {
+func NewAIPlayer(input Input) *AIPlayer {
 	return &AIPlayer{
-		id:    id,
-		name:  "AI has no name",
+		name:  "PlayerAI",
 		Input: input,
 	}
 }

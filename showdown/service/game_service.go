@@ -26,7 +26,7 @@ func (g *Game) init() {
 
 func (g *Game) renamePlayer() {
 	for i := range g.Players {
-		g.Players[i].ReName()
+		g.Players[i].Rename()
 	}
 }
 
@@ -64,9 +64,9 @@ func (g *Game) takeTurnLoop() {
 		}
 		fmt.Print("\n")
 		for _, rr := range roundResults {
-			fmt.Printf("Player %d  ", rr.player.Id())
+			fmt.Printf("%-8s  ", rr.player.Name())
 		}
-		fmt.Printf("\n Player %d: %s win!\n", win.player.Id(), win.player.Name())
+		fmt.Printf("\n %s win!\n", win.player.Name())
 
 		win.player.AddPoint()
 	}
@@ -100,13 +100,18 @@ func (g *Game) gameResult() entity.IPlayer {
 	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
 
 	for _, p := range g.Players {
-		fmt.Printf("P%d:%d point\n", p.Id(), p.Point())
+		fmt.Printf("%-8s: %d point\n", p.Name(), p.Point())
 	}
 
 	return winner
 }
 
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {
+	for i, p := range []entity.IPlayer{p1, p2, p3, p4} {
+		p.SetId(i)
+		p.SetName(fmt.Sprintf("Player %d", i))
+	}
+
 	return &Game{
 		Players: []entity.IPlayer{p1, p2, p3, p4},
 		Deck:    deck,

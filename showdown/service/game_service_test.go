@@ -11,10 +11,10 @@ import (
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
-	p1 := entity.NewHumanPlayer(0, MockInput{})
-	p2 := entity.NewHumanPlayer(1, MockInput{})
-	p3 := entity.NewHumanPlayer(2, MockInput{})
-	pAI := entity.NewAIPlayer(3, MockInput{})
+	p1 := entity.NewHumanPlayer(MockInput{})
+	p2 := entity.NewHumanPlayer(MockInput{})
+	p3 := entity.NewHumanPlayer(MockInput{})
+	pAI := entity.NewAIPlayer(MockInput{})
 	var deck *entity.Deck
 	var game *Game
 
@@ -27,15 +27,16 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.Equal(t, 52, len(game.Deck.Cards))
 	})
 
-	t.Run("should successfully rename the human player", func(t *testing.T) {
+	t.Run("should successfully rename the human player, except AI player", func(t *testing.T) {
 		p1.SetName("TestPlayer1")
 		p2.SetName("TestPlayer2")
 		p3.SetName("TestPlayer3")
+		pAI.SetName("TestPlayer4")
 
 		assert.Equal(t, "TestPlayer1", p1.Name())
 		assert.Equal(t, "TestPlayer2", p2.Name())
 		assert.Equal(t, "TestPlayer3", p3.Name())
-		assert.Equal(t, "AI has no name", pAI.Name())
+		assert.Equal(t, "PlayerAI", pAI.Name())
 	})
 
 	t.Run("cards in a shuffled Deck should be random ordered", func(t *testing.T) {
@@ -84,8 +85,8 @@ func TestRunAGamePeacefully(t *testing.T) {
 func TestRunAGameBloodily(t *testing.T) {
 
 	t.Run("testing exchange cards: two cards should be exchanged from a player to another", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(0, MockInput{})
-		p2 := entity.NewHumanPlayer(1, MockInput{})
+		p1 := entity.NewHumanPlayer(MockInput{})
+		p2 := entity.NewHumanPlayer(MockInput{})
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
 		diamondThree := entity.Card{Suit: entity.Diamonds, Rank: entity.Three}
 		p1.GetCard(bigBlackTwo)
@@ -101,26 +102,25 @@ func TestRunAGameBloodily(t *testing.T) {
 	})
 
 	t.Run("testing exchange cards: exchange card should not proceed if player has run out of hand cards", func(t *testing.T) {
-
-		p3 := entity.NewHumanPlayer(2, MockInput{})
-		p4 := entity.NewHumanPlayer(3, MockInput{})
+		p1 := entity.NewHumanPlayer(MockInput{})
+		p2 := entity.NewHumanPlayer(MockInput{})
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
-		p3.GetCard(bigBlackTwo)
+		p1.GetCard(bigBlackTwo)
 
-		assert.Equal(t, bigBlackTwo, p3.HandCards[0])
-		assert.Empty(t, p4.HandCards)
+		assert.Equal(t, bigBlackTwo, p1.HandCards[0])
+		assert.Empty(t, p2.HandCards)
 
-		_ = p3.MeExchangeYourCard(p4)
+		_ = p1.MeExchangeYourCard(p2)
 
-		assert.Equal(t, bigBlackTwo, p3.HandCards[0])
-		assert.Empty(t, p4.HandCards)
+		assert.Equal(t, bigBlackTwo, p1.HandCards[0])
+		assert.Empty(t, p2.HandCards)
 	})
 
 	t.Run("test takeTurnLoop with exchange step and have no problem", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(0, MockInput{})
-		p2 := entity.NewHumanPlayer(1, MockInput{})
-		p3 := entity.NewHumanPlayer(2, MockInput{})
-		p4 := entity.NewHumanPlayer(3, MockInput{})
+		p1 := entity.NewHumanPlayer(MockInput{})
+		p2 := entity.NewHumanPlayer(MockInput{})
+		p3 := entity.NewHumanPlayer(MockInput{})
+		p4 := entity.NewHumanPlayer(MockInput{})
 		deck := entity.NewDeck()
 		game := NewGame(p1, p2, p3, p4, deck)
 
@@ -139,7 +139,6 @@ func TestRunAGameBloodily(t *testing.T) {
 		for i := range game.Players {
 			p := game.Players[i]
 			if p != winner {
-				//fmt.Printf("looser: %+v\n", p)
 				assert.GreaterOrEqual(t, winner.Point(), p.Point())
 			}
 		}
@@ -149,7 +148,7 @@ func TestRunAGameBloodily(t *testing.T) {
 type MockInput struct{}
 
 func (i MockInput) InputString() string {
-	return "TestString"
+	return "TestInputString"
 }
 
 func (i MockInput) InputNum(min int, max int) int {

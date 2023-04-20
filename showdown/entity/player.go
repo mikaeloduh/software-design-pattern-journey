@@ -16,15 +16,19 @@ type HumanPlayer struct {
 	Input
 }
 
+func (p *HumanPlayer) SetId(i int) {
+	p.id = i
+}
+
 func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 	if len(p.HandCards) < 1 {
-		err := errors.New(fmt.Sprintf("Player %d does not have enough cards to proceed with the exchange.", p.id))
+		err := errors.New(fmt.Sprintf("%s does not have enough cards to proceed with the exchange.", p.name))
 		fmt.Printf("Error: %v", err)
 		return Card{}, err
 	}
 
 	printCards(p.HandCards)
-	fmt.Printf("Player %s, please select your card to exchange back: ", p.name)
+	fmt.Printf("%s, please select your card to exchange back: ", p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	myCard := p.HandCards[toPlay]
 	p.HandCards[toPlay] = card
@@ -34,7 +38,7 @@ func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 
 func (p *HumanPlayer) MeExchangeYourCard(otherPlayer IPlayer) error {
 	if len(p.HandCards) < 1 {
-		err := errors.New(fmt.Sprintf("Player %d (You) don't have enough cards to proceed with the exchange.", p.id))
+		err := errors.New(fmt.Sprintf("%s (You) don't have enough cards to proceed with the exchange.", p.name))
 		fmt.Printf("Error: %v", err)
 		return err
 	}
@@ -61,13 +65,13 @@ func (p *HumanPlayer) AddPoint() {
 }
 
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("\n* Now is player %s 's turn.\n", p.name)
+	fmt.Printf("\n* Now is %s 's turn.\n", p.name)
 
 	printCards(p.HandCards)
 
 	// 1. exchange
 	if !p.usedExchange {
-		fmt.Printf("Player %s, do you want to exchange hand card? ", p.name)
+		fmt.Printf("%s, do you want to exchange hand card? ", p.name)
 		if p.InputBool() {
 			var toExchangeCard func()
 			toExchangeCard = func() {
@@ -89,7 +93,7 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	}
 
 	// 2. show
-	fmt.Printf("Player %s, please select a card to show ", p.name)
+	fmt.Printf("%s, please select a card to show ", p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	showCard := p.HandCards[toPlay]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)
@@ -123,15 +127,17 @@ func (p *HumanPlayer) SetName(name string) {
 	p.name = name
 }
 
-func (p *HumanPlayer) ReName() {
-	fmt.Printf("Player %d please enter your name: ", p.id)
-	p.SetName(p.InputString())
+func (p *HumanPlayer) Rename() {
+	fmt.Printf("%s, please enter your name: ", p.Name())
+
+	s := p.InputString()
+	if s != "?" {
+		p.SetName(s)
+	}
 }
 
-func NewHumanPlayer(id int, input Input) *HumanPlayer {
+func NewHumanPlayer(input Input) *HumanPlayer {
 	return &HumanPlayer{
-		id:           id,
-		name:         fmt.Sprintf("Player-%d", id),
 		count:        3,
 		usedExchange: false,
 		Input:        input,
