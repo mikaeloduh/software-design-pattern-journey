@@ -38,37 +38,53 @@ func (g *Game) drawLoop() {
 	}
 }
 
+type RoundResult struct {
+	player entity.IPlayer
+	card   entity.Card
+}
+
+type RoundResults []RoundResult
+
 func (g *Game) takeTurnLoop() {
 
 	for i := 0; i < rounds; i++ {
 		fmt.Printf("\n============== Round %d ==============\n", i)
-		muckedCards := make([]entity.Card, len(g.Players))
 
-		for i := range g.Players {
-			muckedCards[i] = g.Players[i].TakeTurn(g.Players)
+		roundResults := make(RoundResults, len(g.Players))
+		for i := range roundResults {
+			roundResults[i] = RoundResult{g.Players[i], g.Players[i].TakeTurn(g.Players)}
 		}
 
-		roundWin := showDown(muckedCards)
+		win := g.showDown(roundResults)
 
+		// Printing round win
 		fmt.Printf("\n* Round %d end\n", i)
-		for _, v := range muckedCards {
-			fmt.Printf("[%4s ]   ", v.String())
+		for _, rr := range roundResults {
+			fmt.Printf("[%4s ]   ", rr.card.String())
 		}
 		fmt.Print("\n")
-		for i := range muckedCards {
-			fmt.Printf("Player %d  ", i)
+		for _, rr := range roundResults {
+			fmt.Printf("Player %d  ", rr.player.Id())
 		}
-		fmt.Print("\n")
-		for i := 0; i <= roundWin; i++ {
-			if i == roundWin {
-				fmt.Printf("  win     ")
-			}
-			fmt.Printf("          ")
-		}
-		fmt.Print("\n")
+		fmt.Printf("\n Player %d: %s win!\n", win.player.Id(), win.player.Name())
 
-		g.Players[roundWin].AddPoint()
+		win.player.AddPoint()
 	}
+}
+
+func (g *Game) showDown(rrs RoundResults) RoundResult {
+	if len(rrs) == 0 {
+		return RoundResult{}
+	}
+
+	greatest := rrs[0]
+	for _, rr := range rrs {
+		if rr.card.IsGreater(greatest.card) {
+			greatest = rr
+		}
+	}
+
+	return greatest
 }
 
 func (g *Game) gameResult() entity.IPlayer {
@@ -81,7 +97,11 @@ func (g *Game) gameResult() entity.IPlayer {
 		}
 	}
 
-	fmt.Printf("\n============== Game Over ==============\nThe Winner is: %s\n", winner.Name())
+	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
+
+	for _, p := range g.Players {
+		fmt.Printf("P%d:%d point\n", p.Id(), p.Point())
+	}
 
 	return winner
 }
@@ -91,20 +111,4 @@ func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.
 		Players: []entity.IPlayer{p1, p2, p3, p4},
 		Deck:    deck,
 	}
-}
-
-// helper
-func showDown(cards []entity.Card) int {
-	if len(cards) == 0 {
-		return 0
-	}
-	max := cards[0]
-	imax := 0
-	for i, card := range cards {
-		if card.IsGreater(max) {
-			max = card
-			imax = i
-		}
-	}
-	return imax
 }

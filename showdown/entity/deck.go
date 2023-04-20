@@ -43,11 +43,7 @@ func (c *Card) IsGreater(other Card) bool {
 	} else if c.Rank < other.Rank {
 		return false
 	} else {
-		if c.Suit > other.Suit {
-			return true
-		} else {
-			return false
-		}
+		return c.Suit > other.Suit
 	}
 }
 

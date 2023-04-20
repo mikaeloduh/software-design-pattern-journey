@@ -72,7 +72,7 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 			var toExchangeCard func()
 			toExchangeCard = func() {
 				fmt.Printf("Which player do you want to exchange cards with? ")
-				p.whoExchangeWith = players[p.InputNum(0, 3)]
+				p.whoExchangeWith = players[p.InputNum(0, len(players)-1)]
 				if err := p.MeExchangeYourCard(p.whoExchangeWith); err != nil {
 					toExchangeCard()
 				}

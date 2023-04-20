@@ -68,7 +68,7 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 			fmt.Printf("Player %d (AI) wants to exchange card \n", ai.id)
 			var toExchangeCard func()
 			toExchangeCard = func() {
-				ai.whoExchangeWith = players[ai.InputNum(0, 3)]
+				ai.whoExchangeWith = players[ai.InputNum(0, len(players)-1)]
 				fmt.Printf("Player %d (AI) wants to exchange card with player %s \n", ai.id, ai.whoExchangeWith.Name())
 				if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
 					toExchangeCard()
@@ -102,7 +102,9 @@ func (ai *AIPlayer) Name() string {
 	return ai.name
 }
 
-func (ai *AIPlayer) SetName(name string) {
+func (ai *AIPlayer) SetName(_ string) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (ai *AIPlayer) ReName() {
