@@ -38,53 +38,35 @@ func (g *Game) drawLoop() {
 	}
 }
 
-type RoundResult struct {
-	player entity.IPlayer
-	card   entity.Card
-}
-
-type RoundResults []RoundResult
-
 func (g *Game) takeTurnLoop() {
 
 	for i := 0; i < rounds; i++ {
-		fmt.Printf("\n============== Round %d ==============\n", i)
+		g.Players[0].RoundStartOutput(i)
 
-		roundResults := make(RoundResults, len(g.Players))
-		for i := range roundResults {
-			roundResults[i] = RoundResult{g.Players[i], g.Players[i].TakeTurn(g.Players)}
+		roundResults := make(entity.RoundResults, len(g.Players))
+		for r := range roundResults {
+			roundResults[r] = entity.RoundResult{
+				Player: g.Players[r],
+				Card:   g.Players[r].TakeTurn(g.Players),
+				Win:    false,
+			}
 		}
 
-		win := g.showDown(roundResults)
-
-		// Printing round win
-		fmt.Printf("\n* Round %d end\n", i)
+		greatest := entity.Card{Suit: entity.Clubs, Rank: entity.Three}
 		for _, rr := range roundResults {
-			fmt.Printf("[%4s ]   ", rr.card.String())
+			if rr.Card.IsGreater(greatest) {
+				greatest = rr.Card
+			}
 		}
-		fmt.Print("\n")
-		for _, rr := range roundResults {
-			fmt.Printf("%-8s  ", rr.player.Name())
+		for j, rr := range roundResults {
+			if rr.Card == greatest {
+				roundResults[j].Win = true
+				roundResults[j].Player.AddPoint()
+			}
 		}
-		fmt.Printf("\n %s win!\n", win.player.Name())
 
-		win.player.AddPoint()
+		g.Players[0].RoundResultOutput(i, roundResults)
 	}
-}
-
-func (g *Game) showDown(rrs RoundResults) RoundResult {
-	if len(rrs) == 0 {
-		return RoundResult{}
-	}
-
-	greatest := rrs[0]
-	for _, rr := range rrs {
-		if rr.card.IsGreater(greatest.card) {
-			greatest = rr
-		}
-	}
-
-	return greatest
 }
 
 func (g *Game) gameResult() entity.IPlayer {
@@ -97,11 +79,7 @@ func (g *Game) gameResult() entity.IPlayer {
 		}
 	}
 
-	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
-
-	for _, p := range g.Players {
-		fmt.Printf("%-8s: %d point\n", p.Name(), p.Point())
-	}
+	g.Players[0].GameOverOutput(winner, g.Players)
 
 	return winner
 }
@@ -109,7 +87,7 @@ func (g *Game) gameResult() entity.IPlayer {
 func NewGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *Game {
 	for i, p := range []entity.IPlayer{p1, p2, p3, p4} {
 		p.SetId(i)
-		p.SetName(fmt.Sprintf("Player %d", i))
+		p.SetName(fmt.Sprintf("P%d", i))
 	}
 
 	return &Game{

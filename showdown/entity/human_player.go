@@ -14,6 +14,7 @@ type HumanPlayer struct {
 	count           int
 	whoExchangeWith IPlayer
 	IInput
+	IOutput
 }
 
 func (p *HumanPlayer) SetId(i int) {
@@ -26,8 +27,8 @@ func (p *HumanPlayer) YouExchangeMyCard(card Card) (Card, error) {
 		return Card{}, err
 	}
 
-	printCards(p.HandCards)
-	fmt.Printf("%s, please select your card to exchange back: ", p.name)
+	p.PrintCardsOutput(p.HandCards)
+	p.YouExchangeMyCardOutput(p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	myCard := p.HandCards[toPlay]
 	p.HandCards[toPlay] = card
@@ -42,13 +43,13 @@ func (p *HumanPlayer) MeExchangeYourCard(otherPlayer IPlayer) error {
 		return err
 	}
 
-	fmt.Printf("Please select your card to exchange: ")
+	p.MeExchangeYourCardOutput()
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	c := p.HandCards[toPlay]
 
 	ex, err := otherPlayer.YouExchangeMyCard(c)
 	if err != nil {
-		fmt.Printf("Error: %v", err)
+		p.MeExchangeYourCardErrorOutput(err)
 		return err
 	}
 	p.HandCards[toPlay] = ex
@@ -65,12 +66,12 @@ func (p *HumanPlayer) AddPoint() {
 }
 
 func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("\n* Now is %s 's turn.\n", p.name)
-	printCards(p.HandCards)
+	p.TakeTurnStartOutput(p.name)
+	p.PrintCardsOutput(p.HandCards)
 
 	var toExchangeCard func()
 	toExchangeCard = func() {
-		fmt.Printf("Which player do you want to exchange cards with? ")
+		p.ToExchangeCardOutput()
 		p.whoExchangeWith = players[p.InputNum(0, len(players)-1)]
 		if err := p.MeExchangeYourCard(p.whoExchangeWith); err != nil {
 			toExchangeCard()
@@ -79,7 +80,7 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 
 	// 1. exchange
 	if !p.usedExchange {
-		fmt.Printf("%s, do you want to exchange hand card? ", p.name)
+		p.AskToExchangeCardOutput(p.name)
 		if p.InputBool() {
 			toExchangeCard()
 			p.usedExchange = true
@@ -87,28 +88,18 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	} else {
 		p.count--
 		if p.count == 0 {
-			fmt.Println("Exchange back")
+			p.ExchangeBackOutput()
 			_ = p.MeExchangeYourCard(p.whoExchangeWith)
 		}
 	}
 
 	// 2. show
-	fmt.Printf("%s, please select a card to show ", p.name)
+	p.AskShowCardOutput(p.name)
 	toPlay := p.InputNum(0, len(p.HandCards)-1)
 	showCard := p.HandCards[toPlay]
 	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)
 
 	return showCard
-}
-
-func printCards(cards []Card) {
-	for i, c := range cards {
-		if i%5 == 0 && i != 0 {
-			fmt.Print("\n")
-		}
-		fmt.Printf("%2d : [%4s ]  ", i, c.String())
-	}
-	fmt.Print("\n")
 }
 
 func (p *HumanPlayer) GetCard(card Card) {
@@ -128,7 +119,7 @@ func (p *HumanPlayer) SetName(name string) {
 }
 
 func (p *HumanPlayer) Rename() {
-	fmt.Printf("%s, please enter your name: ", p.Name())
+	p.RenameOutput(p.name)
 
 	s := p.InputString()
 	if s != "?" {
@@ -136,10 +127,11 @@ func (p *HumanPlayer) Rename() {
 	}
 }
 
-func NewHumanPlayer(input IInput) *HumanPlayer {
+func NewHumanPlayer(input IInput, output IOutput) *HumanPlayer {
 	return &HumanPlayer{
 		count:        3,
 		usedExchange: false,
 		IInput:       input,
+		IOutput:      output,
 	}
 }

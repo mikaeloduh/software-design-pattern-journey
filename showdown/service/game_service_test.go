@@ -11,14 +11,14 @@ import (
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
-	p1 := entity.NewHumanPlayer(MockInput{})
-	p2 := entity.NewHumanPlayer(MockInput{})
-	p3 := entity.NewHumanPlayer(MockInput{})
-	pAI := entity.NewAIPlayer(MockInput{})
+	p1 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+	p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+	p3 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+	pAI := entity.NewAIPlayer(MockInput{}, MockOutput{})
 	var deck *entity.Deck
 	var game *Game
 
-	t.Run("Test creating game with human player, AI player, and new Deck", func(t *testing.T) {
+	t.Run("Test creating game with human Player, AI Player, and new Deck", func(t *testing.T) {
 		deck = entity.NewDeck()
 		game = NewGame(p1, p2, p3, pAI, deck)
 
@@ -27,16 +27,14 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.Equal(t, 52, len(game.Deck.Cards))
 	})
 
-	t.Run("should successfully rename the human player, except AI player", func(t *testing.T) {
+	t.Run("should successfully rename the human Player, except AI Player", func(t *testing.T) {
 		p1.SetName("TestPlayer1")
 		p2.SetName("TestPlayer2")
 		p3.SetName("TestPlayer3")
-		pAI.SetName("TestPlayer4")
 
 		assert.Equal(t, "TestPlayer1", p1.Name())
 		assert.Equal(t, "TestPlayer2", p2.Name())
 		assert.Equal(t, "TestPlayer3", p3.Name())
-		assert.Equal(t, "PlayerAI", pAI.Name())
 	})
 
 	t.Run("cards in a shuffled Deck should be random ordered", func(t *testing.T) {
@@ -48,7 +46,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.NotEqual(t, c1, c2)
 	})
 
-	t.Run("when draw is finished, every player should have 13 hand card", func(t *testing.T) {
+	t.Run("when draw is finished, every Player should have 13 hand Card", func(t *testing.T) {
 		game.drawLoop()
 
 		assert.IsType(t, entity.Card{}, p1.HandCards[0])
@@ -84,9 +82,9 @@ func TestRunAGamePeacefully(t *testing.T) {
 
 func TestRunAGameBloodily(t *testing.T) {
 
-	t.Run("testing exchange cards: two cards should be exchanged from a player to another", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(MockInput{})
-		p2 := entity.NewHumanPlayer(MockInput{})
+	t.Run("testing exchange cards: two cards should be exchanged from a Player to another", func(t *testing.T) {
+		p1 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+		p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
 		diamondThree := entity.Card{Suit: entity.Diamonds, Rank: entity.Three}
 		p1.GetCard(bigBlackTwo)
@@ -101,9 +99,9 @@ func TestRunAGameBloodily(t *testing.T) {
 		assert.Equal(t, bigBlackTwo, p2.HandCards[0])
 	})
 
-	t.Run("testing exchange cards: exchange card should not proceed if player has run out of hand cards", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(MockInput{})
-		p2 := entity.NewHumanPlayer(MockInput{})
+	t.Run("testing exchange cards: exchange Card should not proceed if Player has run out of hand cards", func(t *testing.T) {
+		p1 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+		p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
 		bigBlackTwo := entity.Card{Suit: entity.Spades, Rank: entity.Two}
 		p1.GetCard(bigBlackTwo)
 
@@ -117,10 +115,10 @@ func TestRunAGameBloodily(t *testing.T) {
 	})
 
 	t.Run("test takeTurnLoop with exchange step and have no problem", func(t *testing.T) {
-		p1 := entity.NewHumanPlayer(MockInput{})
-		p2 := entity.NewHumanPlayer(MockInput{})
-		p3 := entity.NewHumanPlayer(MockInput{})
-		p4 := entity.NewHumanPlayer(MockInput{})
+		p1 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+		p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+		p3 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+		p4 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
 		deck := entity.NewDeck()
 		game := NewGame(p1, p2, p3, p4, deck)
 
@@ -162,3 +160,31 @@ func (i MockInput) InputBool() bool {
 
 	return rand.Intn(2) == 1
 }
+
+type MockOutput struct{}
+
+func (m MockOutput) MeExchangeYourCardOutput() {}
+
+func (m MockOutput) MeExchangeYourCardErrorOutput(err error) {}
+
+func (m MockOutput) RenameOutput(name string) {}
+
+func (m MockOutput) RoundStartOutput(i int) {}
+
+func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResults) {}
+
+func (m MockOutput) GameOverOutput(winner entity.IPlayer, players []entity.IPlayer) {}
+
+func (m MockOutput) YouExchangeMyCardOutput(name string) {}
+
+func (m MockOutput) PrintCardsOutput(cards []entity.Card) {}
+
+func (m MockOutput) AskToExchangeCardOutput(name string) {}
+
+func (m MockOutput) ToExchangeCardOutput() {}
+
+func (m MockOutput) TakeTurnStartOutput(name string) {}
+
+func (m MockOutput) ExchangeBackOutput() {}
+
+func (m MockOutput) AskShowCardOutput(name string) {}

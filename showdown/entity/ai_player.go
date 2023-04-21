@@ -14,6 +14,7 @@ type AIPlayer struct {
 	count           int
 	whoExchangeWith IPlayer
 	IInput
+	IOutput
 }
 
 func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
@@ -23,7 +24,7 @@ func (ai *AIPlayer) YouExchangeMyCard(card Card) (Card, error) {
 		return Card{}, err
 	}
 
-	fmt.Printf("Player (AI) is selecting card...\n")
+	ai.YouExchangeMyCardOutput(ai.name)
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	myCard := ai.HandCards[toPlay]
 	ai.HandCards[toPlay] = card
@@ -38,7 +39,7 @@ func (ai *AIPlayer) MeExchangeYourCard(player IPlayer) error {
 		return err
 	}
 
-	fmt.Printf("Player (AI) is selecting card...\n")
+	ai.MeExchangeYourCardOutput()
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	c := ai.HandCards[toPlay]
 
@@ -60,12 +61,12 @@ func (ai *AIPlayer) AddPoint() {
 }
 
 func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
-	fmt.Printf("\n* Now is %s (AI) 's turn.\n", ai.name)
+	ai.TakeTurnStartOutput(ai.name)
 
 	var toExchangeCard func()
 	toExchangeCard = func() {
 		ai.whoExchangeWith = players[ai.InputNum(0, len(players)-1)]
-		fmt.Printf("%s (AI) wants to exchange card with %s \n", ai.name, ai.whoExchangeWith.Name())
+		ai.ToExchangeCardOutput()
 		if err := ai.MeExchangeYourCard(ai.whoExchangeWith); err != nil {
 			toExchangeCard()
 		}
@@ -74,20 +75,20 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 	// 1. exchange?
 	if !ai.usedExchange {
 		if ai.InputBool() {
-			fmt.Printf("%s (AI) wants to exchange card \n", ai.name)
+			ai.AskToExchangeCardOutput(ai.name)
 			toExchangeCard()
 			ai.usedExchange = true
 		}
 	} else {
 		ai.count--
 		if ai.count == 0 {
-			fmt.Println("Exchange back")
+			ai.ExchangeBackOutput()
 			_ = ai.MeExchangeYourCard(ai.whoExchangeWith)
 		}
 	}
 
 	// 2. Show card
-	fmt.Printf("%s (AI) is selecting card to show...\n", ai.name)
+	ai.AskShowCardOutput(ai.name)
 	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
 	showCard := ai.HandCards[toPlay]
 	ai.HandCards = append([]Card{}, append(ai.HandCards[0:toPlay], ai.HandCards[toPlay+1:]...)...)
@@ -107,7 +108,8 @@ func (ai *AIPlayer) Name() string {
 	return ai.name
 }
 
-func (ai *AIPlayer) SetName(_ string) {
+func (ai *AIPlayer) SetName(s string) {
+	ai.name = s + "_AI"
 }
 
 func (ai *AIPlayer) Rename() {
@@ -117,9 +119,11 @@ func (ai *AIPlayer) GetCard(card Card) {
 	ai.HandCards = append(ai.HandCards, card)
 }
 
-func NewAIPlayer(input IInput) *AIPlayer {
+func NewAIPlayer(input IInput, output IOutput) *AIPlayer {
 	return &AIPlayer{
-		name:   "PlayerAI",
-		IInput: input,
+		count:   3,
+		name:    "PlayerAI",
+		IInput:  input,
+		IOutput: output,
 	}
 }
