@@ -5,6 +5,10 @@ import (
 	"matchmakingsystem/entity"
 )
 
+type IMatcher interface {
+	Match(me entity.Individual, others []entity.Individual) (entity.Individual, error)
+}
+
 type UnimplementedStrategy interface {
 	CalculateStrategy(me entity.Individual, other entity.Individual) interface{}
 	SortingStrategy([]entity.HowMatchWeAre) entity.Individual

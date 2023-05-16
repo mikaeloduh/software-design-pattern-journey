@@ -33,7 +33,7 @@ func main() {
 
 	var p3 = entity.Individual{
 		Id:     3,
-		Gender: entity.Other,
+		Gender: entity.Female,
 		Age:    30,
 		Intro:  "Hey",
 		Habits: []string{"baseball", "sports", "reading", "sleep"},
