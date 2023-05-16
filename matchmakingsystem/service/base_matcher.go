@@ -38,3 +38,11 @@ func (m *BaseMatcher) calculateMatchLevel(me entity.Individual, others []entity.
 
 	return hmwa
 }
+
+func (m *BaseMatcher) CalculateStrategy(me entity.Individual, other entity.Individual) interface{} {
+	panic("method CalculateStrategy not implemented")
+}
+
+func (m *BaseMatcher) SortingStrategy([]entity.HowMatchWeAre) entity.Individual {
+	panic("method CalculateStrategy not implemented")
+}

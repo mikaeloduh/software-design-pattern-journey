@@ -48,9 +48,9 @@ func main() {
 	habitBasedMatcher := service.NewHabitBasedMatcher()
 
 	closest1, _ := distanceBasedMatcher.Match(p1, pps)
-	fmt.Println(closest1.Id)
+	fmt.Printf("%d's best match is %d\n", p1.Id, closest1.Id)
 	closest2, _ := habitBasedMatcher.Match(p2, pps)
-	fmt.Println(closest2.Id)
+	fmt.Printf("%d's best match is %d\n", p2.Id, closest2.Id)
 	closest3, _ := habitBasedMatcher.Match(p3, pps)
-	fmt.Println(closest3.Id)
+	fmt.Printf("%d's best match is %d\n", p3.Id, closest3.Id)
 }
