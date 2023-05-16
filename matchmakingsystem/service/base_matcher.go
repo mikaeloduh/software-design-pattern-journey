@@ -44,5 +44,5 @@ func (m *BaseMatcher) CalculateStrategy(me entity.Individual, other entity.Indiv
 }
 
 func (m *BaseMatcher) SortingStrategy([]entity.HowMatchWeAre) entity.Individual {
-	panic("method CalculateStrategy not implemented")
+	panic("method SortingStrategy not implemented")
 }
