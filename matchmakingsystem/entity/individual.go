@@ -5,6 +5,6 @@ type Individual struct {
 	Gender Gender
 	Age    int
 	Intro  string
-	Habits []string
+	Habits Habits
 	Coord  Coord
 }

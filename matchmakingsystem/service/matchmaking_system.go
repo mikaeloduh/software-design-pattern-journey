@@ -3,22 +3,20 @@ package service
 import (
 	"fmt"
 	"matchmakingsystem/entity"
-	"matchmakingsystem/samples"
 )
 
 type MatchmakingSystem struct {
-	matcher IMatcher
+	matcher     IMatchingStrategy
+	individuals []entity.Individual
 }
 
-func NewMatchmakingSystem(matcher IMatcher) *MatchmakingSystem {
-	return &MatchmakingSystem{matcher: matcher}
+func NewMatchmakingSystem(matcher IMatchingStrategy, i []entity.Individual) *MatchmakingSystem {
+	return &MatchmakingSystem{matcher: matcher, individuals: i}
 }
 
 func (s MatchmakingSystem) Run() {
-	individuals := []entity.Individual{samples.P1, samples.P2, samples.P3}
-
-	for _, p := range individuals {
-		bestMatch, _ := s.matcher.Match(p, individuals)
-		fmt.Printf("%d's best match is %d\n", p.Id, bestMatch.Id)
+	for _, i := range s.individuals {
+		bestMatch, _ := s.matcher.Match(i, s.individuals)
+		fmt.Printf("%d's best match is %d\n", i.Id, bestMatch.Id)
 	}
 }

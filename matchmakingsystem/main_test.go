@@ -14,7 +14,7 @@ func TestMatchDistanceBased(t *testing.T) {
 		Gender: entity.Male,
 		Age:    10,
 		Intro:  "Hello Intro",
-		Habits: []string{"baseball", "cook", "sleep"},
+		Habits: entity.Habits{"baseball", "cook", "sleep"},
 		Coord: entity.Coord{
 			X: 0,
 			Y: 0,
@@ -25,7 +25,7 @@ func TestMatchDistanceBased(t *testing.T) {
 		Gender: entity.Female,
 		Age:    20,
 		Intro:  "Hi there",
-		Habits: []string{"cook", "sleep", "dance"},
+		Habits: entity.Habits{"cook", "sleep", "dance"},
 		Coord: entity.Coord{
 			X: 5,
 			Y: 5,
@@ -36,7 +36,7 @@ func TestMatchDistanceBased(t *testing.T) {
 		Gender: entity.Male,
 		Age:    30,
 		Intro:  "Nice to meet you",
-		Habits: []string{"baseball", "sleep", "read"},
+		Habits: entity.Habits{"baseball", "sleep", "read"},
 		Coord: entity.Coord{
 			X: 15,
 			Y: 15,
@@ -47,7 +47,7 @@ func TestMatchDistanceBased(t *testing.T) {
 		Gender: entity.Male,
 		Age:    30,
 		Intro:  "Nice to meet you",
-		Habits: []string{"drink", "smoke", "cook"},
+		Habits: entity.Habits{"drink", "smoke", "cook"},
 		Coord: entity.Coord{
 			X: 5,
 			Y: 5,
@@ -55,7 +55,7 @@ func TestMatchDistanceBased(t *testing.T) {
 	}
 
 	// Testing Distance-based strategy
-	m := service.NewDistanceBasedMatcher()
+	m := service.NewDistanceBasedMatchingStrategy()
 
 	t.Run("Should return an error if individuals slice is empty", func(t *testing.T) {
 		// Test case: Should return an error if individuals slice is empty
@@ -87,7 +87,7 @@ func TestMatchDistanceBased(t *testing.T) {
 	})
 
 	// Testing Habit-based strategy
-	m2 := service.NewHabitBasedMatcher()
+	m2 := service.NewHabitBasedMatchingStrategy()
 
 	t.Run("best match should return p2", func(t *testing.T) {
 		// Test case: best match should return p2
@@ -98,7 +98,7 @@ func TestMatchDistanceBased(t *testing.T) {
 	})
 
 	// Testing Reverse Distance-based strategy
-	m3 := service.NewReverseDistanceBasedMatcher()
+	m3 := service.NewReverseDistanceBasedMatchingStrategy()
 
 	t.Run("Should return the farthest match (p3)", func(t *testing.T) {
 		// Test case: Should return the farthest match (p3)
@@ -108,7 +108,7 @@ func TestMatchDistanceBased(t *testing.T) {
 	})
 
 	// Testing Reverse Habit-based strategy
-	m4 := service.NewReverseHabitBasedMatcher()
+	m4 := service.NewReverseHabitBasedMatchingStrategy()
 
 	t.Run("Should return the lowestSimilarity match (p4)", func(t *testing.T) {
 		// Test case: Should return the lowestSimilarity match (p4)

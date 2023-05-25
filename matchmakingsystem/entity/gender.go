@@ -3,6 +3,6 @@ package entity
 type Gender int
 
 const (
-	Male Gender = iota
-	Female
+	Female Gender = iota
+	Male
 )
