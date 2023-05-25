@@ -8,5 +8,5 @@ type Coord struct {
 }
 
 func (c Coord) DistanceTo(other Coord) float64 {
-	return math.Sqrt((c.X-other.X)*(c.X-other.X) + (c.Y-other.Y)*(c.Y-other.Y))
+	return math.Sqrt(math.Pow(c.X-other.X, 2) + math.Pow(c.Y-other.Y, 2))
 }

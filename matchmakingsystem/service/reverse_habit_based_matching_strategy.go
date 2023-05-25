@@ -15,7 +15,7 @@ func NewReverseHabitBasedMatchingStrategy() *ReverseHabitBasedMatchingStrategy {
 	return m
 }
 
-func (m *ReverseHabitBasedMatchingStrategy) Sort(hmwr []entity.HowMatchWeAre) entity.Individual {
+func (m *ReverseHabitBasedMatchingStrategy) Find(hmwr []entity.HowMatchWeAre) entity.Individual {
 	var lowestSimilarity entity.Individual
 	minIntersection := math.MaxInt
 	for _, i := range hmwr {

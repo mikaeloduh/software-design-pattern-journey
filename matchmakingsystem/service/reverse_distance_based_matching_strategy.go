@@ -14,7 +14,7 @@ func NewReverseDistanceBasedMatchingStrategy() *ReverseDistanceBasedMatchingStra
 	return m
 }
 
-func (m *ReverseDistanceBasedMatchingStrategy) Sort(hmwr []entity.HowMatchWeAre) entity.Individual {
+func (m *ReverseDistanceBasedMatchingStrategy) Find(hmwr []entity.HowMatchWeAre) entity.Individual {
 	var farthest entity.Individual
 	maxDistance := float64(0)
 	for _, h := range hmwr {

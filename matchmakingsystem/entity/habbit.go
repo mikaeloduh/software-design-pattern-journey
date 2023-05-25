@@ -3,15 +3,21 @@ package entity
 type Habit string
 type Habits []Habit
 
-func (h *Habits) CountIntersection(other Habits) int {
+func (h Habits) CountIntersection(others Habits) int {
+	mySet := make(map[Habit]bool)
+	for _, v := range h {
+		mySet[v] = true
+	}
+	othersSet := make(map[Habit]bool)
+	for _, v := range others {
+		othersSet[v] = true
+	}
 	count := 0
-	for _, x := range *h {
-		for _, y := range other {
-			if x == y {
-				count++
-				break
-			}
+	for k, _ := range othersSet {
+		if mySet[k] {
+			count++
 		}
 	}
+
 	return count
 }

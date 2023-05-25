@@ -10,18 +10,16 @@ type DistanceBasedMatchingStrategy struct {
 }
 
 func NewDistanceBasedMatchingStrategy() *DistanceBasedMatchingStrategy {
-	m := &DistanceBasedMatchingStrategy{}
-	m.UnimplementedMethod = interface{}(m).(UnimplementedMethod)
-	return m
+	d := &DistanceBasedMatchingStrategy{}
+	d.UnimplementedMethod = interface{}(d).(UnimplementedMethod)
+	return d
 }
 
-func (m *DistanceBasedMatchingStrategy) Search(me entity.Individual, other entity.Individual) interface{} {
-	distance := other.Coord.DistanceTo(me.Coord)
-
-	return distance
+func (s *DistanceBasedMatchingStrategy) Count(me entity.Individual, other entity.Individual) interface{} {
+	return other.Coord.DistanceTo(me.Coord)
 }
 
-func (m *DistanceBasedMatchingStrategy) Sort(hmwr []entity.HowMatchWeAre) entity.Individual {
+func (s *DistanceBasedMatchingStrategy) Find(hmwr []entity.HowMatchWeAre) entity.Individual {
 	var closest entity.Individual
 	minDistance := math.MaxFloat64
 	for _, h := range hmwr {

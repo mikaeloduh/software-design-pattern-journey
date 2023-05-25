@@ -7,15 +7,16 @@ type HabitBasedMatchingStrategy struct {
 }
 
 func NewHabitBasedMatchingStrategy() *HabitBasedMatchingStrategy {
-	m := &HabitBasedMatchingStrategy{}
-	m.UnimplementedMethod = interface{}(m).(UnimplementedMethod)
-	return m
+	h := &HabitBasedMatchingStrategy{}
+	h.UnimplementedMethod = interface{}(h).(UnimplementedMethod)
+	return h
 }
 
-func (m *HabitBasedMatchingStrategy) Search(me entity.Individual, other entity.Individual) interface{} {
+func (s *HabitBasedMatchingStrategy) Count(me entity.Individual, other entity.Individual) interface{} {
 	return me.Habits.CountIntersection(other.Habits)
 }
-func (m *HabitBasedMatchingStrategy) Sort(hmwr []entity.HowMatchWeAre) entity.Individual {
+
+func (s *HabitBasedMatchingStrategy) Find(hmwr []entity.HowMatchWeAre) entity.Individual {
 	var highestSimilarity entity.Individual
 	maxIntersection := 0
 	for _, i := range hmwr {
