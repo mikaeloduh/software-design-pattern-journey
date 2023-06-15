@@ -7,5 +7,5 @@ type Game interface {
 	Init()
 	Draw()
 	TakeTurn()
-	GameResult() entity.IPlayer
+	GameResult() entity.IShowdownPlayer
 }

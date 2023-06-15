@@ -22,7 +22,7 @@ func (p ShowdownHumanOutput) PrintCardsOutput(cards []ShowdownCard) {
 	fmt.Print("\n")
 }
 
-func (p ShowdownHumanOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
+func (p ShowdownHumanOutput) GameOverOutput(winner IShowdownPlayer, players []IShowdownPlayer) {
 	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
 	for _, player := range players {
 		fmt.Printf("%-8s: %d point\n", player.Name(), player.Point())

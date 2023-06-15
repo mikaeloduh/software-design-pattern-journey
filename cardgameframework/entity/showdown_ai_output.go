@@ -15,7 +15,7 @@ func (ai ShowdownAIOutput) TakeTurnStartOutput(name string) {
 func (ai ShowdownAIOutput) PrintCardsOutput([]ShowdownCard) {
 }
 
-func (ai ShowdownAIOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
+func (ai ShowdownAIOutput) GameOverOutput(winner IShowdownPlayer, players []IShowdownPlayer) {
 	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
 	for _, p := range players {
 		fmt.Printf("%-8s: %d point\n", p.Name(), p.Point())

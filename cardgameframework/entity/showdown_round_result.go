@@ -1,7 +1,7 @@
 package entity
 
 type ShowdownRoundResult struct {
-	Player IPlayer
+	Player IShowdownPlayer
 	Card   ShowdownCard
 	Win    bool
 }

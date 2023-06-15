@@ -110,7 +110,7 @@ func (m MockOutput) RoundStartOutput(i int) {}
 
 func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResults) {}
 
-func (m MockOutput) GameOverOutput(winner entity.IPlayer, players []entity.IPlayer) {}
+func (m MockOutput) GameOverOutput(winner entity.IShowdownPlayer, players []entity.IShowdownPlayer) {}
 
 func (m MockOutput) YouExchangeMyCardOutput(name string) {}
 

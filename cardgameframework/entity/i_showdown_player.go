@@ -1,15 +1,15 @@
 package entity
 
-type IPlayer interface {
+type IShowdownPlayer interface {
 	Id() int
 	SetId(int)
 	Name() string
 	SetName(name string)
 	Rename()
 	AssignCard(card ShowdownCard)
-	TakeTurn(players []IPlayer) ShowdownCard
+	TakeTurn(players []IShowdownPlayer) ShowdownCard
 	AddPoint()
 	Point() int
-	IInput
-	IOutput
+	IShowdownInput
+	IShowdownOutput
 }

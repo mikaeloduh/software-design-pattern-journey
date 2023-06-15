@@ -6,20 +6,20 @@ import (
 )
 
 type ShowdownGame struct {
-	Players []entity.IPlayer
+	Players []entity.IShowdownPlayer
 	Deck    *entity.ShowdownDeck
 }
 
 const rounds int = 13
 
-func NewShowdownGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.ShowdownDeck) *ShowdownGame {
-	for i, p := range []entity.IPlayer{p1, p2, p3, p4} {
+func NewShowdownGame(p1 entity.IShowdownPlayer, p2 entity.IShowdownPlayer, p3 entity.IShowdownPlayer, p4 entity.IShowdownPlayer, deck *entity.ShowdownDeck) *ShowdownGame {
+	for i, p := range []entity.IShowdownPlayer{p1, p2, p3, p4} {
 		p.SetId(i)
 		p.SetName(fmt.Sprintf("P%d", i))
 	}
 
 	return &ShowdownGame{
-		Players: []entity.IPlayer{p1, p2, p3, p4},
+		Players: []entity.IShowdownPlayer{p1, p2, p3, p4},
 		Deck:    deck,
 	}
 }
@@ -78,8 +78,8 @@ func (g *ShowdownGame) TakeTurn() {
 	}
 }
 
-func (g *ShowdownGame) GameResult() entity.IPlayer {
-	var winner entity.IPlayer
+func (g *ShowdownGame) GameResult() entity.IShowdownPlayer {
+	var winner entity.IShowdownPlayer
 	max := 0
 	for i := range g.Players {
 		if g.Players[i].Point() > max {

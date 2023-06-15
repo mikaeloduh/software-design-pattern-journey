@@ -6,19 +6,19 @@ type ShowdownHumanPlayer struct {
 	HandCards []ShowdownCard
 	point     int
 	count     int
-	IInput
-	IOutput
+	IShowdownInput
+	IShowdownOutput
 }
 
-func NewHumanPlayer(input IInput, output IOutput) *ShowdownHumanPlayer {
+func NewHumanPlayer(input IShowdownInput, output IShowdownOutput) *ShowdownHumanPlayer {
 	return &ShowdownHumanPlayer{
-		count:   3,
-		IInput:  input,
-		IOutput: output,
+		count:           3,
+		IShowdownInput:  input,
+		IShowdownOutput: output,
 	}
 }
 
-func (p *ShowdownHumanPlayer) TakeTurn(players []IPlayer) ShowdownCard {
+func (p *ShowdownHumanPlayer) TakeTurn(players []IShowdownPlayer) ShowdownCard {
 	p.TakeTurnStartOutput(p.name)
 	p.PrintCardsOutput(p.HandCards)
 

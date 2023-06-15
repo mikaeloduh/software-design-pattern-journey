@@ -6,20 +6,20 @@ type ShowdownAIPlayer struct {
 	HandCards []ShowdownCard
 	point     int
 	count     int
-	IInput
-	IOutput
+	IShowdownInput
+	IShowdownOutput
 }
 
-func NewAIPlayer(input IInput, output IOutput) *ShowdownAIPlayer {
+func NewAIPlayer(input IShowdownInput, output IShowdownOutput) *ShowdownAIPlayer {
 	return &ShowdownAIPlayer{
-		count:   3,
-		name:    "PlayerAI",
-		IInput:  input,
-		IOutput: output,
+		count:           3,
+		name:            "PlayerAI",
+		IShowdownInput:  input,
+		IShowdownOutput: output,
 	}
 }
 
-func (ai *ShowdownAIPlayer) TakeTurn(players []IPlayer) ShowdownCard {
+func (ai *ShowdownAIPlayer) TakeTurn(players []IShowdownPlayer) ShowdownCard {
 	ai.TakeTurnStartOutput(ai.name)
 
 	// 2. Show card
