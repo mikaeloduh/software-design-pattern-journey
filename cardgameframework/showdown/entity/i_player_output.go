@@ -1,6 +1,6 @@
 package entity
 
-type IOutput interface {
+type IPlayerOutput interface {
 	RenameOutput(name string)
 	RoundStartOutput(i int)
 	RoundResultOutput(i int, roundResults RoundResults)

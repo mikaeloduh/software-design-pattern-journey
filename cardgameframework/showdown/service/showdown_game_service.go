@@ -1,25 +1,25 @@
 package service
 
 import (
-	entity2 "cardgameframework/showdown/entity"
+	"cardgameframework/showdown/entity"
 	"fmt"
 )
 
 type ShowdownGame struct {
-	Players []entity2.IPlayer
-	Deck    *entity2.Deck
+	Players []entity.IPlayer
+	Deck    *entity.Deck
 }
 
 const rounds int = 13
 
-func NewShowdownGame(p1 entity2.IPlayer, p2 entity2.IPlayer, p3 entity2.IPlayer, p4 entity2.IPlayer, deck *entity2.Deck) *ShowdownGame {
-	for i, p := range []entity2.IPlayer{p1, p2, p3, p4} {
+func NewShowdownGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4 entity.IPlayer, deck *entity.Deck) *ShowdownGame {
+	for i, p := range []entity.IPlayer{p1, p2, p3, p4} {
 		p.SetId(i)
 		p.SetName(fmt.Sprintf("P%d", i))
 	}
 
 	return &ShowdownGame{
-		Players: []entity2.IPlayer{p1, p2, p3, p4},
+		Players: []entity.IPlayer{p1, p2, p3, p4},
 		Deck:    deck,
 	}
 }
@@ -52,16 +52,16 @@ func (g *ShowdownGame) TakeTurn() {
 	for i := 0; i < rounds; i++ {
 		g.Players[0].RoundStartOutput(i)
 
-		roundResults := make(entity2.RoundResults, len(g.Players))
+		roundResults := make(entity.RoundResults, len(g.Players))
 		for r := range roundResults {
-			roundResults[r] = entity2.RoundResult{
+			roundResults[r] = entity.RoundResult{
 				Player: g.Players[r],
 				Card:   g.Players[r].TakeTurn(g.Players),
 				Win:    false,
 			}
 		}
 
-		greatest := entity2.Card{Suit: entity2.Clubs, Rank: entity2.Three}
+		greatest := entity.Card{Suit: entity.Clubs, Rank: entity.Three}
 		for _, rr := range roundResults {
 			if rr.Card.IsGreater(greatest) {
 				greatest = rr.Card
@@ -78,8 +78,8 @@ func (g *ShowdownGame) TakeTurn() {
 	}
 }
 
-func (g *ShowdownGame) GameResult() entity2.IPlayer {
-	var winner entity2.IPlayer
+func (g *ShowdownGame) GameResult() entity.IPlayer {
+	var winner entity.IPlayer
 	max := 0
 	for i := range g.Players {
 		if g.Players[i].Point() > max {

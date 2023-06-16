@@ -1,7 +1,7 @@
 package service
 
 import (
-	entity2 "cardgameframework/showdown/entity"
+	"cardgameframework/showdown/entity"
 	"math/rand"
 	"testing"
 	"time"
@@ -10,15 +10,15 @@ import (
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
-	p1 := entity2.NewHumanPlayer(MockInput{}, MockOutput{})
-	p2 := entity2.NewHumanPlayer(MockInput{}, MockOutput{})
-	p3 := entity2.NewHumanPlayer(MockInput{}, MockOutput{})
-	pAI := entity2.NewAIPlayer(MockInput{}, MockOutput{})
-	var deck *entity2.Deck
+	p1 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+	p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+	p3 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
+	pAI := entity.NewAIPlayer(MockInput{}, MockOutput{})
+	var deck *entity.Deck
 	var game *ShowdownGame
 
 	t.Run("Test creating game with human Player, AI Player, and new Deck", func(t *testing.T) {
-		deck = entity2.NewDeck()
+		deck = entity.NewDeck()
 		game = NewShowdownGame(p1, p2, p3, pAI, deck)
 
 		assert.IsType(t, &ShowdownGame{}, game)
@@ -48,7 +48,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 	t.Run("when draw is finished, every Player should have 13 hand Card", func(t *testing.T) {
 		game.Draw()
 
-		assert.IsType(t, entity2.Card{}, p1.HandCards[0])
+		assert.IsType(t, entity.Card{}, p1.HandCards[0])
 		assert.Equal(t, rounds, len(p1.HandCards))
 		assert.Equal(t, rounds, len(p2.HandCards))
 		assert.Equal(t, rounds, len(p3.HandCards))
@@ -107,14 +107,14 @@ func (m MockOutput) RenameOutput(name string) {}
 
 func (m MockOutput) RoundStartOutput(i int) {}
 
-func (m MockOutput) RoundResultOutput(i int, roundResults entity2.RoundResults) {}
+func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResults) {}
 
-func (m MockOutput) GameOverOutput(winner entity2.IPlayer, players []entity2.IPlayer) {
+func (m MockOutput) GameOverOutput(winner entity.IPlayer, players []entity.IPlayer) {
 }
 
 func (m MockOutput) YouExchangeMyCardOutput(name string) {}
 
-func (m MockOutput) PrintCardsOutput(cards []entity2.Card) {}
+func (m MockOutput) PrintCardsOutput(cards []entity.Card) {}
 
 func (m MockOutput) AskToExchangeCardOutput(name string) {}
 

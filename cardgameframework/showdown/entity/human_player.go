@@ -6,15 +6,15 @@ type HumanPlayer struct {
 	HandCards []Card
 	point     int
 	count     int
-	IInput
-	IOutput
+	IPlayerInput
+	IPlayerOutput
 }
 
-func NewHumanPlayer(input IInput, output IOutput) *HumanPlayer {
+func NewHumanPlayer(input IPlayerInput, output IPlayerOutput) *HumanPlayer {
 	return &HumanPlayer{
-		count:   3,
-		IInput:  input,
-		IOutput: output,
+		count:         3,
+		IPlayerInput:  input,
+		IPlayerOutput: output,
 	}
 }
 

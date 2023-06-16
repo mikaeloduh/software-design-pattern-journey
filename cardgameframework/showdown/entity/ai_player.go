@@ -6,16 +6,16 @@ type AIPlayer struct {
 	HandCards []Card
 	point     int
 	count     int
-	IInput
-	IOutput
+	IPlayerInput
+	IPlayerOutput
 }
 
-func NewAIPlayer(input IInput, output IOutput) *AIPlayer {
+func NewAIPlayer(input IPlayerInput, output IPlayerOutput) *AIPlayer {
 	return &AIPlayer{
-		count:   3,
-		name:    "PlayerAI",
-		IInput:  input,
-		IOutput: output,
+		count:         3,
+		name:          "PlayerAI",
+		IPlayerInput:  input,
+		IPlayerOutput: output,
 	}
 }
 

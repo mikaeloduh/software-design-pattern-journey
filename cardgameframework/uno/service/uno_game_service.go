@@ -6,12 +6,6 @@ import (
 	"time"
 )
 
-// Card represents an UNO card.
-type Card struct {
-	Color string
-	Value string
-}
-
 // Player defines the methods required for a player in the UNO game.
 type Player interface {
 	SetCard(card Card)
@@ -85,6 +79,12 @@ func (p *ComputerPlayer) GetName() string {
 // GetHand returns the player's hand.
 func (p *ComputerPlayer) GetHand() []Card {
 	return p.Hand
+}
+
+// Card represents an UNO card.
+type Card struct {
+	Color string
+	Value string
 }
 
 // Deck represents the UNO deck.

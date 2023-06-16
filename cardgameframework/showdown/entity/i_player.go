@@ -10,6 +10,6 @@ type IPlayer interface {
 	TakeTurn(players []IPlayer) Card
 	AddPoint()
 	Point() int
-	IInput
-	IOutput
+	IPlayerInput
+	IPlayerOutput
 }
