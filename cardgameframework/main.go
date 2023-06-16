@@ -36,7 +36,7 @@ func main() {
 
 	game := service.NewUnoGame(players, deck)
 	game.ShuffleDeck()
-	game.DealHands(7)
+	game.DrawHands(7)
 	game.TakeTurns()
 	game.GameResult()
 }

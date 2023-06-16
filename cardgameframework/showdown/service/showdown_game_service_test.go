@@ -37,16 +37,16 @@ func TestRunAGamePeacefully(t *testing.T) {
 	})
 
 	t.Run("cards in a shuffled Deck should be random ordered", func(t *testing.T) {
-		game.Init()
+		game.ShuffleDeck()
 		c1 := game.Deck.Cards[0]
-		game.Init()
+		game.ShuffleDeck()
 		c2 := game.Deck.Cards[0]
 
 		assert.NotEqual(t, c1, c2)
 	})
 
 	t.Run("when draw is finished, every Player should have 13 hand Card", func(t *testing.T) {
-		game.Draw()
+		game.DrawHands()
 
 		assert.IsType(t, entity.Card{}, p1.HandCards[0])
 		assert.Equal(t, rounds, len(p1.HandCards))
@@ -57,7 +57,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 	})
 
 	t.Run("Testing game over: game should be end after 13th rounds", func(t *testing.T) {
-		game.TakeTurn()
+		game.TakeTurns()
 
 		assert.Equal(t, 0, len(p1.HandCards))
 		assert.Equal(t, 0, len(p2.HandCards))

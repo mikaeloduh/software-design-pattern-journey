@@ -6,8 +6,8 @@ import (
 
 type Game interface {
 	Run()
-	Init()
-	Draw()
-	TakeTurn()
+	ShuffleDeck()
+	DrawHands()
+	TakeTurns()
 	GameResult() entity.IPlayer
 }

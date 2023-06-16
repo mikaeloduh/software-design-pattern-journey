@@ -30,7 +30,7 @@ func TestUnoGame_DealHands(t *testing.T) {
 	}
 
 	game := NewUnoGame(players, deck)
-	game.DealHands(2)
+	game.DrawHands(2)
 
 	// Each player should have received 2 cards.
 	assert.Len(t, players[0].GetHand(), 2)
@@ -48,7 +48,7 @@ func TestUnoGame_Result(t *testing.T) {
 
 	game := NewUnoGame(players, deck)
 	game.ShuffleDeck()
-	game.DealHands(5)
+	game.DrawHands(5)
 	game.TakeTurns()
 	winner := game.GameResult()
 

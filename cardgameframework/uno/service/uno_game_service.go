@@ -20,17 +20,28 @@ func NewUnoGame(players []entity.IPlayer, deck entity.Deck) *UnoGame {
 	}
 }
 
+func (u *UnoGame) Run() {
+	u.Init()
+	u.ShuffleDeck()
+	u.DrawHands(5)
+	u.TakeTurns()
+	u.GameResult()
+}
+
+func (u *UnoGame) Init() {
+	// TODO: rename player
+}
+
 // ShuffleDeck shuffles the deck of cards.
 func (u *UnoGame) ShuffleDeck() {
 	u.Deck.Shuffle()
 }
 
-// DealHands deals the initial hands to all players.
-func (u *UnoGame) DealHands(numCards int) {
+// DrawHands deals the initial hands to all players.
+func (u *UnoGame) DrawHands(numCards int) {
 	for i := 0; i < numCards; i++ {
 		for _, player := range u.Players {
-			card := u.Deck.DealCard()
-			player.SetCard(card)
+			player.SetCard(u.Deck.DealCard())
 		}
 	}
 }
@@ -89,7 +100,7 @@ func (u *UnoGame) GameResult() (winner entity.IPlayer) {
 	for _, player := range u.Players {
 		fmt.Printf("%s's hand: %v\n", player.GetName(), player.GetHand())
 		if len(player.GetHand()) == 0 {
-			fmt.Printf("\n%s has won the game!\n", player.GetName())
+			fmt.Printf("%s has won the game!\n", player.GetName())
 			winner = player
 		}
 	}

@@ -26,8 +26,9 @@ func NewShowdownGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4
 
 func (g *ShowdownGame) Run() {
 	g.Init()
-	g.Draw()
-	g.TakeTurn()
+	g.ShuffleDeck()
+	g.DrawHands()
+	g.TakeTurns()
 	g.GameResult()
 }
 
@@ -35,11 +36,13 @@ func (g *ShowdownGame) Init() {
 	for i := range g.Players {
 		g.Players[i].Rename()
 	}
+}
 
+func (g *ShowdownGame) ShuffleDeck() {
 	g.Deck.Shuffle()
 }
 
-func (g *ShowdownGame) Draw() {
+func (g *ShowdownGame) DrawHands() {
 	for i := 0; i < rounds; i++ {
 		for i := range g.Players {
 			g.Players[i].AssignCard(g.Deck.DrawCard())
@@ -47,7 +50,7 @@ func (g *ShowdownGame) Draw() {
 	}
 }
 
-func (g *ShowdownGame) TakeTurn() {
+func (g *ShowdownGame) TakeTurns() {
 
 	for i := 0; i < rounds; i++ {
 		g.Players[0].RoundStartOutput(i)

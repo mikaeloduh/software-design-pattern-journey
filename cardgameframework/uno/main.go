@@ -18,8 +18,5 @@ func main() {
 	}
 
 	game := service.NewUnoGame(players, deck)
-	game.ShuffleDeck()
-	game.DealHands(5)
-	game.TakeTurns()
-	game.GameResult()
+	game.Run()
 }
