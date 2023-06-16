@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-type ShowdownHumanInput struct{}
+type HumanPlayerInput struct{}
 
-func (i ShowdownHumanInput) InputString() string {
+func (i HumanPlayerInput) InputString() string {
 	reader := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -24,7 +24,7 @@ func (i ShowdownHumanInput) InputString() string {
 	}
 }
 
-func (i ShowdownHumanInput) InputNum(min int, max int) int {
+func (i HumanPlayerInput) InputNum(min int, max int) int {
 	fmt.Print("(", min, " ~ ", max, "): ")
 
 	reader := bufio.NewReader(os.Stdin)
@@ -51,7 +51,7 @@ func (i ShowdownHumanInput) InputNum(min int, max int) int {
 	}
 }
 
-func (i ShowdownHumanInput) InputBool() bool {
+func (i HumanPlayerInput) InputBool() bool {
 	fmt.Print("(y/n): ")
 
 	scanner := bufio.NewScanner(os.Stdin)

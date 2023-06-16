@@ -1,6 +1,6 @@
 package entity
 
-type IShowdownInput interface {
+type IInput interface {
 	InputNum(int, int) int
 	InputBool() bool
 	InputString() string

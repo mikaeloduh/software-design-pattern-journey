@@ -1,25 +1,24 @@
 package service
 
 import (
+	entity2 "cardgameframework/showdown/entity"
 	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-
-	"cardgameframework/entity"
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
-	p1 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
-	p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
-	p3 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
-	pAI := entity.NewAIPlayer(MockInput{}, MockOutput{})
-	var deck *entity.ShowdownDeck
+	p1 := entity2.NewHumanPlayer(MockInput{}, MockOutput{})
+	p2 := entity2.NewHumanPlayer(MockInput{}, MockOutput{})
+	p3 := entity2.NewHumanPlayer(MockInput{}, MockOutput{})
+	pAI := entity2.NewAIPlayer(MockInput{}, MockOutput{})
+	var deck *entity2.Deck
 	var game *ShowdownGame
 
-	t.Run("Test creating game with human Player, AI Player, and new ShowdownDeck", func(t *testing.T) {
-		deck = entity.NewShowdownDeck()
+	t.Run("Test creating game with human Player, AI Player, and new Deck", func(t *testing.T) {
+		deck = entity2.NewDeck()
 		game = NewShowdownGame(p1, p2, p3, pAI, deck)
 
 		assert.IsType(t, &ShowdownGame{}, game)
@@ -37,7 +36,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.Equal(t, "TestPlayer3", p3.Name())
 	})
 
-	t.Run("cards in a shuffled ShowdownDeck should be random ordered", func(t *testing.T) {
+	t.Run("cards in a shuffled Deck should be random ordered", func(t *testing.T) {
 		game.Init()
 		c1 := game.Deck.Cards[0]
 		game.Init()
@@ -46,10 +45,10 @@ func TestRunAGamePeacefully(t *testing.T) {
 		assert.NotEqual(t, c1, c2)
 	})
 
-	t.Run("when draw is finished, every Player should have 13 hand ShowdownCard", func(t *testing.T) {
+	t.Run("when draw is finished, every Player should have 13 hand Card", func(t *testing.T) {
 		game.Draw()
 
-		assert.IsType(t, entity.ShowdownCard{}, p1.HandCards[0])
+		assert.IsType(t, entity2.Card{}, p1.HandCards[0])
 		assert.Equal(t, rounds, len(p1.HandCards))
 		assert.Equal(t, rounds, len(p2.HandCards))
 		assert.Equal(t, rounds, len(p3.HandCards))
@@ -108,13 +107,14 @@ func (m MockOutput) RenameOutput(name string) {}
 
 func (m MockOutput) RoundStartOutput(i int) {}
 
-func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResults) {}
+func (m MockOutput) RoundResultOutput(i int, roundResults entity2.RoundResults) {}
 
-func (m MockOutput) GameOverOutput(winner entity.IShowdownPlayer, players []entity.IShowdownPlayer) {}
+func (m MockOutput) GameOverOutput(winner entity2.IPlayer, players []entity2.IPlayer) {
+}
 
 func (m MockOutput) YouExchangeMyCardOutput(name string) {}
 
-func (m MockOutput) PrintCardsOutput(cards []entity.ShowdownCard) {}
+func (m MockOutput) PrintCardsOutput(cards []entity2.Card) {}
 
 func (m MockOutput) AskToExchangeCardOutput(name string) {}
 

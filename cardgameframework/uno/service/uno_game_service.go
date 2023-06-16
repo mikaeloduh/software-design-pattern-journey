@@ -33,7 +33,7 @@ func (p *HumanPlayer) SetCard(card Card) {
 
 // TakeTurn allows the player to choose a card to play.
 func (p *HumanPlayer) TakeTurn() Card {
-	fmt.Printf("%s's turn. Your hand: %v\n", p.Name, p.Hand)
+	fmt.Printf("\n%s's turn. Your hand: %v\n", p.GetName(), p.GetHand())
 	var cardIndex int
 	for {
 		fmt.Print("Enter the index of the card you want to play: ")
@@ -155,13 +155,12 @@ func (u *UnoGame) DealHands(numCards int) {
 // TakeTurns allows each player to take their turn.
 func (u *UnoGame) TakeTurns() {
 	// Start the game by placing a card from the deck on the desk
-	deskCard := u.Deck.DealCard()
-	fmt.Printf("Starting card on the desk: %v\n", deskCard)
+	u.DeskCard = u.Deck.DealCard()
+	fmt.Printf("Starting card on the desk. ")
 
 	for {
 		for _, player := range u.Players {
-			fmt.Printf("\n%s's turn. Your hand: %v\n", player.GetName(), player.GetHand())
-
+			fmt.Printf("The desk card is %v\n", u.DeskCard)
 			// Check if the player has a valid card to play
 			haveValidCards := u.haveValidCards(player.GetHand())
 			if haveValidCards {
@@ -182,7 +181,10 @@ func (u *UnoGame) TakeTurns() {
 
 				fmt.Printf("%s played %v\n", player.GetName(), playedCard)
 			} else {
+				fmt.Printf("\n%s's turn. \nYou have no valid cards\n", player.GetName())
+
 				// Player has no valid cards, they need to draw a card from the deck
+				u.Deck.Shuffle()
 				drawnCard := u.Deck.DealCard()
 				player.SetCard(drawnCard)
 				fmt.Printf("%s drew a card: %v\n", player.GetName(), drawnCard)
@@ -190,22 +192,29 @@ func (u *UnoGame) TakeTurns() {
 
 			// Check if the player has emptied their hand and won the game
 			if len(player.GetHand()) == 0 {
-				fmt.Printf("\n%s has won the game!\n", player.GetName())
+				fmt.Printf("Game over!\n\n")
 				return
 			}
-			// Shuffle the deck after each turn
-			u.Deck.Shuffle()
 		}
 	}
 }
 
+// GameResult processes the final result of the game.
+func (u *UnoGame) GameResult() (winner Player) {
+	for _, player := range u.Players {
+		fmt.Printf("%s's hand: %v\n", player.GetName(), player.GetHand())
+		if len(player.GetHand()) == 0 {
+			fmt.Printf("\n%s has won the game!\n", player.GetName())
+			winner = player
+		}
+	}
+	return winner
+}
+
 // haveValidCards returns the valid cards that the player can play based on the current desk card.
 func (u *UnoGame) haveValidCards(hand []Card) bool {
-	validCards := make([]Card, 0)
-
 	for _, card := range hand {
-		if card.Color == u.DeskCard.Color || card.Value == u.DeskCard.Value {
-			validCards = append(validCards, card)
+		if u.isValidMove(card) {
 			return true
 		}
 	}
@@ -225,11 +234,4 @@ func (u *UnoGame) isValidMove(card Card) bool {
 func (u *UnoGame) updateDeskCard(card Card) {
 	u.Deck.Cards = append(u.Deck.Cards, u.DeskCard)
 	u.DeskCard = card
-}
-
-// GameResult processes the final result of the game.
-func (u *UnoGame) GameResult() {
-	for _, player := range u.Players {
-		fmt.Printf("%s's hand: %v\n", player.GetName(), player.GetHand())
-	}
 }

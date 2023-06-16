@@ -1,6 +1,8 @@
 package main
 
-import "cardgameframework/service"
+import (
+	"cardgameframework/uno/service"
+)
 
 //func main() {
 //p1 := entity.NewAIPlayer(entity.Showdown_AIInput{}, entity.ShowdownAIOutput{})
@@ -14,7 +16,7 @@ import "cardgameframework/service"
 //p4 := entity.NewAIPlayer(entity.ShowdownAIInput{}, entity.ShowdownAIOutput{})
 //deck := entity.NewShowdownDeck()
 //
-//game := service.NewShowdownGame(p1, p2, p3, p4, deck)
+//game := template.NewShowdownGame(p1, p2, p3, p4, deck)
 //
 //game.Run()
 //}
@@ -26,7 +28,7 @@ func main() {
 		&service.HumanPlayer{Name: "Player 1"},
 		&service.HumanPlayer{Name: "Player 2"},
 		&service.HumanPlayer{Name: "Player 3"},
-		//&service.HumanPlayer{Name: "Player 4"},
+		//&template.HumanPlayer{Name: "Player 4"},
 		&service.ComputerPlayer{Name: "Computer 1"},
 		// Add more players here...
 	}

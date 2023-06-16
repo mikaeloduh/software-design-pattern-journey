@@ -5,20 +5,20 @@ import (
 	"time"
 )
 
-type ShowdownAIInput struct{}
+type AIPlayerInput struct{}
 
-func (i ShowdownAIInput) InputString() string {
+func (i AIPlayerInput) InputString() string {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (ShowdownAIInput) InputNum(min int, max int) int {
+func (AIPlayerInput) InputNum(min int, max int) int {
 	rand.Seed(time.Now().UnixNano())
 
 	return min + rand.Intn(max-min+1)
 }
 
-func (ShowdownAIInput) InputBool() bool {
+func (AIPlayerInput) InputBool() bool {
 	rand.Seed(time.Now().UnixNano())
 
 	return rand.Intn(2) == 1

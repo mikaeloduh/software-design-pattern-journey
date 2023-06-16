@@ -36,9 +36,21 @@ func TestUnoGame_DealHands(t *testing.T) {
 	assert.Len(t, players[1].GetHand(), 2)
 }
 
-func TestUnoGame_isValidMove(t *testing.T) {
-	// TODO: Add tests for the isValidMove method.
-	t.Skip("Not implemented yet")
-}
+func TestUnoGame_Result(t *testing.T) {
+	deck := NewDeck()
+	players := []Player{
+		&ComputerPlayer{Name: "Computer 1"},
+		&ComputerPlayer{Name: "Computer 2"},
+		&ComputerPlayer{Name: "Computer 3"},
+		&ComputerPlayer{Name: "Computer 4"},
+	}
 
-// TODO: Add more tests for the UnoGame class.
+	game := NewUnoGame(players, deck)
+	game.ShuffleDeck()
+	game.DealHands(5)
+	game.TakeTurns()
+	winner := game.GameResult()
+
+	// Player who won the game should have their hand empty
+	assert.Equal(t, 0, len(winner.GetHand()))
+}

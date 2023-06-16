@@ -2,17 +2,17 @@ package entity
 
 import "fmt"
 
-type ShowdownHumanOutput struct{}
+type HumanPlayerOutput struct{}
 
-func (p ShowdownHumanOutput) AskShowCardOutput(name string) {
+func (p HumanPlayerOutput) AskShowCardOutput(name string) {
 	fmt.Printf("%s, please select a card to show ", name)
 }
 
-func (p ShowdownHumanOutput) TakeTurnStartOutput(name string) {
+func (p HumanPlayerOutput) TakeTurnStartOutput(name string) {
 	fmt.Printf("\n* Now is %s 's turn.\n", name)
 }
 
-func (p ShowdownHumanOutput) PrintCardsOutput(cards []ShowdownCard) {
+func (p HumanPlayerOutput) PrintCardsOutput(cards []Card) {
 	for i, c := range cards {
 		if i%5 == 0 && i != 0 {
 			fmt.Print("\n")
@@ -22,14 +22,14 @@ func (p ShowdownHumanOutput) PrintCardsOutput(cards []ShowdownCard) {
 	fmt.Print("\n")
 }
 
-func (p ShowdownHumanOutput) GameOverOutput(winner IShowdownPlayer, players []IShowdownPlayer) {
+func (p HumanPlayerOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
 	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
 	for _, player := range players {
 		fmt.Printf("%-8s: %d point\n", player.Name(), player.Point())
 	}
 }
 
-func (p ShowdownHumanOutput) RoundResultOutput(i int, rrs RoundResults) {
+func (p HumanPlayerOutput) RoundResultOutput(i int, rrs RoundResults) {
 	fmt.Printf("\n* Round %d end\n", i)
 	for _, rr := range rrs {
 		fmt.Printf("[%4s ]   ", rr.Card.String())
@@ -48,10 +48,10 @@ func (p ShowdownHumanOutput) RoundResultOutput(i int, rrs RoundResults) {
 	fmt.Print("\n")
 }
 
-func (p ShowdownHumanOutput) RoundStartOutput(i int) {
+func (p HumanPlayerOutput) RoundStartOutput(i int) {
 	fmt.Printf("\n============== Round %d ==============\n", i)
 }
 
-func (p ShowdownHumanOutput) RenameOutput(name string) {
+func (p HumanPlayerOutput) RenameOutput(name string) {
 	fmt.Printf("%s, please enter your name: ", name)
 }

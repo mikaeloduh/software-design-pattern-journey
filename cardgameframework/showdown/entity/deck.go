@@ -32,12 +32,12 @@ const (
 	King  Rank = 13
 )
 
-type ShowdownCard struct {
+type Card struct {
 	Suit Suit
 	Rank Rank
 }
 
-func (c *ShowdownCard) IsGreater(other ShowdownCard) bool {
+func (c *Card) IsGreater(other Card) bool {
 	if c.Rank > other.Rank {
 		return true
 	} else if c.Rank < other.Rank {
@@ -47,7 +47,7 @@ func (c *ShowdownCard) IsGreater(other ShowdownCard) bool {
 	}
 }
 
-func (c *ShowdownCard) String() string {
+func (c *Card) String() string {
 	var suitName string
 	switch c.Suit {
 	case Clubs:
@@ -91,28 +91,28 @@ func (c *ShowdownCard) String() string {
 	return fmt.Sprintf("%s %s", rankName, suitName)
 }
 
-type ShowdownDeck struct {
-	Cards []ShowdownCard
+type Deck struct {
+	Cards []Card
 }
 
-func (d *ShowdownDeck) DrawCard() ShowdownCard {
+func (d *Deck) DrawCard() Card {
 	card := d.Cards[0]
 	d.Cards = d.Cards[1:]
 	return card
 }
 
-func (d *ShowdownDeck) Shuffle() {
+func (d *Deck) Shuffle() {
 	for i := range d.Cards {
 		j := rand.Intn(i + 1)
 		d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
 	}
 }
 
-func NewShowdownDeck() *ShowdownDeck {
-	deck := ShowdownDeck{}
+func NewDeck() *Deck {
+	deck := Deck{}
 	for _, suit := range []Suit{Spades, Hearts, Diamonds, Clubs} {
 		for rank := Three; rank <= Two; rank++ {
-			deck.Cards = append(deck.Cards, ShowdownCard{Rank: rank, Suit: suit})
+			deck.Cards = append(deck.Cards, Card{Rank: rank, Suit: suit})
 		}
 	}
 	return &deck
