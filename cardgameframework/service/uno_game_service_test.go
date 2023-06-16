@@ -1,35 +1,44 @@
 package service
 
 import (
-	"cardgameframework/entity"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestNewUnoGame(t *testing.T) {
-	t.Run("Hello world", func(t *testing.T) {
-		assert.Equal(t, 2, 1+1)
-	})
+func TestUnoGame_ShuffleDeck(t *testing.T) {
+	deck := NewDeck()
 
-	t.Run("Test New Uno Game no error", func(t *testing.T) {
-		p1 := entity.NewUnoAIPlayer()
-		p2 := entity.NewUnoAIPlayer()
-		p3 := entity.NewUnoAIPlayer()
-		p4 := entity.NewUnoAIPlayer()
-		game := NewUnoGame(p1, p2, p3, p4)
-		game.Init()
+	game := NewUnoGame(nil, deck)
+	game.ShuffleDeck()
 
-		assert.Equal(t, 40, len(game.Deck.Cards))
-	})
+	// Since shuffling the deck is a random process, we can only assert that the number
+	// of cards remains the same after shuffling.
+	assert.Len(t, game.Deck.Cards, len(deck.Cards))
 
-	t.Run("Test Draw", func(t *testing.T) {
-		p1 := entity.NewUnoAIPlayer()
-		p2 := entity.NewUnoAIPlayer()
-		p3 := entity.NewUnoAIPlayer()
-		p4 := entity.NewUnoAIPlayer()
-		game := NewUnoGame(p1, p2, p3, p4)
-		game.Draw()
-
-		assert.Equal(t, 40, len(game.Deck.Cards))
-	})
+	// Assert that the deck cards have been shuffled
+	assert.NotEqual(t, game.Deck.Cards, NewDeck().Cards)
 }
+
+func TestUnoGame_DealHands(t *testing.T) {
+	deck := NewDeck()
+
+	players := []Player{
+		&HumanPlayer{Name: "Player 1"},
+		&ComputerPlayer{Name: "Computer 1"},
+	}
+
+	game := NewUnoGame(players, deck)
+	game.DealHands(2)
+
+	// Each player should have received 2 cards.
+	assert.Len(t, players[0].GetHand(), 2)
+	assert.Len(t, players[1].GetHand(), 2)
+}
+
+func TestUnoGame_isValidMove(t *testing.T) {
+	// TODO: Add tests for the isValidMove method.
+	t.Skip("Not implemented yet")
+}
+
+// TODO: Add more tests for the UnoGame class.
