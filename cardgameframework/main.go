@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cardgameframework/uno/entity"
 	"cardgameframework/uno/service"
 )
 
@@ -22,14 +23,14 @@ import (
 //}
 
 func main() {
-	deck := service.NewDeck()
+	deck := entity.NewDeck()
 
-	players := []service.Player{
-		&service.HumanPlayer{Name: "Player 1"},
-		&service.HumanPlayer{Name: "Player 2"},
-		&service.HumanPlayer{Name: "Player 3"},
-		//&template.HumanPlayer{Name: "Player 4"},
-		&service.ComputerPlayer{Name: "Computer 1"},
+	players := []entity.IPlayer{
+		&entity.HumanPlayer{Name: "IPlayer 1"},
+		&entity.HumanPlayer{Name: "IPlayer 2"},
+		&entity.HumanPlayer{Name: "IPlayer 3"},
+		//&template.HumanPlayer{Name: "IPlayer 4"},
+		&entity.ComputerPlayer{Name: "Computer 1"},
 		// Add more players here...
 	}
 

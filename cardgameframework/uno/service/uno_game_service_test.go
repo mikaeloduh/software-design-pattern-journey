@@ -1,13 +1,14 @@
 package service
 
 import (
+	"cardgameframework/uno/entity"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestUnoGame_ShuffleDeck(t *testing.T) {
-	deck := NewDeck()
+	deck := entity.NewDeck()
 
 	game := NewUnoGame(nil, deck)
 	game.ShuffleDeck()
@@ -17,15 +18,15 @@ func TestUnoGame_ShuffleDeck(t *testing.T) {
 	assert.Len(t, game.Deck.Cards, len(deck.Cards))
 
 	// Assert that the deck cards have been shuffled
-	assert.NotEqual(t, game.Deck.Cards, NewDeck().Cards)
+	assert.NotEqual(t, game.Deck.Cards, entity.NewDeck().Cards)
 }
 
 func TestUnoGame_DealHands(t *testing.T) {
-	deck := NewDeck()
+	deck := entity.NewDeck()
 
-	players := []Player{
-		&HumanPlayer{Name: "Player 1"},
-		&ComputerPlayer{Name: "Computer 1"},
+	players := []entity.IPlayer{
+		&entity.HumanPlayer{Name: "IPlayer 1"},
+		&entity.ComputerPlayer{Name: "Computer 1"},
 	}
 
 	game := NewUnoGame(players, deck)
@@ -37,12 +38,12 @@ func TestUnoGame_DealHands(t *testing.T) {
 }
 
 func TestUnoGame_Result(t *testing.T) {
-	deck := NewDeck()
-	players := []Player{
-		&ComputerPlayer{Name: "Computer 1"},
-		&ComputerPlayer{Name: "Computer 2"},
-		&ComputerPlayer{Name: "Computer 3"},
-		&ComputerPlayer{Name: "Computer 4"},
+	deck := entity.NewDeck()
+	players := []entity.IPlayer{
+		&entity.ComputerPlayer{Name: "Computer 1"},
+		&entity.ComputerPlayer{Name: "Computer 2"},
+		&entity.ComputerPlayer{Name: "Computer 3"},
+		&entity.ComputerPlayer{Name: "Computer 4"},
 	}
 
 	game := NewUnoGame(players, deck)
@@ -51,6 +52,6 @@ func TestUnoGame_Result(t *testing.T) {
 	game.TakeTurns()
 	winner := game.GameResult()
 
-	// Player who won the game should have their hand empty
+	// IPlayer who won the game should have their hand empty
 	assert.Equal(t, 0, len(winner.GetHand()))
 }
