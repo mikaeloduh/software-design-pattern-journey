@@ -49,6 +49,7 @@ func TestUnoGame_Result(t *testing.T) {
 	game := NewUnoGame(players, deck)
 	game.ShuffleDeck()
 	game.DrawHands(5)
+	game.PreTakeTurns()
 	game.TakeTurns()
 	winner := game.GameResult()
 

@@ -6,7 +6,8 @@ type IPlayer interface {
 	Name() string
 	SetName(name string)
 	Rename()
-	AssignCard(card Card)
+	GetHand() []Card
+	SetCard(card Card)
 	TakeTurn(players []IPlayer) Card
 	AddPoint()
 	Point() int

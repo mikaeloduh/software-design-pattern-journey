@@ -5,6 +5,7 @@ import (
 	"math/rand"
 )
 
+// Suit type
 type Suit int
 
 const (
@@ -14,6 +15,16 @@ const (
 	Spades   Suit = 3
 )
 
+func (s Suit) String() string {
+	return map[Suit]string{
+		Clubs:    "♠",
+		Diamonds: "♦",
+		Hearts:   "♥",
+		Spades:   "♣",
+	}[s]
+}
+
+// Rank type
 type Rank int
 
 const (
@@ -32,6 +43,25 @@ const (
 	King  Rank = 13
 )
 
+func (r Rank) String() string {
+	return map[Rank]string{
+		Ace:   "A",
+		Two:   "2",
+		Three: "3",
+		Four:  "4",
+		Five:  "5",
+		Six:   "6",
+		Seven: "7",
+		Eight: "8",
+		Nine:  "9",
+		Ten:   "10",
+		Jack:  "J",
+		Queen: "Q",
+		King:  "K",
+	}[r]
+}
+
+// Card type
 type Card struct {
 	Suit Suit
 	Rank Rank
@@ -48,64 +78,12 @@ func (c *Card) IsGreater(other Card) bool {
 }
 
 func (c *Card) String() string {
-	var suitName string
-	switch c.Suit {
-	case Clubs:
-		suitName = "♠"
-	case Diamonds:
-		suitName = "♦"
-	case Hearts:
-		suitName = "♥"
-	case Spades:
-		suitName = "♣"
-	}
-	var rankName string
-	switch c.Rank {
-	case Ace:
-		rankName = "A"
-	case Two:
-		rankName = "2"
-	case Three:
-		rankName = "3"
-	case Four:
-		rankName = "4"
-	case Five:
-		rankName = "5"
-	case Six:
-		rankName = "6"
-	case Seven:
-		rankName = "7"
-	case Eight:
-		rankName = "8"
-	case Nine:
-		rankName = "9"
-	case Ten:
-		rankName = "10"
-	case Jack:
-		rankName = "J"
-	case Queen:
-		rankName = "Q"
-	case King:
-		rankName = "K"
-	}
-	return fmt.Sprintf("%s %s", rankName, suitName)
+	return fmt.Sprintf("%s %s", c.Rank.String(), c.Suit.String())
 }
 
+// Deck contains Cards
 type Deck struct {
 	Cards []Card
-}
-
-func (d *Deck) DrawCard() Card {
-	card := d.Cards[0]
-	d.Cards = d.Cards[1:]
-	return card
-}
-
-func (d *Deck) Shuffle() {
-	for i := range d.Cards {
-		j := rand.Intn(i + 1)
-		d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
-	}
 }
 
 func NewDeck() *Deck {
@@ -116,4 +94,17 @@ func NewDeck() *Deck {
 		}
 	}
 	return &deck
+}
+
+func (d *Deck) DealCard() Card {
+	card := d.Cards[0]
+	d.Cards = d.Cards[1:]
+	return card
+}
+
+func (d *Deck) Shuffle() {
+	for i := range d.Cards {
+		j := rand.Intn(i + 1)
+		d.Cards[i], d.Cards[j] = d.Cards[j], d.Cards[i]
+	}
 }

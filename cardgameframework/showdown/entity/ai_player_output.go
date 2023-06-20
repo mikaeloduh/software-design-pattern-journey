@@ -22,7 +22,7 @@ func (ai AIPlayerOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
 	}
 }
 
-func (ai AIPlayerOutput) RoundResultOutput(i int, rrs RoundResults) {
+func (ai AIPlayerOutput) RoundResultOutput(i int, rrs RoundResult) {
 	fmt.Printf("\n* Round %d end\n", i)
 	for _, rr := range rrs {
 		fmt.Printf("[%4s ]   ", rr.Card.String())

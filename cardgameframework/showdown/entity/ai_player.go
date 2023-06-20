@@ -10,6 +10,10 @@ type AIPlayer struct {
 	IPlayerOutput
 }
 
+func (ai *AIPlayer) GetHand() []Card {
+	return ai.HandCards
+}
+
 func NewAIPlayer(input IPlayerInput, output IPlayerOutput) *AIPlayer {
 	return &AIPlayer{
 		count:         3,
@@ -31,7 +35,7 @@ func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
 	return showCard
 }
 
-func (ai *AIPlayer) AssignCard(card Card) {
+func (ai *AIPlayer) SetCard(card Card) {
 	ai.HandCards = append(ai.HandCards, card)
 }
 

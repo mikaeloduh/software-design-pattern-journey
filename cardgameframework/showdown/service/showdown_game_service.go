@@ -6,8 +6,10 @@ import (
 )
 
 type ShowdownGame struct {
-	Players []entity.IPlayer
-	Deck    *entity.Deck
+	Players       []entity.IPlayer
+	Deck          *entity.Deck
+	CurrentPlayer int
+	Record        entity.Record
 }
 
 const rounds int = 13
@@ -19,15 +21,18 @@ func NewShowdownGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4
 	}
 
 	return &ShowdownGame{
-		Players: []entity.IPlayer{p1, p2, p3, p4},
-		Deck:    deck,
+		Players:       []entity.IPlayer{p1, p2, p3, p4},
+		Deck:          deck,
+		CurrentPlayer: 0,
+		Record:        entity.Record{nil},
 	}
 }
 
 func (g *ShowdownGame) Run() {
 	g.Init()
 	g.ShuffleDeck()
-	g.DrawHands()
+	g.DrawHands(rounds)
+	g.PreTakeTurns()
 	g.TakeTurns()
 	g.GameResult()
 }
@@ -42,43 +47,73 @@ func (g *ShowdownGame) ShuffleDeck() {
 	g.Deck.Shuffle()
 }
 
-func (g *ShowdownGame) DrawHands() {
-	for i := 0; i < rounds; i++ {
-		for i := range g.Players {
-			g.Players[i].AssignCard(g.Deck.DrawCard())
+func (g *ShowdownGame) DrawHands(numCards int) {
+	for i := 0; i < numCards; i++ {
+		for _, p := range g.Players {
+			p.SetCard(g.Deck.DealCard())
 		}
 	}
 }
 
+func (g *ShowdownGame) PreTakeTurns() {
+	fmt.Printf("Game Start")
+}
+
 func (g *ShowdownGame) TakeTurns() {
+	for !g.IsGameFinished() {
+		player := g.GetCurrentPlayer()
 
-	for i := 0; i < rounds; i++ {
-		g.Players[0].RoundStartOutput(i)
+		g.TakeTurnStep(player)
 
-		roundResults := make(entity.RoundResults, len(g.Players))
-		for r := range roundResults {
-			roundResults[r] = entity.RoundResult{
-				Player: g.Players[r],
-				Card:   g.Players[r].TakeTurn(g.Players),
-				Win:    false,
-			}
-		}
+		// update game and move to next round
+		g.UpdateGameAndMoveToNext()
+	}
+}
+
+func (g *ShowdownGame) TakeTurnStep(player entity.IPlayer) {
+	g.Record[len(g.Record)-1] = append(g.Record[len(g.Record)-1], entity.Result{
+		Player: player,
+		Card:   player.TakeTurn(g.Players),
+		Win:    false,
+	})
+}
+
+func (g *ShowdownGame) GetCurrentPlayer() entity.IPlayer {
+	return g.Players[g.CurrentPlayer]
+}
+
+func (g *ShowdownGame) UpdateGameAndMoveToNext() {
+	// move to next player
+	g.CurrentPlayer = (g.CurrentPlayer + 1) % len(g.Players)
+
+	// if hit next round
+	if g.CurrentPlayer == 0 {
+		currentRecord := g.Record[len(g.Record)-1]
 
 		greatest := entity.Card{Suit: entity.Clubs, Rank: entity.Three}
-		for _, rr := range roundResults {
-			if rr.Card.IsGreater(greatest) {
-				greatest = rr.Card
+		greatestIdx := 0
+		for i, r := range currentRecord {
+			if r.Card.IsGreater(greatest) {
+				greatest = r.Card
+				greatestIdx = i
 			}
 		}
-		for j, rr := range roundResults {
-			if rr.Card == greatest {
-				roundResults[j].Win = true
-				roundResults[j].Player.AddPoint()
-			}
-		}
+		currentRecord[greatestIdx].Win = true
+		currentRecord[greatestIdx].Player.AddPoint()
 
-		g.Players[0].RoundResultOutput(i, roundResults)
+		g.Players[0].RoundResultOutput(0, currentRecord)
+
+		g.Record = append(g.Record, nil)
 	}
+}
+
+func (g *ShowdownGame) IsGameFinished() bool {
+	// if all players ran out their hands
+	var num int
+	for _, player := range g.Players {
+		num += len(player.GetHand())
+	}
+	return num == 0
 }
 
 func (g *ShowdownGame) GameResult() entity.IPlayer {

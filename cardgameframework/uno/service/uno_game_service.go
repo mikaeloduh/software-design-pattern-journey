@@ -7,9 +7,10 @@ import (
 
 // UnoGame represents the UNO game.
 type UnoGame struct {
-	Players  []entity.IPlayer
-	Deck     entity.Deck
-	DeskCard entity.Card
+	Players       []entity.IPlayer
+	Deck          entity.Deck
+	DeskCard      entity.Card
+	CurrentPlayer int
 }
 
 // NewUnoGame creates a new instance of the UnoGame.
@@ -24,6 +25,7 @@ func (u *UnoGame) Run() {
 	u.Init()
 	u.ShuffleDeck()
 	u.DrawHands(5)
+	u.PreTakeTurns()
 	u.TakeTurns()
 	u.GameResult()
 }
@@ -40,59 +42,82 @@ func (u *UnoGame) ShuffleDeck() {
 // DrawHands deals the initial hands to all players.
 func (u *UnoGame) DrawHands(numCards int) {
 	for i := 0; i < numCards; i++ {
-		for _, player := range u.Players {
-			player.SetCard(u.Deck.DealCard())
+		for _, p := range u.Players {
+			p.SetCard(u.Deck.DealCard())
 		}
 	}
 }
 
-// TakeTurns allows each player to take their turn.
-func (u *UnoGame) TakeTurns() {
+// PreTakeTurns run before TakeTurns
+func (u *UnoGame) PreTakeTurns() {
 	// Start the game by placing a card from the deck on the desk
 	u.DeskCard = u.Deck.DealCard()
 	fmt.Printf("Starting card on the desk. ")
+}
 
-	for {
-		for _, player := range u.Players {
-			fmt.Printf("The desk card is %v\n", u.DeskCard)
-			// Check if the player has a valid card to play
-			haveValidCards := u.haveValidCards(player.GetHand())
-			if haveValidCards {
-				// Player has valid cards, let them choose a card to play
-				var playerTakeTurn func() entity.Card
-				playerTakeTurn = func() entity.Card {
-					card := player.TakeTurn()
-					if !u.isValidMove(card) {
-						fmt.Printf("Invalid move, try again.\n")
+// TakeTurns allows each player to take their turn.
+func (u *UnoGame) TakeTurns() {
+	for !u.IsGameFinished() {
+		player := u.GetCurrentPlayer()
 
-						player.SetCard(card)
-						playerTakeTurn()
-					}
-					return card
-				}
+		u.TakeTurnStep(player)
 
-				playedCard := playerTakeTurn()
-				// Update the desk card
-				u.updateDeskCard(playedCard)
+		u.UpdateGameAndMoveToNext()
+	}
+}
 
-				fmt.Printf("%s played %v\n", player.GetName(), playedCard)
-			} else {
-				fmt.Printf("\n%s's turn. \nYou have no valid cards\n", player.GetName())
+func (u *UnoGame) TakeTurnStep(player entity.IPlayer) {
+	fmt.Printf("The desk card is %v\n", u.DeskCard)
+	// Check if the player has a valid card to play
+	haveValidCards := u.haveValidCards(player.GetHand())
+	if haveValidCards {
+		// Player has valid cards, let them choose a card to play
+		var playerTakeTurn func() entity.Card
+		playerTakeTurn = func() entity.Card {
+			card := player.TakeTurn()
+			if !u.isValidMove(card) {
+				fmt.Printf("Invalid move, try again.\n")
 
-				// Player has no valid cards, they need to draw a card from the deck
-				u.Deck.Shuffle()
-				drawnCard := u.Deck.DealCard()
-				player.SetCard(drawnCard)
-				fmt.Printf("%s drew a card: %v\n", player.GetName(), drawnCard)
+				player.SetCard(card)
+				playerTakeTurn()
 			}
+			return card
+		}
 
-			// Check if the player has emptied their hand and won the game
-			if len(player.GetHand()) == 0 {
-				fmt.Printf("Game over!\n\n")
-				return
-			}
+		playedCard := playerTakeTurn()
+		// Update the desk card
+		u.updateDeskCard(playedCard)
+
+		fmt.Printf("%s played %v\n", player.GetName(), playedCard)
+	} else {
+		fmt.Printf("\n%s's turn. \nYou have no valid cards\n", player.GetName())
+
+		// Player has no valid cards, they need to draw a card from the deck
+		u.Deck.Shuffle()
+		drawnCard := u.Deck.DealCard()
+		player.SetCard(drawnCard)
+		fmt.Printf("%s drew a card: %v\n", player.GetName(), drawnCard)
+	}
+}
+
+// GetCurrentPlayer returns the current turn player.
+func (u *UnoGame) GetCurrentPlayer() entity.IPlayer {
+	return u.Players[u.CurrentPlayer]
+}
+
+// UpdateGameAndMoveToNext moves the turn to the next player.
+func (u *UnoGame) UpdateGameAndMoveToNext() {
+	u.CurrentPlayer = (u.CurrentPlayer + 1) % len(u.Players)
+}
+
+// IsGameFinished checks if the game is finished.
+func (u *UnoGame) IsGameFinished() bool {
+	for _, player := range u.Players {
+		if len(player.GetHand()) == 0 {
+			return true
 		}
 	}
+	return false
 }
 
 // GameResult processes the final result of the game.
@@ -114,7 +139,6 @@ func (u *UnoGame) haveValidCards(hand []entity.Card) bool {
 			return true
 		}
 	}
-
 	return false
 }
 

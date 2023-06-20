@@ -1,12 +1,13 @@
 package service
 
 import (
-	"cardgameframework/showdown/entity"
 	"math/rand"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"cardgameframework/showdown/entity"
 )
 
 func TestRunAGamePeacefully(t *testing.T) {
@@ -46,7 +47,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 	})
 
 	t.Run("when draw is finished, every Player should have 13 hand Card", func(t *testing.T) {
-		game.DrawHands()
+		game.DrawHands(13)
 
 		assert.IsType(t, entity.Card{}, p1.HandCards[0])
 		assert.Equal(t, rounds, len(p1.HandCards))
@@ -107,10 +108,9 @@ func (m MockOutput) RenameOutput(name string) {}
 
 func (m MockOutput) RoundStartOutput(i int) {}
 
-func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResults) {}
+func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResult) {}
 
-func (m MockOutput) GameOverOutput(winner entity.IPlayer, players []entity.IPlayer) {
-}
+func (m MockOutput) GameOverOutput(winner entity.IPlayer, players []entity.IPlayer) {}
 
 func (m MockOutput) YouExchangeMyCardOutput(name string) {}
 

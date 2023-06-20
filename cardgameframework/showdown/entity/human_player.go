@@ -10,6 +10,10 @@ type HumanPlayer struct {
 	IPlayerOutput
 }
 
+func (p *HumanPlayer) GetHand() []Card {
+	return p.HandCards
+}
+
 func NewHumanPlayer(input IPlayerInput, output IPlayerOutput) *HumanPlayer {
 	return &HumanPlayer{
 		count:         3,
@@ -31,7 +35,7 @@ func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
 	return showCard
 }
 
-func (p *HumanPlayer) AssignCard(card Card) {
+func (p *HumanPlayer) SetCard(card Card) {
 	p.HandCards = append(p.HandCards, card)
 }
 

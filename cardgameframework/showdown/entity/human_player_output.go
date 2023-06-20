@@ -29,7 +29,7 @@ func (p HumanPlayerOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
 	}
 }
 
-func (p HumanPlayerOutput) RoundResultOutput(i int, rrs RoundResults) {
+func (p HumanPlayerOutput) RoundResultOutput(i int, rrs RoundResult) {
 	fmt.Printf("\n* Round %d end\n", i)
 	for _, rr := range rrs {
 		fmt.Printf("[%4s ]   ", rr.Card.String())
