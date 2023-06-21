@@ -5,24 +5,15 @@ import (
 	"time"
 )
 
-// Card represents an UNO card.
-type Card struct {
-	Color string
-	Value string
-}
-
 // Deck represents the UNO deck.
 type Deck struct {
 	Cards []Card
 }
 
 func NewDeck() Deck {
-	colors := []string{"Red", "Blue", "Green", "Yellow"}
-	values := []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
-
 	deck := Deck{}
-	for _, color := range colors {
-		for _, value := range values {
+	for _, color := range []Color{Red, Blue, Green, Yellow} {
+		for value := Zero; value <= Nine; value++ {
 			card := Card{Color: color, Value: value}
 			deck.Cards = append(deck.Cards, card)
 		}

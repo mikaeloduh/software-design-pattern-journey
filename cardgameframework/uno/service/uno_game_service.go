@@ -6,7 +6,7 @@ import (
 )
 
 // UnoGame represents the UNO game.
-type UnoGame struct {
+type UnoGame extends GameFramework struct {
 	Players       []entity.IPlayer
 	Deck          entity.Deck
 	DeskCard      entity.Card
@@ -21,49 +21,11 @@ func NewUnoGame(players []entity.IPlayer, deck entity.Deck) *UnoGame {
 	}
 }
 
-func (u *UnoGame) Run() {
-	u.Init()
-	u.ShuffleDeck()
-	u.DrawHands(5)
-	u.PreTakeTurns()
-	u.TakeTurns()
-	u.GameResult()
-}
-
-func (u *UnoGame) Init() {
-	// TODO: rename player
-}
-
-// ShuffleDeck shuffles the deck of cards.
-func (u *UnoGame) ShuffleDeck() {
-	u.Deck.Shuffle()
-}
-
-// DrawHands deals the initial hands to all players.
-func (u *UnoGame) DrawHands(numCards int) {
-	for i := 0; i < numCards; i++ {
-		for _, p := range u.Players {
-			p.SetCard(u.Deck.DealCard())
-		}
-	}
-}
-
 // PreTakeTurns run before TakeTurns
 func (u *UnoGame) PreTakeTurns() {
 	// Start the game by placing a card from the deck on the desk
-	u.DeskCard = u.Deck.DealCard()
 	fmt.Printf("Starting card on the desk. ")
-}
-
-// TakeTurns allows each player to take their turn.
-func (u *UnoGame) TakeTurns() {
-	for !u.IsGameFinished() {
-		player := u.GetCurrentPlayer()
-
-		u.TakeTurnStep(player)
-
-		u.UpdateGameAndMoveToNext()
-	}
+	u.DeskCard = u.Deck.DealCard()
 }
 
 func (u *UnoGame) TakeTurnStep(player entity.IPlayer) {
@@ -74,15 +36,15 @@ func (u *UnoGame) TakeTurnStep(player entity.IPlayer) {
 		// Player has valid cards, let them choose a card to play
 		var playerTakeTurn func() entity.Card
 		playerTakeTurn = func() entity.Card {
-			card := player.TakeTurn()
-			if !u.isValidMove(card) {
-				fmt.Printf("Invalid move, try again.\n")
+				card := player.TakeTurn()
+				if !u.isValidMove(card) {
+					fmt.Printf("Invalid move, try again.\n")
 
-				player.SetCard(card)
-				playerTakeTurn()
+					player.SetCard(card)
+					playerTakeTurn()
+				}
+				return card
 			}
-			return card
-		}
 
 		playedCard := playerTakeTurn()
 		// Update the desk card
@@ -131,6 +93,8 @@ func (u *UnoGame) GameResult() (winner entity.IPlayer) {
 	}
 	return winner
 }
+
+/// Helpers: ///
 
 // haveValidCards returns the valid cards that the player can play based on the current desk card.
 func (u *UnoGame) haveValidCards(hand []entity.Card) bool {
