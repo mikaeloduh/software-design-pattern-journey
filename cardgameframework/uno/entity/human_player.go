@@ -42,3 +42,6 @@ func (p *HumanUnoPlayer) GetName() string {
 func (p *HumanUnoPlayer) GetHand() []UnoCard {
 	return p.Hand
 }
+
+func (p *HumanUnoPlayer) AddPoint() {
+}

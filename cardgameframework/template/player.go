@@ -6,4 +6,5 @@ type IPlayer[T ICard] interface {
 	TakeTurn() T
 	GetName() string
 	GetHand() []T
+	AddPoint()
 }

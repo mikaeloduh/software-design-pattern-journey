@@ -11,23 +11,24 @@ import (
 type UnoGame[T entity.UnoCard] struct {
 	Players       []entity.IUnoPlayer[entity.UnoCard]
 	Deck          template.Deck[entity.UnoCard]
-	DeskCard      entity.UnoCard
 	CurrentPlayer int
+	DeskCard      entity.UnoCard
 }
 
 // NewUnoGame creates a new instance of the UnoGame.
 func NewUnoGame(players []entity.IUnoPlayer[entity.UnoCard]) *template.GameFramework[entity.UnoCard] {
 	deck := entity.NewUnoDeck()
-	base := &template.GameFramework[entity.UnoCard]{
+	game := &template.GameFramework[entity.UnoCard]{
 		Deck:        deck,
 		Players:     make([]template.IPlayer[entity.UnoCard], len(players)),
+		NumCard:     5,
 		PlayingGame: &UnoGame[entity.UnoCard]{Players: players, Deck: deck},
 	}
 	for i, player := range players {
-		base.Players[i] = player
+		game.Players[i] = player
 	}
 
-	return base
+	return game
 }
 
 // PreTakeTurns run before TakeTurns

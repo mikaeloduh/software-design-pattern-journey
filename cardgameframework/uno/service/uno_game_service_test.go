@@ -25,7 +25,7 @@ func TestUnoGame_ShuffleDeck(t *testing.T) {
 func TestUnoGame_DealHands(t *testing.T) {
 	players := []entity.IUnoPlayer[entity.UnoCard]{
 		&entity.HumanUnoPlayer{Name: "UnoPlayer 1"},
-		&entity.ComputerUnoPlayer{Name: "Computer 1"},
+		&entity.AiUnoPlayer{Name: "Computer 1"},
 	}
 
 	game := NewUnoGame(players)
@@ -39,10 +39,10 @@ func TestUnoGame_DealHands(t *testing.T) {
 
 func TestUnoGame_Result(t *testing.T) {
 	players := []entity.IUnoPlayer[entity.UnoCard]{
-		&entity.ComputerUnoPlayer{Name: "Computer 1"},
-		&entity.ComputerUnoPlayer{Name: "Computer 2"},
-		&entity.ComputerUnoPlayer{Name: "Computer 3"},
-		&entity.ComputerUnoPlayer{Name: "Computer 4"},
+		&entity.AiUnoPlayer{Name: "Computer 1"},
+		&entity.AiUnoPlayer{Name: "Computer 2"},
+		&entity.AiUnoPlayer{Name: "Computer 3"},
+		&entity.AiUnoPlayer{Name: "Computer 4"},
 	}
 
 	game := NewUnoGame(players)

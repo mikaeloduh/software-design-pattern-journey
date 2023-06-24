@@ -12,13 +12,13 @@ func (ai AIPlayerOutput) TakeTurnStartOutput(name string) {
 	fmt.Printf("\n* Now is %s (AI) 's turn.\n", name)
 }
 
-func (ai AIPlayerOutput) PrintCardsOutput([]Card) {
+func (ai AIPlayerOutput) PrintCardsOutput([]ShowDownCard) {
 }
 
-func (ai AIPlayerOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
-	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
+func (ai AIPlayerOutput) GameOverOutput(winner IShowdownPlayer[ShowDownCard], players []IShowdownPlayer[ShowDownCard]) {
+	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.GetName())
 	for _, p := range players {
-		fmt.Printf("%-8s: %d point\n", p.Name(), p.Point())
+		fmt.Printf("%-8s: %d point\n", p.GetName(), p.Point())
 	}
 }
 
@@ -29,7 +29,7 @@ func (ai AIPlayerOutput) RoundResultOutput(i int, rrs RoundResult) {
 	}
 	fmt.Print("\n")
 	for _, rr := range rrs {
-		fmt.Printf("%-8s  ", rr.Player.Name())
+		fmt.Printf("%-8s  ", rr.Player.GetName())
 	}
 	fmt.Print("\n")
 	for _, rr := range rrs {

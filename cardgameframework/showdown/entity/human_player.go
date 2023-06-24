@@ -1,17 +1,21 @@
 package entity
 
 type HumanPlayer struct {
-	id        int
-	name      string
-	HandCards []Card
-	point     int
-	count     int
+	id    int
+	Name  string
+	Hand  []ShowDownCard
+	point int
+	count int
 	IPlayerInput
 	IPlayerOutput
 }
 
-func (p *HumanPlayer) GetHand() []Card {
-	return p.HandCards
+func (p *HumanPlayer) GetName() string {
+	return p.Name
+}
+
+func (p *HumanPlayer) GetHand() []ShowDownCard {
+	return p.Hand
 }
 
 func NewHumanPlayer(input IPlayerInput, output IPlayerOutput) *HumanPlayer {
@@ -22,25 +26,25 @@ func NewHumanPlayer(input IPlayerInput, output IPlayerOutput) *HumanPlayer {
 	}
 }
 
-func (p *HumanPlayer) TakeTurn(players []IPlayer) Card {
-	p.TakeTurnStartOutput(p.name)
-	p.PrintCardsOutput(p.HandCards)
+func (p *HumanPlayer) TakeTurn() ShowDownCard {
+	p.TakeTurnStartOutput(p.Name)
+	p.PrintCardsOutput(p.Hand)
 
 	// 2. show
-	p.AskShowCardOutput(p.name)
-	toPlay := p.InputNum(0, len(p.HandCards)-1)
-	showCard := p.HandCards[toPlay]
-	p.HandCards = append([]Card{}, append(p.HandCards[0:toPlay], p.HandCards[toPlay+1:]...)...)
+	p.AskShowCardOutput(p.Name)
+	toPlay := p.InputNum(0, len(p.Hand)-1)
+	showCard := p.Hand[toPlay]
+	p.Hand = append([]ShowDownCard{}, append(p.Hand[0:toPlay], p.Hand[toPlay+1:]...)...)
 
 	return showCard
 }
 
-func (p *HumanPlayer) SetCard(card Card) {
-	p.HandCards = append(p.HandCards, card)
+func (p *HumanPlayer) SetCard(card ShowDownCard) {
+	p.Hand = append(p.Hand, card)
 }
 
 func (p *HumanPlayer) Rename() {
-	p.RenameOutput(p.name)
+	p.RenameOutput(p.Name)
 
 	s := p.InputString()
 	if s != "?" {
@@ -64,10 +68,6 @@ func (p *HumanPlayer) AddPoint() {
 	p.point += 1
 }
 
-func (p *HumanPlayer) Name() string {
-	return p.name
-}
-
 func (p *HumanPlayer) SetName(name string) {
-	p.name = name
+	p.Name = name
 }

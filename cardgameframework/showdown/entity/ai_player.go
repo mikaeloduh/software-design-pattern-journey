@@ -1,67 +1,67 @@
 package entity
 
 type AIPlayer struct {
-	id        int
-	name      string
-	HandCards []Card
-	point     int
-	count     int
+	id    int
+	Name  string
+	Hand  []ShowDownCard
+	point int
+	count int
 	IPlayerInput
 	IPlayerOutput
 }
 
-func (ai *AIPlayer) GetHand() []Card {
-	return ai.HandCards
+func (a *AIPlayer) GetName() string {
+	return a.Name
+}
+
+func (a *AIPlayer) GetHand() []ShowDownCard {
+	return a.Hand
 }
 
 func NewAIPlayer(input IPlayerInput, output IPlayerOutput) *AIPlayer {
 	return &AIPlayer{
 		count:         3,
-		name:          "PlayerAI",
+		Name:          "PlayerAI",
 		IPlayerInput:  input,
 		IPlayerOutput: output,
 	}
 }
 
-func (ai *AIPlayer) TakeTurn(players []IPlayer) Card {
-	ai.TakeTurnStartOutput(ai.name)
+func (a *AIPlayer) TakeTurn() ShowDownCard {
+	a.TakeTurnStartOutput(a.Name)
 
 	// 2. Show card
-	ai.AskShowCardOutput(ai.name)
-	toPlay := ai.InputNum(0, len(ai.HandCards)-1)
-	showCard := ai.HandCards[toPlay]
-	ai.HandCards = append([]Card{}, append(ai.HandCards[0:toPlay], ai.HandCards[toPlay+1:]...)...)
+	a.AskShowCardOutput(a.Name)
+	toPlay := a.InputNum(0, len(a.Hand)-1)
+	showCard := a.Hand[toPlay]
+	a.Hand = append([]ShowDownCard{}, append(a.Hand[0:toPlay], a.Hand[toPlay+1:]...)...)
 
 	return showCard
 }
 
-func (ai *AIPlayer) SetCard(card Card) {
-	ai.HandCards = append(ai.HandCards, card)
+func (a *AIPlayer) SetCard(card ShowDownCard) {
+	a.Hand = append(a.Hand, card)
 }
 
-func (ai *AIPlayer) Rename() {
+func (a *AIPlayer) Rename() {
 }
 
-func (ai *AIPlayer) Id() int {
-	return ai.id
+func (a *AIPlayer) Id() int {
+	return a.id
 }
 
-func (ai *AIPlayer) SetId(i int) {
-	ai.id = i
+func (a *AIPlayer) SetId(i int) {
+	a.id = i
 }
 
-func (ai *AIPlayer) Point() int {
-	return ai.point
+func (a *AIPlayer) Point() int {
+	return a.point
 }
 
-func (ai *AIPlayer) AddPoint() {
-	ai.point += 1
+func (a *AIPlayer) AddPoint() {
+	a.point += 1
 }
 
-func (ai *AIPlayer) Name() string {
-	return ai.name
-}
-
-func (ai *AIPlayer) SetName(s string) {
-	ai.name = s + "_AI"
+func (a *AIPlayer) SetName(s string) {
+	a.Name = s + "_AI"
 }

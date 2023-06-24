@@ -13,16 +13,16 @@ type PlayingGame[T ICard] interface {
 }
 
 type GameFramework[T ICard] struct {
-	Deck    Deck[T]
-	Players []IPlayer[T]
-
+	Deck        Deck[T]
+	Players     []IPlayer[T]
+	NumCard     int
 	PlayingGame PlayingGame[T]
 }
 
 func (f *GameFramework[T]) Run() {
 	f.Init()
 	f.ShuffleDeck()
-	f.DrawHands(5)
+	f.DrawHands(f.NumCard)
 	f.PreTakeTurns()
 	f.TakeTurns()
 	f.GameResult()
@@ -40,8 +40,8 @@ func (f *GameFramework[T]) ShuffleDeck() {
 
 func (f *GameFramework[T]) DrawHands(numCards int) {
 	for i := 0; i < numCards; i++ {
-		for _, p := range f.Players {
-			p.SetCard(f.Deck.DealCard())
+		for i, _ := range f.Players {
+			f.Players[i].SetCard(f.Deck.DealCard())
 		}
 	}
 }

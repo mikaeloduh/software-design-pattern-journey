@@ -1,14 +1,13 @@
 package entity
 
-type IPlayer interface {
+import "cardgameframework/template"
+
+type IShowdownPlayer[T ShowDownCard] interface {
+	template.IPlayer[ShowDownCard]
+
 	Id() int
 	SetId(int)
-	Name() string
 	SetName(name string)
-	Rename()
-	GetHand() []Card
-	SetCard(card Card)
-	TakeTurn(players []IPlayer) Card
 	AddPoint()
 	Point() int
 	IPlayerInput

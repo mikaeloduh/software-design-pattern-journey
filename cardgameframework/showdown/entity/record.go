@@ -1,8 +1,10 @@
 package entity
 
+import "cardgameframework/template"
+
 type Result struct {
-	Player IPlayer
-	Card   Card
+	Player template.IPlayer[ShowDownCard]
+	Card   ShowDownCard
 	Win    bool
 }
 

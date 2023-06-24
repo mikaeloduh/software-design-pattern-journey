@@ -12,7 +12,7 @@ func (p HumanPlayerOutput) TakeTurnStartOutput(name string) {
 	fmt.Printf("\n* Now is %s 's turn.\n", name)
 }
 
-func (p HumanPlayerOutput) PrintCardsOutput(cards []Card) {
+func (p HumanPlayerOutput) PrintCardsOutput(cards []ShowDownCard) {
 	for i, c := range cards {
 		if i%5 == 0 && i != 0 {
 			fmt.Print("\n")
@@ -22,10 +22,10 @@ func (p HumanPlayerOutput) PrintCardsOutput(cards []Card) {
 	fmt.Print("\n")
 }
 
-func (p HumanPlayerOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
-	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
+func (p HumanPlayerOutput) GameOverOutput(winner IShowdownPlayer[ShowDownCard], players []IShowdownPlayer[ShowDownCard]) {
+	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.GetName())
 	for _, player := range players {
-		fmt.Printf("%-8s: %d point\n", player.Name(), player.Point())
+		fmt.Printf("%-8s: %d point\n", player.GetName(), player.Point())
 	}
 }
 
@@ -36,7 +36,7 @@ func (p HumanPlayerOutput) RoundResultOutput(i int, rrs RoundResult) {
 	}
 	fmt.Print("\n")
 	for _, rr := range rrs {
-		fmt.Printf("%-8s  ", rr.Player.Name())
+		fmt.Printf("%-8s  ", rr.Player.GetName())
 	}
 	fmt.Print("\n")
 	for _, rr := range rrs {
@@ -53,5 +53,5 @@ func (p HumanPlayerOutput) RoundStartOutput(i int) {
 }
 
 func (p HumanPlayerOutput) RenameOutput(name string) {
-	fmt.Printf("%s, please enter your name: ", name)
+	fmt.Printf("%s, please enter your Name: ", name)
 }
