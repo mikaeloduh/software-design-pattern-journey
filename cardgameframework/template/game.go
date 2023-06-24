@@ -58,6 +58,6 @@ func (f *GameFramework[T]) TakeTurns() {
 	}
 }
 
-func (f *GameFramework[T]) GameResult() {
-	f.PlayingGame.GameResult()
+func (f *GameFramework[T]) GameResult() IPlayer[T] {
+	return f.PlayingGame.GameResult()
 }

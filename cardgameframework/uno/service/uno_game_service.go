@@ -1,9 +1,10 @@
 package service
 
 import (
+	"fmt"
+
 	"cardgameframework/template"
 	"cardgameframework/uno/entity"
-	"fmt"
 )
 
 // UnoGame represents the UNO game.
@@ -116,7 +117,7 @@ func (u *UnoGame[T]) haveValidCards(hand []entity.UnoCard) bool {
 
 // isValidMove checks if a card is a valid move.
 func (u *UnoGame[T]) isValidMove(card entity.UnoCard) bool {
-	return true
+	return card.Value == u.DeskCard.Value || card.Color == u.DeskCard.Color
 }
 
 // updateDeskCard updates the desk card and moves the old desk card to the deck.
