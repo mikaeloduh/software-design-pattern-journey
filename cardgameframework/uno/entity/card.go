@@ -28,10 +28,6 @@ const (
 	Nine  Value = 9
 )
 
-//type IUnoCard interface {
-//	template.ICard
-//}
-
 // UnoCard represents an UNO card.
 type UnoCard struct {
 	Color Color

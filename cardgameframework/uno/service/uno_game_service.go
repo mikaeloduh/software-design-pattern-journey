@@ -8,24 +8,26 @@ import (
 
 // UnoGame represents the UNO game.
 type UnoGame[T entity.UnoCard] struct {
-	Players       []entity.UnoPlayer[entity.UnoCard]
+	Players       []entity.IUnoPlayer[entity.UnoCard]
 	Deck          template.Deck[entity.UnoCard]
 	DeskCard      entity.UnoCard
 	CurrentPlayer int
 }
 
 // NewUnoGame creates a new instance of the UnoGame.
-//func NewUnoGame(players []entity.UnoPlayer[, deck template.Deck[entity.UnoCard]) template.GameFramework[entity.UnoCard] {
-//	return template.GameFramework[entity.UnoCard]{
-//		Players: players,
-//		Deck:    deck,
-//		PlayingGame: &UnoGame[entity.UnoCard]{
-//			Players:       players,
-//			Deck:          template.Deck[entity.UnoCard]{},
-//			CurrentPlayer: 0,
-//		},
-//	}
-//}
+func NewUnoGame(players []entity.IUnoPlayer[entity.UnoCard]) *template.GameFramework[entity.UnoCard] {
+	deck := entity.NewUnoDeck()
+	base := &template.GameFramework[entity.UnoCard]{
+		Deck:        deck,
+		Players:     make([]template.IPlayer[entity.UnoCard], len(players)),
+		PlayingGame: &UnoGame[entity.UnoCard]{Players: players, Deck: deck},
+	}
+	for i, player := range players {
+		base.Players[i] = player
+	}
+
+	return base
+}
 
 // PreTakeTurns run before TakeTurns
 func (u *UnoGame[T]) PreTakeTurns() {

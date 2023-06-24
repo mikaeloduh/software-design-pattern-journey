@@ -29,6 +29,7 @@ func (p *HumanUnoPlayer) TakeTurn() UnoCard {
 	}
 	card := p.Hand[cardIndex]
 	p.Hand = append(p.Hand[:cardIndex], p.Hand[cardIndex+1:]...)
+
 	return card
 }
 

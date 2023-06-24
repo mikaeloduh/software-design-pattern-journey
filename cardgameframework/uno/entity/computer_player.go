@@ -5,21 +5,21 @@ import (
 	"math/rand"
 )
 
-// ComputerPlayer represents a computer player in the UNO game.
-type ComputerPlayer struct {
+// ComputerUnoPlayer represents a computer player in the UNO game.
+type ComputerUnoPlayer struct {
 	Name string
 	Hand []UnoCard
 }
 
-func (p *ComputerPlayer) Rename() {}
+func (p *ComputerUnoPlayer) Rename() {}
 
 // SetCard adds a card to the player's hand.
-func (p *ComputerPlayer) SetCard(card UnoCard) {
+func (p *ComputerUnoPlayer) SetCard(card UnoCard) {
 	p.Hand = append(p.Hand, card)
 }
 
 // TakeTurn randomly selects a card to play.
-func (p *ComputerPlayer) TakeTurn() UnoCard {
+func (p *ComputerUnoPlayer) TakeTurn() UnoCard {
 	fmt.Print("\nComputerPlayer's turn.\n")
 	cardIndex := rand.Intn(len(p.Hand))
 	card := p.Hand[cardIndex]
@@ -28,11 +28,11 @@ func (p *ComputerPlayer) TakeTurn() UnoCard {
 }
 
 // GetName returns the player's name.
-func (p *ComputerPlayer) GetName() string {
+func (p *ComputerUnoPlayer) GetName() string {
 	return p.Name
 }
 
 // GetHand returns the player's hand.
-func (p *ComputerPlayer) GetHand() []UnoCard {
+func (p *ComputerUnoPlayer) GetHand() []UnoCard {
 	return p.Hand
 }

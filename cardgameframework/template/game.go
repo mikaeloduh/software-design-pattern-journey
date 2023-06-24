@@ -61,17 +61,3 @@ func (f *GameFramework[T]) TakeTurns() {
 func (f *GameFramework[T]) GameResult() {
 	f.PlayingGame.GameResult()
 }
-
-/// Functions used by TakeTurns ///
-
-//func (f *GameFramework[T]) TakeTurnStep(player IPlayer) {}
-
-//func (f *GameFramework[T]) GetCurrentPlayer() IPlayer {}
-
-//func (f *GameFramework[T]) UpdateGameAndMoveToNext() {}
-
-//func (f *GameFramework[T]) IsGameFinished() bool {}
-
-// 好了，被發現了，這個程式是不能動的，繼承語法也是假的，Go 就沒有，
-// 樣板方法在 Go 十分困難，我不想用 work around 破壞 Go 的慣用風格
-// 這題就算我敗了吧 ༼´◓ɷ◔`༽
