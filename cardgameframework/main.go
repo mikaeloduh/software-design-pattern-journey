@@ -1,10 +1,5 @@
 package main
 
-import (
-	"cardgameframework/uno/entity"
-	"cardgameframework/uno/service"
-)
-
 //func main() {
 //p1 := entity.NewAIPlayer(entity.Showdown_AIInput{}, entity.ShowdownAIOutput{})
 //p2 := entity.NewAIPlayer(entity.Showdown_AIInput{}, entity.ShowdownAIOutput{})
@@ -23,20 +18,17 @@ import (
 //}
 
 func main() {
-	deck := entity.NewDeck()
-
-	players := []entity.IPlayer{
-		&entity.HumanPlayer{Name: "IPlayer 1"},
-		&entity.HumanPlayer{Name: "IPlayer 2"},
-		&entity.HumanPlayer{Name: "IPlayer 3"},
-		//&template.HumanPlayer{Name: "IPlayer 4"},
-		&entity.ComputerPlayer{Name: "Computer 1"},
-		// Add more players here...
-	}
-
-	game := service.NewUnoGame(players, deck)
-	game.ShuffleDeck()
-	game.DrawHands(7)
-	game.TakeTurns()
-	game.GameResult()
+	//deck := entity.NewUnoDeck()
+	//
+	//players := []entity.UnoPlayer{
+	//	&entity.HumanUnoPlayer{Name: "UnoPlayer 1"},
+	//	&entity.HumanUnoPlayer{Name: "UnoPlayer 2"},
+	//	&entity.HumanUnoPlayer{Name: "UnoPlayer 3"},
+	//	//&template.HumanUnoPlayer{Name: "UnoPlayer 4"},
+	//	&entity.ComputerPlayer{Name: "Computer 1"},
+	//	// Add more players here...
+	//}
+	//
+	//game := service.NewUnoGame(players, deck)
+	//game.Run()
 }

@@ -2,19 +2,21 @@ package entity
 
 import "fmt"
 
-// HumanPlayer represents a human player in the UNO game.
-type HumanPlayer struct {
+// HumanUnoPlayer represents a human player in the UNO game.
+type HumanUnoPlayer struct {
 	Name string
-	Hand []Card
+	Hand []UnoCard
 }
 
+func (p *HumanUnoPlayer) Rename() {}
+
 // SetCard adds a card to the player's hand.
-func (p *HumanPlayer) SetCard(card Card) {
+func (p *HumanUnoPlayer) SetCard(card UnoCard) {
 	p.Hand = append(p.Hand, card)
 }
 
 // TakeTurn allows the player to choose a card to play.
-func (p *HumanPlayer) TakeTurn() Card {
+func (p *HumanUnoPlayer) TakeTurn() UnoCard {
 	fmt.Printf("\n%s's turn. Your hand: %v\n", p.GetName(), p.GetHand())
 	var cardIndex int
 	for {
@@ -31,11 +33,11 @@ func (p *HumanPlayer) TakeTurn() Card {
 }
 
 // GetName returns the player's name.
-func (p *HumanPlayer) GetName() string {
+func (p *HumanUnoPlayer) GetName() string {
 	return p.Name
 }
 
 // GetHand returns the player's hand.
-func (p *HumanPlayer) GetHand() []Card {
+func (p *HumanUnoPlayer) GetHand() []UnoCard {
 	return p.Hand
 }

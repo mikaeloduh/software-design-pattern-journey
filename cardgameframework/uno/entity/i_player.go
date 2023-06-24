@@ -1,9 +1,17 @@
 package entity
 
-// IPlayer defines the methods required for a player in the UNO game.
-type IPlayer interface {
-	SetCard(card Card)
-	TakeTurn() Card
-	GetName() string
-	GetHand() []Card
+import "cardgameframework/template"
+
+// UnoPlayer defines the methods required for a player in the UNO game.
+//type UnoPlayer[T UnoCard] interface {
+//	Rename()
+//	SetCard(card T)
+//	TakeTurn() T
+//	GetName() string
+//	GetHand() []T
+//}
+
+// UnoPlayer defines the methods required for a player in the UNO game.
+type UnoPlayer[T UnoCard] interface {
+	template.IPlayer[UnoCard]
 }

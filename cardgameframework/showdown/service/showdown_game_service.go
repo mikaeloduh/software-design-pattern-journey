@@ -28,46 +28,8 @@ func NewShowdownGame(p1 entity.IPlayer, p2 entity.IPlayer, p3 entity.IPlayer, p4
 	}
 }
 
-func (g *ShowdownGame) Run() {
-	g.Init()
-	g.ShuffleDeck()
-	g.DrawHands(rounds)
-	g.PreTakeTurns()
-	g.TakeTurns()
-	g.GameResult()
-}
-
-func (g *ShowdownGame) Init() {
-	for i := range g.Players {
-		g.Players[i].Rename()
-	}
-}
-
-func (g *ShowdownGame) ShuffleDeck() {
-	g.Deck.Shuffle()
-}
-
-func (g *ShowdownGame) DrawHands(numCards int) {
-	for i := 0; i < numCards; i++ {
-		for _, p := range g.Players {
-			p.SetCard(g.Deck.DealCard())
-		}
-	}
-}
-
 func (g *ShowdownGame) PreTakeTurns() {
 	fmt.Printf("Game Start")
-}
-
-func (g *ShowdownGame) TakeTurns() {
-	for !g.IsGameFinished() {
-		player := g.GetCurrentPlayer()
-
-		g.TakeTurnStep(player)
-
-		// update game and move to next round
-		g.UpdateGameAndMoveToNext()
-	}
 }
 
 func (g *ShowdownGame) TakeTurnStep(player entity.IPlayer) {
