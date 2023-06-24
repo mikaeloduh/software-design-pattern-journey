@@ -5,6 +5,7 @@ type IGame interface {
 }
 
 type PlayingGame[T ICard] interface {
+	PreTakeTurns()
 	TakeTurnStep(player IPlayer[T])
 	GetCurrentPlayer() IPlayer[T]
 	UpdateGameAndMoveToNext()
@@ -46,7 +47,9 @@ func (f *GameFramework[T]) DrawHands(numCards int) {
 	}
 }
 
-func (f *GameFramework[T]) PreTakeTurns() {}
+func (f *GameFramework[T]) PreTakeTurns() {
+	f.PlayingGame.PreTakeTurns()
+}
 
 func (f *GameFramework[T]) TakeTurns() {
 	for !f.PlayingGame.IsGameFinished() {

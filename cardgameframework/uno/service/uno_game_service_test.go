@@ -29,7 +29,7 @@ func TestUnoGame_DealHands(t *testing.T) {
 	}
 
 	game := NewUnoGame(players)
-	numCards := 2
+	numCards := 5
 	game.DrawHands(numCards)
 
 	// Each player should have received 2 cards.
