@@ -7,18 +7,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test(t *testing.T) {
-	world := World{}
-	world.Init()
-
-	assert.IsType(t, World{}, world)
-	assert.Equal(t, 30, len(world.coord))
-}
-
-func TestCollision(t *testing.T) {
+func TestCollisionGame(t *testing.T) {
 	t.Parallel()
 
-	t.Run("test Hero:Water and Hero +10 and moved, Water be removed", func(t *testing.T) {
+	t.Run("New a sprites world, coord should have 30 units", func(t *testing.T) {
+		w := NewWorld()
+
+		fmt.Printf("%#v \n", w)
+
+		assert.Equal(t, 30, len(w.coord))
+	})
+
+	t.Run("Hero -> Hero, move fail", func(t *testing.T) {
+		hero1 := NewHero()
+		hero2 := NewHero()
+		w := World{
+			coord: [30]Sprite{hero1, hero2},
+		}
+
+		w.Move(0, 1)
+
+		assert.Same(t, hero1, w.coord[0])
+		assert.Same(t, hero2, w.coord[1])
+	})
+
+	t.Run("Hero -> Water, Hero HP +10 and moved, Water should be removed", func(t *testing.T) {
 		w := World{
 			coord: [30]Sprite{NewHero(), &Water{}},
 		}
@@ -33,40 +46,91 @@ func TestCollision(t *testing.T) {
 		assert.Equal(t, nil, w.coord[0])
 	})
 
-	t.Run("test Water:Fire, Water and Fire should be removed", func(t *testing.T) {
+	t.Run("Hero -> Fire, Hero HP -10 and moved, Fire removed", func(t *testing.T) {
+		hero := NewHero()
+		fire := NewFire()
+		w := World{
+			coord: [30]Sprite{hero, fire},
+		}
+
+		w.Move(0, 1)
+
+		assert.Equal(t, 30-10, hero.hp)
+		assert.Equal(t, nil, w.coord[0])
+		assert.Same(t, hero, w.coord[1])
+	})
+
+	t.Run("Water -> Hero, Water removed, Hero HP +10 and moved", func(t *testing.T) {
+		water := NewWater()
+		hero := NewHero()
+		w := World{
+			coord: [30]Sprite{water, hero},
+		}
+
+		w.Move(0, 1)
+
+		assert.Equal(t, nil, w.coord[0])
+		assert.Same(t, hero, w.coord[1])
+		assert.Equal(t, 30+10, hero.hp)
+	})
+
+	t.Run("Water -> Water, move fail", func(t *testing.T) {
+		water1 := NewWater()
+		water2 := NewWater()
+		w := World{
+			coord: [30]Sprite{water1, water2},
+		}
+
+		w.Move(0, 1)
+
+		assert.Same(t, water1, w.coord[0])
+		assert.Same(t, water2, w.coord[1])
+	})
+
+	t.Run("Water -> Fire, Water and Fire should be removed", func(t *testing.T) {
 		w := World{
 			coord: [30]Sprite{&Water{}, &Fire{}},
 		}
 
 		w.Move(0, 1)
 
-		fmt.Printf("%v \n", w.coord[0])
-		fmt.Printf("%v \n", w.coord[1])
-
 		assert.Equal(t, nil, w.coord[1])
 		assert.Equal(t, nil, w.coord[0])
 	})
 
-	t.Run("test Fire:Hero, Hero -10 hp and Fire should be removed", func(t *testing.T) {
+	t.Run("Fire -> Hero, Hero -10 hp and Fire should be removed", func(t *testing.T) {
+		hero := NewHero()
 		w := World{
-			coord: [30]Sprite{&Fire{}, NewHero()},
+			coord: [30]Sprite{&Fire{}, hero},
 		}
 
 		w.Move(0, 1)
 
-		fmt.Printf("%v \n", w.coord[0])
-		fmt.Printf("%v \n", w.coord[1])
-
+		assert.Equal(t, 30-10, hero.hp)
 		assert.Equal(t, nil, w.coord[0])
-		assert.Equal(t, 30-10, w.coord[1].(*Hero).hp)
 	})
 
-	t.Run("New a world", func(t *testing.T) {
-		w := World{}
-		w.Init()
+	t.Run("Fire -> Water, both removed", func(t *testing.T) {
+		w := World{
+			coord: [30]Sprite{&Fire{}, &Water{}},
+		}
 
-		fmt.Printf("%#v \n", w)
+		w.Move(0, 1)
 
-		assert.Equal(t, 30, len(w.coord))
+		assert.Equal(t, nil, w.coord[0])
+		assert.Equal(t, nil, w.coord[1])
+	})
+
+	t.Run("Fire -> Fire, move fail", func(t *testing.T) {
+		fire1 := NewFire()
+		fire2 := NewFire()
+		w := World{
+			coord: [30]Sprite{fire1, fire2},
+		}
+
+		w.Move(0, 1)
+
+		assert.Same(t, fire1, w.coord[0])
+		assert.Same(t, fire2, w.coord[1])
 	})
 }
