@@ -10,10 +10,10 @@ import (
 func TestCollisionGame(t *testing.T) {
 	t.Parallel()
 
-	t.Run("New a sprites world, coord should have 30 units", func(t *testing.T) {
-		w := NewWorld()
+	handler := NewHeroHeroHandler(NewHeroWaterHandler(NewHeroFireHandler(NewWaterHeroHandler(NewWaterWaterHandler(NewWaterFireHandler(NewFireHeroHandler(NewFireWaterHandler(NewFireFireHandler(nil)))))))))
 
-		fmt.Printf("%#v \n", w)
+	t.Run("New a sprites world, coord should have 30 units", func(t *testing.T) {
+		w := NewWorld(handler)
 
 		assert.Equal(t, 30, len(w.coord))
 	})
@@ -22,7 +22,8 @@ func TestCollisionGame(t *testing.T) {
 		hero1 := NewHero()
 		hero2 := NewHero()
 		w := World{
-			coord: [30]Sprite{hero1, hero2},
+			coord:   [30]Sprite{hero1, hero2},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -33,7 +34,8 @@ func TestCollisionGame(t *testing.T) {
 
 	t.Run("Hero -> Water, Hero HP +10 and moved, Water should be removed", func(t *testing.T) {
 		w := World{
-			coord: [30]Sprite{NewHero(), &Water{}},
+			coord:   [30]Sprite{NewHero(), &Water{}},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -50,7 +52,8 @@ func TestCollisionGame(t *testing.T) {
 		hero := NewHero()
 		fire := NewFire()
 		w := World{
-			coord: [30]Sprite{hero, fire},
+			coord:   [30]Sprite{hero, fire},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -64,7 +67,8 @@ func TestCollisionGame(t *testing.T) {
 		water := NewWater()
 		hero := NewHero()
 		w := World{
-			coord: [30]Sprite{water, hero},
+			coord:   [30]Sprite{water, hero},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -78,7 +82,8 @@ func TestCollisionGame(t *testing.T) {
 		water1 := NewWater()
 		water2 := NewWater()
 		w := World{
-			coord: [30]Sprite{water1, water2},
+			coord:   [30]Sprite{water1, water2},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -89,7 +94,8 @@ func TestCollisionGame(t *testing.T) {
 
 	t.Run("Water -> Fire, Water and Fire should be removed", func(t *testing.T) {
 		w := World{
-			coord: [30]Sprite{&Water{}, &Fire{}},
+			coord:   [30]Sprite{&Water{}, &Fire{}},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -101,7 +107,8 @@ func TestCollisionGame(t *testing.T) {
 	t.Run("Fire -> Hero, Hero -10 hp and Fire should be removed", func(t *testing.T) {
 		hero := NewHero()
 		w := World{
-			coord: [30]Sprite{&Fire{}, hero},
+			coord:   [30]Sprite{&Fire{}, hero},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -112,7 +119,8 @@ func TestCollisionGame(t *testing.T) {
 
 	t.Run("Fire -> Water, both removed", func(t *testing.T) {
 		w := World{
-			coord: [30]Sprite{&Fire{}, &Water{}},
+			coord:   [30]Sprite{&Fire{}, &Water{}},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
@@ -125,7 +133,8 @@ func TestCollisionGame(t *testing.T) {
 		fire1 := NewFire()
 		fire2 := NewFire()
 		w := World{
-			coord: [30]Sprite{fire1, fire2},
+			coord:   [30]Sprite{fire1, fire2},
+			handler: handler,
 		}
 
 		w.Move(0, 1)
