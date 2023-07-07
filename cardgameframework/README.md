@@ -1,4 +1,4 @@
-# Showdown
+# Card Game Framework
 
 To run
 

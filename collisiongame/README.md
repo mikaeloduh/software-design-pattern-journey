@@ -1,4 +1,4 @@
-# Showdown
+# Collision Game
 
 To run
 
