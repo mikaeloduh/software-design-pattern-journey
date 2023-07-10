@@ -1,12 +1,25 @@
 package service
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"bigtwogame/bigtwo/entity"
 )
 
 func TestBigTwo(t *testing.T) {
-	t.Run("Test 1+1=2", func(t *testing.T) {
-		assert.Equal(t, 2, 1+1)
+	players := []entity.IBigTwoPlayer[entity.BigTwoCard]{
+		&entity.AiBigTwoPlayer{Name: "Computer 1"},
+		&entity.AiBigTwoPlayer{Name: "Computer 2"},
+		&entity.AiBigTwoPlayer{Name: "Computer 3"},
+		&entity.AiBigTwoPlayer{Name: "Computer 4"},
+	}
+
+	t.Run("New game success and have 4 players", func(t *testing.T) {
+		game := NewBigTwoGame(players)
+
+		assert.IsType(t, &BigTwoGame{}, game)
+		assert.Equal(t, 4, len(game.Players))
 	})
 }
