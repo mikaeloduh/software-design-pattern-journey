@@ -6,8 +6,9 @@ import (
 )
 
 type BigTwoGame struct {
-	Players []entity.IBigTwoPlayer[entity.BigTwoCard]
-	Deck    template.Deck[entity.BigTwoCard]
+	Players  []entity.IBigTwoPlayer[entity.BigTwoCard]
+	Deck     template.Deck[entity.BigTwoCard]
+	DeskCard entity.BigTwoCard
 }
 
 func NewBigTwoGame(players []entity.IBigTwoPlayer[entity.BigTwoCard]) *template.GameFramework[entity.BigTwoCard] {
@@ -27,7 +28,7 @@ func NewBigTwoGame(players []entity.IBigTwoPlayer[entity.BigTwoCard]) *template.
 
 func (b *BigTwoGame) PreTakeTurns() {
 	//TODO implement me
-	panic("implement me")
+	b.DeskCard = entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}
 }
 
 func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
