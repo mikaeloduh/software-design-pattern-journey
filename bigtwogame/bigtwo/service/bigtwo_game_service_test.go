@@ -19,7 +19,6 @@ func TestBigTwo(t *testing.T) {
 	t.Run("New game success and have 4 players", func(t *testing.T) {
 		game := NewBigTwoGame(players)
 
-		assert.IsType(t, &BigTwoGame{}, game)
 		assert.Equal(t, 4, len(game.Players))
 	})
 
@@ -29,5 +28,16 @@ func TestBigTwo(t *testing.T) {
 
 		assert.Equal(t, 52, len(deck.Cards))
 		assert.NotEqual(t, entity.NewBigTwoDeck(), deck)
+	})
+
+	t.Run("New game and have card deal to all players", func(t *testing.T) {
+		game := NewBigTwoGame(players)
+		game.ShuffleDeck()
+		game.DrawHands(game.NumCard)
+
+		assert.Equal(t, 13, len(game.Players[0].GetHand()))
+		assert.Equal(t, 13, len(game.Players[1].GetHand()))
+		assert.Equal(t, 13, len(game.Players[2].GetHand()))
+		assert.Equal(t, 13, len(game.Players[3].GetHand()))
 	})
 }

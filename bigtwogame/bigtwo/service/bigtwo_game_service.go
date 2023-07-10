@@ -1,11 +1,56 @@
 package service
 
-import "bigtwogame/bigtwo/entity"
+import (
+	"bigtwogame/bigtwo/entity"
+	"bigtwogame/template"
+)
 
 type BigTwoGame struct {
 	Players []entity.IBigTwoPlayer[entity.BigTwoCard]
+	Deck    template.Deck[entity.BigTwoCard]
 }
 
-func NewBigTwoGame(players []entity.IBigTwoPlayer[entity.BigTwoCard]) *BigTwoGame {
-	return &BigTwoGame{players}
+func NewBigTwoGame(players []entity.IBigTwoPlayer[entity.BigTwoCard]) *template.GameFramework[entity.BigTwoCard] {
+	deck := entity.NewBigTwoDeck()
+	game := &template.GameFramework[entity.BigTwoCard]{
+		Deck:        deck,
+		Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
+		NumCard:     13,
+		PlayingGame: &BigTwoGame{Players: players, Deck: deck},
+	}
+	for i, player := range players {
+		game.Players[i] = player
+	}
+
+	return game
+}
+
+func (b *BigTwoGame) PreTakeTurns() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (b *BigTwoGame) GetCurrentPlayer() template.IPlayer[entity.BigTwoCard] {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (b *BigTwoGame) UpdateGameAndMoveToNext() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (b *BigTwoGame) IsGameFinished() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
+	//TODO implement me
+	panic("implement me")
 }

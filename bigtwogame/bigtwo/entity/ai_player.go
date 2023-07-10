@@ -8,6 +8,7 @@ type IBigTwoPlayer[T BigTwoCard] interface {
 
 type AiBigTwoPlayer struct {
 	Name string
+	Hand []BigTwoCard
 }
 
 func (a *AiBigTwoPlayer) Rename() {
@@ -16,8 +17,7 @@ func (a *AiBigTwoPlayer) Rename() {
 }
 
 func (a *AiBigTwoPlayer) SetCard(card BigTwoCard) {
-	//TODO implement me
-	panic("implement me")
+	a.Hand = append(a.Hand, card)
 }
 
 func (a *AiBigTwoPlayer) TakeTurn() BigTwoCard {
@@ -31,8 +31,7 @@ func (a *AiBigTwoPlayer) GetName() string {
 }
 
 func (a *AiBigTwoPlayer) GetHand() []BigTwoCard {
-	//TODO implement me
-	panic("implement me")
+	return a.Hand
 }
 
 func (a *AiBigTwoPlayer) AddPoint() {
