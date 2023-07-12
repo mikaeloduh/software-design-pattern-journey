@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-type ShowdownGame[T entity.ShowDownCard] struct {
-	Players       []entity.IShowdownPlayer[entity.ShowDownCard]
+type ShowdownGame struct {
+	Players       []entity.IShowdownPlayer
 	Deck          template.Deck[entity.ShowDownCard]
 	CurrentPlayer int
 	Record        entity.Record
@@ -15,13 +15,13 @@ type ShowdownGame[T entity.ShowDownCard] struct {
 
 const rounds int = 13
 
-func NewShowdownGame(players []entity.IShowdownPlayer[entity.ShowDownCard]) *template.GameFramework[entity.ShowDownCard] {
+func NewShowdownGame(players []entity.IShowdownPlayer) *template.GameFramework[entity.ShowDownCard] {
 	deck := entity.NewShowdownDeck()
 	game := &template.GameFramework[entity.ShowDownCard]{
 		Deck:    deck,
 		Players: make([]template.IPlayer[entity.ShowDownCard], len(players)),
 		NumCard: 13,
-		PlayingGame: &ShowdownGame[entity.ShowDownCard]{
+		PlayingGame: &ShowdownGame{
 			Players:       players,
 			Deck:          deck,
 			CurrentPlayer: 0,
@@ -36,23 +36,23 @@ func NewShowdownGame(players []entity.IShowdownPlayer[entity.ShowDownCard]) *tem
 	return game
 }
 
-func (g *ShowdownGame[T]) PreTakeTurns() {
+func (g *ShowdownGame) PreTakeTurns() {
 	fmt.Printf("Game Start")
 }
 
-func (g *ShowdownGame[T]) TakeTurnStep(player template.IPlayer[entity.ShowDownCard]) {
+func (g *ShowdownGame) TakeTurnStep(player template.IPlayer[entity.ShowDownCard]) {
 	g.Record[len(g.Record)-1] = append(g.Record[len(g.Record)-1], entity.Result{
 		Player: player,
-		Card:   player.TakeTurn(),
+		Card:   player.(entity.IShowdownPlayer).TakeTurn(),
 		Win:    false,
 	})
 }
 
-func (g *ShowdownGame[T]) GetCurrentPlayer() template.IPlayer[entity.ShowDownCard] {
+func (g *ShowdownGame) GetCurrentPlayer() template.IPlayer[entity.ShowDownCard] {
 	return g.Players[g.CurrentPlayer]
 }
 
-func (g *ShowdownGame[T]) UpdateGameAndMoveToNext() {
+func (g *ShowdownGame) UpdateGameAndMoveToNext() {
 	// move to next player
 	g.CurrentPlayer = (g.CurrentPlayer + 1) % len(g.Players)
 
@@ -77,7 +77,7 @@ func (g *ShowdownGame[T]) UpdateGameAndMoveToNext() {
 	}
 }
 
-func (g *ShowdownGame[T]) IsGameFinished() bool {
+func (g *ShowdownGame) IsGameFinished() bool {
 	// if all players ran out their hands
 	var num int
 	for _, player := range g.Players {
@@ -86,8 +86,8 @@ func (g *ShowdownGame[T]) IsGameFinished() bool {
 	return num == 0
 }
 
-func (g *ShowdownGame[T]) GameResult() template.IPlayer[entity.ShowDownCard] {
-	var winner entity.IShowdownPlayer[entity.ShowDownCard]
+func (g *ShowdownGame) GameResult() template.IPlayer[entity.ShowDownCard] {
+	var winner entity.IShowdownPlayer
 	max := 0
 	for i := range g.Players {
 		if g.Players[i].Point() > max {

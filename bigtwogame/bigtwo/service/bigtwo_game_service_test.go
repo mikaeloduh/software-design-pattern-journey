@@ -12,14 +12,8 @@ import (
 func TestBigTwo(t *testing.T) {
 	t.Parallel()
 
-	players := []entity.IBigTwoPlayer[entity.BigTwoCard]{
-		&entity.AiBigTwoPlayer{Name: "Computer 1"},
-		&entity.AiBigTwoPlayer{Name: "Computer 2"},
-		&entity.AiBigTwoPlayer{Name: "Computer 3"},
-		&entity.AiBigTwoPlayer{Name: "Computer 4"},
-	}
-
 	t.Run("New game success and have 4 players", func(t *testing.T) {
+		players := NewPlayers()
 		game := NewBigTwoGame(players)
 
 		assert.Equal(t, 4, len(game.Players))
@@ -34,6 +28,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("New game and have card deal to all players", func(t *testing.T) {
+		players := NewPlayers()
 		game := NewBigTwoGame(players)
 		game.ShuffleDeck()
 		game.DrawHands(game.NumCard)
@@ -44,7 +39,8 @@ func TestBigTwo(t *testing.T) {
 		assert.Equal(t, 13, len(game.Players[3].GetHand()))
 	})
 
-	t.Run("PreTakeTurn should play ♣3", func(t *testing.T) {
+	t.Run("PreTakeTurn should play ♣3 from whoever had", func(t *testing.T) {
+		players := NewPlayers()
 		deck := entity.NewBigTwoDeck()
 		playingGame := &BigTwoGame{Players: players, Deck: deck}
 		game := &template.GameFramework[entity.BigTwoCard]{
@@ -57,11 +53,21 @@ func TestBigTwo(t *testing.T) {
 			game.Players[i] = player
 		}
 
-		assert.Equal(t, entity.BigTwoCard{}, playingGame.DeskCard)
+		game.ShuffleDeck()
+		game.DrawHands(game.NumCard)
+		game.PreTakeTurns()
 
-		playingGame.PreTakeTurns()
+		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}, playingGame.DeskCard)
+		assert.Equal(t, 13-1, len(playingGame.GetCurrentPlayer().GetHand()))
 
-		assert.Equal(t, entity.Clubs, playingGame.DeskCard.Suit)
-		assert.Equal(t, entity.Three, playingGame.DeskCard.Rank)
 	})
+}
+
+func NewPlayers() []entity.IBigTwoPlayer {
+	return []entity.IBigTwoPlayer{
+		&entity.AiBigTwoPlayer{Name: "Computer 1"},
+		&entity.AiBigTwoPlayer{Name: "Computer 2"},
+		&entity.AiBigTwoPlayer{Name: "Computer 3"},
+		&entity.AiBigTwoPlayer{Name: "Computer 4"},
+	}
 }

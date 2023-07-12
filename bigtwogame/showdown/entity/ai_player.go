@@ -34,13 +34,19 @@ func (a *AIPlayer) TakeTurn() ShowDownCard {
 	a.AskShowCardOutput(a.Name)
 	toPlay := a.InputNum(0, len(a.Hand)-1)
 	showCard := a.Hand[toPlay]
-	a.Hand = append([]ShowDownCard{}, append(a.Hand[0:toPlay], a.Hand[toPlay+1:]...)...)
+	a.RemoveCard(toPlay)
 
 	return showCard
 }
 
 func (a *AIPlayer) SetCard(card ShowDownCard) {
 	a.Hand = append(a.Hand, card)
+}
+
+func (a *AIPlayer) RemoveCard(index int) ShowDownCard {
+	card := a.Hand[index]
+	a.Hand = append(a.Hand[:index], a.Hand[index+1:]...)
+	return card
 }
 
 func (a *AIPlayer) Rename() {

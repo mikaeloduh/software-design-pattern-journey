@@ -18,7 +18,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 	var game *template.GameFramework[entity.ShowDownCard]
 
 	t.Run("Test creating game with human Player, AI Player, and new Deck", func(t *testing.T) {
-		game = NewShowdownGame([]entity.IShowdownPlayer[entity.ShowDownCard]{p1, p2, p3, pAI})
+		game = NewShowdownGame([]entity.IShowdownPlayer{p1, p2, p3, pAI})
 
 		assert.NotEmpty(t, game)
 		assert.Equal(t, 4, len(game.Players))
@@ -104,7 +104,7 @@ func (m MockOutput) RoundStartOutput(i int) {}
 
 func (m MockOutput) RoundResultOutput(i int, roundResults entity.RoundResult) {}
 
-func (m MockOutput) GameOverOutput(winner entity.IShowdownPlayer[entity.ShowDownCard], players []entity.IShowdownPlayer[entity.ShowDownCard]) {
+func (m MockOutput) GameOverOutput(winner entity.IShowdownPlayer, players []entity.IShowdownPlayer) {
 }
 
 func (m MockOutput) YouExchangeMyCardOutput(name string) {}

@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	players := []entity.IShowdownPlayer[entity.ShowDownCard]{
+	players := []entity.IShowdownPlayer{
 		entity.NewAIPlayer(entity.AIPlayerInput{}, entity.AIPlayerOutput{}),
 		entity.NewAIPlayer(entity.AIPlayerInput{}, entity.AIPlayerOutput{}),
 		entity.NewAIPlayer(entity.AIPlayerInput{}, entity.AIPlayerOutput{}),

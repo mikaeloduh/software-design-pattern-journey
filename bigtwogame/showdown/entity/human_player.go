@@ -34,13 +34,19 @@ func (p *HumanPlayer) TakeTurn() ShowDownCard {
 	p.AskShowCardOutput(p.Name)
 	toPlay := p.InputNum(0, len(p.Hand)-1)
 	showCard := p.Hand[toPlay]
-	p.Hand = append([]ShowDownCard{}, append(p.Hand[0:toPlay], p.Hand[toPlay+1:]...)...)
+	p.RemoveCard(toPlay)
 
 	return showCard
 }
 
 func (p *HumanPlayer) SetCard(card ShowDownCard) {
 	p.Hand = append(p.Hand, card)
+}
+
+func (p *HumanPlayer) RemoveCard(index int) ShowDownCard {
+	card := p.Hand[index]
+	p.Hand = append(p.Hand[:index], p.Hand[index+1:]...)
+	return card
 }
 
 func (p *HumanPlayer) Rename() {

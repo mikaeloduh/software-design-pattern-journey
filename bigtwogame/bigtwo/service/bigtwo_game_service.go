@@ -6,12 +6,13 @@ import (
 )
 
 type BigTwoGame struct {
-	Players  []entity.IBigTwoPlayer[entity.BigTwoCard]
-	Deck     template.Deck[entity.BigTwoCard]
-	DeskCard entity.BigTwoCard
+	Players       []entity.IBigTwoPlayer
+	Deck          template.Deck[entity.BigTwoCard]
+	DeskCard      entity.BigTwoCard
+	CurrentPlayer int
 }
 
-func NewBigTwoGame(players []entity.IBigTwoPlayer[entity.BigTwoCard]) *template.GameFramework[entity.BigTwoCard] {
+func NewBigTwoGame(players []entity.IBigTwoPlayer) *template.GameFramework[entity.BigTwoCard] {
 	deck := entity.NewBigTwoDeck()
 	game := &template.GameFramework[entity.BigTwoCard]{
 		Deck:        deck,
@@ -27,8 +28,36 @@ func NewBigTwoGame(players []entity.IBigTwoPlayer[entity.BigTwoCard]) *template.
 }
 
 func (b *BigTwoGame) PreTakeTurns() {
-	//TODO implement me
-	b.DeskCard = entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}
+
+	for i, p := range b.Players {
+		if b.haveValidCards(p.GetHand()) {
+			var playerPlay func() entity.BigTwoCard
+			playerPlay = func() entity.BigTwoCard {
+				move := p.TakeTurnMove()
+				if !b.isValidMove(move.DryRun()) {
+					return playerPlay()
+				}
+				return move.Play()
+			}
+
+			b.CurrentPlayer = i
+			playCard := playerPlay()
+			b.updateDeskCard(playCard)
+		}
+	}
+}
+
+func (b *BigTwoGame) haveValidCards(hand []entity.BigTwoCard) bool {
+	for _, card := range hand {
+		if b.isValidMove(card) {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *BigTwoGame) isValidMove(card entity.BigTwoCard) bool {
+	return (card.Rank == entity.Three) && (card.Suit == entity.Clubs)
 }
 
 func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
@@ -37,8 +66,7 @@ func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
 }
 
 func (b *BigTwoGame) GetCurrentPlayer() template.IPlayer[entity.BigTwoCard] {
-	//TODO implement me
-	panic("implement me")
+	return b.Players[b.CurrentPlayer]
 }
 
 func (b *BigTwoGame) UpdateGameAndMoveToNext() {
@@ -54,4 +82,8 @@ func (b *BigTwoGame) IsGameFinished() bool {
 func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (b *BigTwoGame) updateDeskCard(card entity.BigTwoCard) {
+	b.DeskCard = card
 }

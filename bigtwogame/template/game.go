@@ -41,8 +41,8 @@ func (f *GameFramework[T]) ShuffleDeck() {
 
 func (f *GameFramework[T]) DrawHands(numCards int) {
 	for i := 0; i < numCards; i++ {
-		for i, _ := range f.Players {
-			f.Players[i].SetCard(f.Deck.DealCard())
+		for _, p := range f.Players {
+			p.SetCard(f.Deck.DealCard())
 		}
 	}
 }
