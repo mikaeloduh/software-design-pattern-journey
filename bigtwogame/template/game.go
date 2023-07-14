@@ -14,7 +14,7 @@ type PlayingGame[T ICard] interface {
 }
 
 type GameFramework[T ICard] struct {
-	Deck        Deck[T]
+	Deck        *Deck[T]
 	Players     []IPlayer[T]
 	NumCard     int
 	PlayingGame PlayingGame[T]

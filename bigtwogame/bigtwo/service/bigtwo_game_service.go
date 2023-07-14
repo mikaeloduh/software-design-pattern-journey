@@ -7,7 +7,7 @@ import (
 
 type BigTwoGame struct {
 	Players       []entity.IBigTwoPlayer
-	Deck          template.Deck[entity.BigTwoCard]
+	Deck          *template.Deck[entity.BigTwoCard]
 	DeskCard      entity.BigTwoCard
 	CurrentPlayer int
 }
