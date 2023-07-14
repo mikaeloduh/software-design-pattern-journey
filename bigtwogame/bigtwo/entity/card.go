@@ -63,3 +63,20 @@ func (c BigTwoCard) IsGreater(other BigTwoCard) bool {
 		return c.Suit > other.Suit
 	}
 }
+
+// Compare takes other card can compare with
+// @return 1: greater | 0: equal | -1: smaller
+func (c BigTwoCard) Compare(other BigTwoCard) int {
+	if c.Rank != other.Rank {
+		if c.Rank > other.Rank {
+			return 1
+		}
+		return -1
+	}
+	if c.Suit > other.Suit {
+		return 1
+	} else if c.Suit < other.Suit {
+		return -1
+	}
+	return 0
+}
