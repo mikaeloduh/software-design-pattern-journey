@@ -51,7 +51,7 @@ func (u *UnoGame[T]) TakeTurnStep(player template.IPlayer[entity.UnoCard]) {
 				fmt.Printf("Invalid move, try again.\n")
 
 				player.SetCard(card)
-				playerTakeTurn()
+				return playerTakeTurn()
 			}
 			return card
 		}

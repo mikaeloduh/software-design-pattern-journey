@@ -27,15 +27,18 @@ func TestUnoGame_DealHands(t *testing.T) {
 	players := []entity.IUnoPlayer[entity.UnoCard]{
 		&entity.HumanUnoPlayer{Name: "UnoPlayer 1"},
 		&entity.AiUnoPlayer{Name: "Computer 1"},
+		&entity.AiUnoPlayer{Name: "Computer 2"},
+		&entity.AiUnoPlayer{Name: "Computer 3"},
 	}
 
 	game := NewUnoGame(players)
 	numCards := 5
 	game.DrawHands(numCards)
 
-	// Each player should have received 2 cards.
+	// Each player should have received 5 cards, dealt cards should be removed from deck.
 	assert.Len(t, players[0].GetHand(), numCards)
 	assert.Len(t, players[1].GetHand(), numCards)
+	assert.Len(t, game.Deck.Cards, 20)
 }
 
 func TestUnoGame_Result(t *testing.T) {
