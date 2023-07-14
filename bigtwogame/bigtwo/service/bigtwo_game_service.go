@@ -47,19 +47,6 @@ func (b *BigTwoGame) PreTakeTurns() {
 	}
 }
 
-func (b *BigTwoGame) haveValidCards(hand []entity.BigTwoCard) bool {
-	for _, card := range hand {
-		if b.isValidMove(card) {
-			return true
-		}
-	}
-	return false
-}
-
-func (b *BigTwoGame) isValidMove(card entity.BigTwoCard) bool {
-	return (card.Rank == entity.Three) && (card.Suit == entity.Clubs)
-}
-
 func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
 	//TODO implement me
 	panic("implement me")
@@ -82,6 +69,21 @@ func (b *BigTwoGame) IsGameFinished() bool {
 func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
 	//TODO implement me
 	panic("implement me")
+}
+
+// Helpers
+
+func (b *BigTwoGame) haveValidCards(hand []entity.BigTwoCard) bool {
+	for _, card := range hand {
+		if b.isValidMove(card) {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *BigTwoGame) isValidMove(card entity.BigTwoCard) bool {
+	return (card.Rank == entity.Three) && (card.Suit == entity.Clubs)
 }
 
 func (b *BigTwoGame) updateDeskCard(card entity.BigTwoCard) {
