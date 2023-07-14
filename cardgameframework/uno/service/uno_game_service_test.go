@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"cardgameframework/template"
 	"cardgameframework/uno/entity"
 )
 
@@ -54,4 +55,40 @@ func TestUnoGame_Result(t *testing.T) {
 
 	// UnoPlayer who won the game should have their hand empty
 	assert.Equal(t, 0, len(winner.GetHand()))
+}
+
+func TestGameLogic(t *testing.T) {
+	players := []entity.IUnoPlayer[entity.UnoCard]{
+		&entity.AiUnoPlayer{Name: "Computer 1"},
+		&entity.AiUnoPlayer{Name: "Computer 2"},
+		&entity.AiUnoPlayer{Name: "Computer 3"},
+		&entity.AiUnoPlayer{Name: "Computer 4"},
+	}
+	deck := entity.NewUnoDeck()
+	playingGame := &UnoGame[entity.UnoCard]{Players: players, Deck: deck}
+	game := &template.GameFramework[entity.UnoCard]{
+		Deck:        deck,
+		Players:     make([]template.IPlayer[entity.UnoCard], len(players)),
+		NumCard:     5,
+		PlayingGame: playingGame,
+	}
+	for i, player := range players {
+		game.Players[i] = player
+	}
+
+	game.ShuffleDeck()
+	game.DrawHands(5)
+	game.PreTakeTurns()
+
+	expectedDeskCard := playingGame.DeskCard
+
+	p := playingGame.GetCurrentPlayer()
+	playingGame.TakeTurnStep(p)
+
+	actualDeskCard := playingGame.DeskCard
+
+	// Played card should be a valid move
+	if expectedDeskCard.Value != actualDeskCard.Value && expectedDeskCard.Color != actualDeskCard.Color {
+		t.Errorf("invalid move: expected: %v, actual: %v", expectedDeskCard, actualDeskCard)
+	}
 }
