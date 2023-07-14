@@ -8,7 +8,7 @@ import (
 
 type ShowdownGame[T entity.ShowDownCard] struct {
 	Players       []entity.IShowdownPlayer[entity.ShowDownCard]
-	Deck          template.Deck[entity.ShowDownCard]
+	Deck          *template.Deck[entity.ShowDownCard]
 	CurrentPlayer int
 	Record        entity.Record
 }

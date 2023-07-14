@@ -10,7 +10,7 @@ import (
 // UnoGame represents the UNO game.
 type UnoGame[T entity.UnoCard] struct {
 	Players       []entity.IUnoPlayer[entity.UnoCard]
-	Deck          template.Deck[entity.UnoCard]
+	Deck          *template.Deck[entity.UnoCard]
 	CurrentPlayer int
 	DeskCard      entity.UnoCard
 }
