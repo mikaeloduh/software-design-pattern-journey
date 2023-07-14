@@ -21,22 +21,25 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("New a Deck and have it shuffled", func(t *testing.T) {
 		deck := entity.NewBigTwoDeck()
-		deck.Shuffle()
 
 		assert.Equal(t, 52, len(deck.Cards))
+
+		deck.Shuffle()
+
 		assert.NotEqual(t, entity.NewBigTwoDeck(), deck)
 	})
 
 	t.Run("New game and have card deal to all players", func(t *testing.T) {
 		players := NewPlayers()
 		game := NewBigTwoGame(players)
-		game.ShuffleDeck()
+
 		game.DrawHands(game.NumCard)
 
 		assert.Equal(t, 13, len(game.Players[0].GetHand()))
 		assert.Equal(t, 13, len(game.Players[1].GetHand()))
 		assert.Equal(t, 13, len(game.Players[2].GetHand()))
 		assert.Equal(t, 13, len(game.Players[3].GetHand()))
+		assert.Equal(t, 0, len(game.Deck.Cards))
 	})
 
 	t.Run("PreTakeTurn should play ♣3 from whoever had", func(t *testing.T) {
