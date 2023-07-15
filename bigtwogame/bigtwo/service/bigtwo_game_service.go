@@ -8,7 +8,7 @@ import (
 type BigTwoGame struct {
 	Players       []entity.IBigTwoPlayer
 	Deck          *template.Deck[entity.BigTwoCard]
-	DeskCard      entity.BigTwoCard
+	TopCard       entity.BigTwoCard
 	CurrentPlayer int
 	Passed        int
 }
@@ -29,21 +29,21 @@ func NewBigTwoGame(players []entity.IBigTwoPlayer) *template.GameFramework[entit
 }
 
 func (b *BigTwoGame) PreTakeTurns() {
+	b.TopCard = entity.InitCard()
 
 	for i, p := range b.Players {
-		if b.haveValidTop(p.GetHand()) {
-			var playerPlay func() entity.BigTwoCard
-			playerPlay = func() entity.BigTwoCard {
+		if b.haveValidMove(p.GetHand()) {
+			var playerTakeTurn func() entity.BigTwoCard
+			playerTakeTurn = func() entity.BigTwoCard {
 				move := p.TakeTurnMove()
-				if !b.isValidTop(move.DryRun()) {
-					return playerPlay()
+				if !b.isValidMove(move.DryRun()) {
+					return playerTakeTurn()
 				}
 				return move.Play()
 			}
 
 			b.CurrentPlayer = i
-			playCard := playerPlay()
-			b.updateDeskCard(playCard)
+			b.updateDeskCard(playerTakeTurn())
 			break
 		}
 	}
@@ -64,6 +64,7 @@ func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
 
 		playCard := playerPlay()
 		b.updateDeskCard(playCard)
+		b.Passed = 0
 	} else {
 		b.Passed += 1
 	}
@@ -76,6 +77,11 @@ func (b *BigTwoGame) GetCurrentPlayer() template.IPlayer[entity.BigTwoCard] {
 
 func (b *BigTwoGame) UpdateGameAndMoveToNext() {
 	b.CurrentPlayer = (b.CurrentPlayer + 1) % len(b.Players)
+
+	if b.Passed == len(b.Players)-1 {
+		b.Passed = 0
+		b.TopCard = entity.PassCard()
+	}
 }
 
 func (b *BigTwoGame) IsGameFinished() bool {
@@ -90,22 +96,6 @@ func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
 
 // Helpers
 
-func (b *BigTwoGame) haveValidTop(hand []entity.BigTwoCard) bool {
-	for _, card := range hand {
-		if b.isValidTop(card) {
-			return true
-		}
-	}
-	return false
-}
-
-func (b *BigTwoGame) isValidTop(card entity.BigTwoCard) bool {
-	return card.Compare(entity.BigTwoCard{
-		Suit: entity.Clubs,
-		Rank: entity.Three,
-	}) == 0
-}
-
 func (b *BigTwoGame) haveValidMove(hand []entity.BigTwoCard) bool {
 	for _, card := range hand {
 		if b.isValidMove(card) {
@@ -116,9 +106,15 @@ func (b *BigTwoGame) haveValidMove(hand []entity.BigTwoCard) bool {
 }
 
 func (b *BigTwoGame) isValidMove(card entity.BigTwoCard) bool {
-	return card.Compare(b.DeskCard) == 1
+	if b.TopCard == entity.InitCard() {
+		return card.Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
+	} else if b.TopCard == entity.PassCard() {
+		return true
+	} else {
+		return card.Compare(b.TopCard) == 1
+	}
 }
 
 func (b *BigTwoGame) updateDeskCard(card entity.BigTwoCard) {
-	b.DeskCard = card
+	b.TopCard = card
 }
