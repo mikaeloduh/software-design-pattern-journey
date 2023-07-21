@@ -32,7 +32,8 @@ func (a *AiBigTwoPlayer) RemoveCard(index int) BigTwoCard {
 
 func (a *AiBigTwoPlayer) TakeTurnMove() *TurnMove {
 	selectCard := rand.Intn(len(a.Hand))
-	return NewTurnMove(a, selectCard)
+
+	return NewTurnMove(&a.Hand, selectCard)
 }
 
 func (a *AiBigTwoPlayer) GetName() string {

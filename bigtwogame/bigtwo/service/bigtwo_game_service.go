@@ -79,8 +79,8 @@ func (b *BigTwoGame) UpdateGameAndMoveToNext() {
 	b.CurrentPlayer = (b.CurrentPlayer + 1) % len(b.Players)
 
 	if b.Passed == len(b.Players)-1 {
-		b.Passed = 0
 		b.TopCard = entity.PassCard()
+		b.Passed = 0
 	}
 }
 
@@ -107,10 +107,13 @@ func (b *BigTwoGame) haveValidMove(hand []entity.BigTwoCard) bool {
 
 func (b *BigTwoGame) isValidMove(card entity.BigTwoCard) bool {
 	if b.TopCard == entity.InitCard() {
+		// IF pre take turn
 		return card.Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
 	} else if b.TopCard == entity.PassCard() {
+		// IF all passed
 		return true
 	} else {
+		// IF play card
 		return card.Compare(b.TopCard) == 1
 	}
 }
