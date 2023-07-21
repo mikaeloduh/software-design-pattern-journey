@@ -11,10 +11,9 @@ func NewTurnMove(hand *[]BigTwoCard, selected []int) *TurnMove {
 
 func (t *TurnMove) DryRun() []BigTwoCard {
 	var cards []BigTwoCard
-	for i := range t.selected {
-		cards = append(cards, (*t.hand)[i])
+	for _, v := range t.selected {
+		cards = append(cards, (*t.hand)[v])
 	}
-
 	return cards
 }
 

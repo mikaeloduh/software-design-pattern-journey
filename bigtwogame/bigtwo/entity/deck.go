@@ -20,5 +20,45 @@ func NewBigTwoDeck() *template.Deck[BigTwoCard] {
 // challenger, Club 3  --> [IF topCard is Club 3 & challenger is Club 3, DO pass]
 //                     --> [IF topCard is Club 3 & challenger contains C3 and valid pair, DO pass]
 
-// 1. contain Club 3
-// 2. other
+/**
+func (h TemplateHandler) PatternHandler(c1Ptr, c2Ptr *Sprite) bool {
+	if h.isMatch(deskCard) {
+		return compare()
+	} else if isInitCard(deskCard) {
+
+	} else if h.Next != nil {
+		h.Next.Handle(c1Ptr, c2Ptr)
+	}
+}
+*/
+
+/* single pattern handler
+
+# IF deskCard IS single
+if isMatch(deskCard):
+	if isMatch(playCard):
+		return playCard.compare(deskCard) == 1
+	elif hasMatch(playCard):
+		compare(deskCard, playCard)
+
+
+# IF deskCard IS InitCard
+if isInitCard(deskCard):
+	if isMatch(playCard):
+		return playCard.compare(Club3) == 0
+
+# IF deskCard IS PassCard
+if isPassCard(deskCard):
+	if isMatch(playCard):
+		return True
+
+
+func isMatch(card) :
+	if len(card)
+	if match pattern ...
+
+func hasMatch(card) :
+
+
+
+*/

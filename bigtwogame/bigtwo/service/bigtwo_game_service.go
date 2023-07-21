@@ -3,7 +3,6 @@ package service
 import (
 	"bigtwogame/bigtwo/entity"
 	"bigtwogame/template"
-	"fmt"
 )
 
 type BigTwoGame struct {
@@ -104,23 +103,32 @@ func (b *BigTwoGame) haveValidMove(hand []entity.BigTwoCard) bool {
 		}
 	}
 	return false
-	//return b.isValidMove(hand)
 }
 
 func (b *BigTwoGame) isValidMove(cards []entity.BigTwoCard) bool {
 	if len(b.TopCards) == 1 && b.TopCards[0] == entity.InitCard() {
-		// IF pre take turn
-		card := cards[0]
-		return card.Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
+		// IF IS InitCard : pre take turn
+		if len(cards) == 1 {
+			// IF playCard match single patten
+			card := cards[0]
+			return card.Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
+		}
+		return false
 	} else if len(b.TopCards) == 1 && b.TopCards[0] == entity.PassCard() {
-		// IF all passed
-		return true
-	} else if len(b.TopCards) == 1 && len(cards) == 1 {
-		// IF play single card
-		card := cards[0]
-		return card.Compare(b.TopCards[0]) == 1
+		// IF IS PassCard : all passed
+		if len(cards) == 1 {
+			// IF playCard match single patten
+			return true
+		}
+		return false
+	} else if len(b.TopCards) == 1 {
+		// IF IS single card
+		if len(cards) == 1 {
+			// IF playCard match single patten
+			return cards[0].Compare(b.TopCards[0]) == 1
+		}
+		return false
 	} else {
-		fmt.Println("You should not pass!")
 		return false
 	}
 }

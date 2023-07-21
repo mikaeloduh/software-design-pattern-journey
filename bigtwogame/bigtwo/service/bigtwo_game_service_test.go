@@ -61,7 +61,7 @@ func TestBigTwo(t *testing.T) {
 		game.DrawHands(game.NumCard)
 		game.PreTakeTurns()
 
-		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}, playingGame.TopCards)
+		assert.Equal(t, []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Three}}, playingGame.TopCards)
 	})
 
 	t.Run("TakeTurnStep should respect the rule (single only)", func(t *testing.T) {
@@ -164,7 +164,7 @@ func TestBigTwo(t *testing.T) {
 		playingGame.UpdateGameAndMoveToNext()
 
 		//assert.Equal(t, 3, playingGame.Passed)
-		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two}, playingGame.TopCards)
+		assert.Equal(t, []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Two}}, playingGame.TopCards)
 		assert.Len(t, players[1].GetHand(), 1)
 		assert.Len(t, players[2].GetHand(), 1)
 		assert.Len(t, players[3].GetHand(), 1)
