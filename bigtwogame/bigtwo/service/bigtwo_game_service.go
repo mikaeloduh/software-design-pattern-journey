@@ -3,12 +3,13 @@ package service
 import (
 	"bigtwogame/bigtwo/entity"
 	"bigtwogame/template"
+	"fmt"
 )
 
 type BigTwoGame struct {
 	Players       []entity.IBigTwoPlayer
 	Deck          *template.Deck[entity.BigTwoCard]
-	TopCard       entity.BigTwoCard
+	TopCards      []entity.BigTwoCard
 	CurrentPlayer int
 	Passed        int
 }
@@ -29,12 +30,12 @@ func NewBigTwoGame(players []entity.IBigTwoPlayer) *template.GameFramework[entit
 }
 
 func (b *BigTwoGame) PreTakeTurns() {
-	b.TopCard = entity.InitCard()
+	b.TopCards = []entity.BigTwoCard{entity.InitCard()}
 
 	for i, p := range b.Players {
 		if b.haveValidMove(p.GetHand()) {
-			var playerTakeTurn func() entity.BigTwoCard
-			playerTakeTurn = func() entity.BigTwoCard {
+			var playerTakeTurn func() []entity.BigTwoCard
+			playerTakeTurn = func() []entity.BigTwoCard {
 				move := p.TakeTurnMove()
 				if !b.isValidMove(move.DryRun()) {
 					return playerTakeTurn()
@@ -53,8 +54,8 @@ func (b *BigTwoGame) PreTakeTurns() {
 func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
 
 	if b.haveValidMove(player.GetHand()) {
-		var playerPlay func() entity.BigTwoCard
-		playerPlay = func() entity.BigTwoCard {
+		var playerPlay func() []entity.BigTwoCard
+		playerPlay = func() []entity.BigTwoCard {
 			move := player.(entity.IBigTwoPlayer).TakeTurnMove()
 			if !b.isValidMove(move.DryRun()) {
 				return playerPlay()
@@ -79,7 +80,7 @@ func (b *BigTwoGame) UpdateGameAndMoveToNext() {
 	b.CurrentPlayer = (b.CurrentPlayer + 1) % len(b.Players)
 
 	if b.Passed == len(b.Players)-1 {
-		b.TopCard = entity.PassCard()
+		b.TopCards = []entity.BigTwoCard{entity.PassCard()}
 		b.Passed = 0
 	}
 }
@@ -98,26 +99,32 @@ func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
 
 func (b *BigTwoGame) haveValidMove(hand []entity.BigTwoCard) bool {
 	for _, card := range hand {
-		if b.isValidMove(card) {
+		if b.isValidMove([]entity.BigTwoCard{card}) {
 			return true
 		}
 	}
 	return false
+	//return b.isValidMove(hand)
 }
 
-func (b *BigTwoGame) isValidMove(card entity.BigTwoCard) bool {
-	if b.TopCard == entity.InitCard() {
+func (b *BigTwoGame) isValidMove(cards []entity.BigTwoCard) bool {
+	if len(b.TopCards) == 1 && b.TopCards[0] == entity.InitCard() {
 		// IF pre take turn
+		card := cards[0]
 		return card.Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
-	} else if b.TopCard == entity.PassCard() {
+	} else if len(b.TopCards) == 1 && b.TopCards[0] == entity.PassCard() {
 		// IF all passed
 		return true
+	} else if len(b.TopCards) == 1 && len(cards) == 1 {
+		// IF play single card
+		card := cards[0]
+		return card.Compare(b.TopCards[0]) == 1
 	} else {
-		// IF play card
-		return card.Compare(b.TopCard) == 1
+		fmt.Println("You should not pass!")
+		return false
 	}
 }
 
-func (b *BigTwoGame) updateDeskCard(card entity.BigTwoCard) {
-	b.TopCard = card
+func (b *BigTwoGame) updateDeskCard(card []entity.BigTwoCard) {
+	b.TopCards = card
 }

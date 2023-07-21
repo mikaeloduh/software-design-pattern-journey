@@ -61,7 +61,7 @@ func TestBigTwo(t *testing.T) {
 		game.DrawHands(game.NumCard)
 		game.PreTakeTurns()
 
-		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}, playingGame.TopCard)
+		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}, playingGame.TopCards)
 	})
 
 	t.Run("TakeTurnStep should respect the rule (single only)", func(t *testing.T) {
@@ -82,12 +82,12 @@ func TestBigTwo(t *testing.T) {
 		game.DrawHands(game.NumCard)
 		game.PreTakeTurns()
 
-		firstTop := playingGame.TopCard
+		firstTop := playingGame.TopCards[0]
 
 		p := playingGame.GetCurrentPlayer()
 		playingGame.TakeTurnStep(p)
 
-		actualCard := playingGame.TopCard
+		actualCard := playingGame.TopCards[0]
 
 		assert.Equal(t, 1, actualCard.Compare(firstTop))
 		assert.Equal(t, 0, playingGame.Passed)
@@ -111,17 +111,17 @@ func TestBigTwo(t *testing.T) {
 		a := entity.BigTwoCard{Rank: -1}
 		fmt.Println(a.String())
 
-		playingGame.TopCard = entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Ten}
+		playingGame.TopCards = []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
 		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Nine})
 		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Eight})
 
-		firstTop := playingGame.TopCard
+		firstTop := playingGame.TopCards
 
 		p := playingGame.GetCurrentPlayer()
 		playingGame.TakeTurnStep(p)
 
 		assert.Equal(t, 1, playingGame.Passed)
-		assert.Equal(t, firstTop, playingGame.TopCard)
+		assert.Equal(t, firstTop, playingGame.TopCards)
 		assert.Len(t, playingGame.GetCurrentPlayer().GetHand(), 2)
 	})
 
@@ -139,15 +139,15 @@ func TestBigTwo(t *testing.T) {
 			game.Players[i] = player
 		}
 
-		// TopCard is Club 10
-		playingGame.TopCard = entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Ten}
+		// TopCards is Club 10
+		playingGame.TopCards = []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
 
 		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two})
 		players[1].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Nine})
 		players[2].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Eight})
 		players[3].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Seven})
 
-		_ = playingGame.TopCard
+		_ = playingGame.TopCards
 
 		// 1
 		playingGame.CurrentPlayer = 1
@@ -164,7 +164,7 @@ func TestBigTwo(t *testing.T) {
 		playingGame.UpdateGameAndMoveToNext()
 
 		//assert.Equal(t, 3, playingGame.Passed)
-		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two}, playingGame.TopCard)
+		assert.Equal(t, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two}, playingGame.TopCards)
 		assert.Len(t, players[1].GetHand(), 1)
 		assert.Len(t, players[2].GetHand(), 1)
 		assert.Len(t, players[3].GetHand(), 1)
