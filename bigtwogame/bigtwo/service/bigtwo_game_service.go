@@ -32,11 +32,12 @@ func (b *BigTwoGame) PreTakeTurns() {
 	b.TopCards = []entity.BigTwoCard{entity.InitCard()}
 
 	for i, p := range b.Players {
-		if b.haveValidMove(p.GetHand()) {
+		if b.haveValidPreTakeMove(p.GetHand()) {
 			var playerTakeTurn func() []entity.BigTwoCard
+
 			playerTakeTurn = func() []entity.BigTwoCard {
 				move := p.TakeTurnMove()
-				if !b.isValidMove(move.DryRun()) {
+				if !b.isValidPreTakeMove(move.DryRun()) {
 					return playerTakeTurn()
 				}
 				return move.Play()
@@ -52,18 +53,18 @@ func (b *BigTwoGame) PreTakeTurns() {
 
 func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
 
-	if b.haveValidMove(player.GetHand()) {
+	if b.haveValidTurnMove(player.GetHand()) {
 		var playerPlay func() []entity.BigTwoCard
+
 		playerPlay = func() []entity.BigTwoCard {
 			move := player.(entity.IBigTwoPlayer).TakeTurnMove()
-			if !b.isValidMove(move.DryRun()) {
+			if !b.isValidTurnMove(move.DryRun()) {
 				return playerPlay()
 			}
 			return move.Play()
 		}
 
-		playCard := playerPlay()
-		b.updateDeskCard(playCard)
+		b.updateDeskCard(playerPlay())
 		b.Passed = 0
 	} else {
 		b.Passed += 1
@@ -94,45 +95,70 @@ func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
 	panic("implement me")
 }
 
-// Helpers
+// privates
 
-func (b *BigTwoGame) haveValidMove(hand []entity.BigTwoCard) bool {
+func (b *BigTwoGame) haveValidPreTakeMove(hand []entity.BigTwoCard) bool {
 	for _, card := range hand {
-		if b.isValidMove([]entity.BigTwoCard{card}) {
+		if b.isValidPreTakeMove([]entity.BigTwoCard{card}) {
 			return true
 		}
 	}
 	return false
 }
 
-func (b *BigTwoGame) isValidMove(cards []entity.BigTwoCard) bool {
-	if len(b.TopCards) == 1 && b.TopCards[0] == entity.InitCard() {
-		// IF IS InitCard : pre take turn
-		if len(cards) == 1 {
-			// IF playCard match single patten
-			card := cards[0]
-			return card.Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
-		}
+func (b *BigTwoGame) isValidPreTakeMove(cards []entity.BigTwoCard) bool {
+	if !hasClubsThree(cards) {
 		return false
-	} else if len(b.TopCards) == 1 && b.TopCards[0] == entity.PassCard() {
+	}
+	if isMatchSingle(cards) {
+		// IF playCard match single patten
+		return cards[0].Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
+	}
+	return false
+}
+
+func (b *BigTwoGame) haveValidTurnMove(hand []entity.BigTwoCard) bool {
+	for _, card := range hand {
+		if b.isValidTurnMove([]entity.BigTwoCard{card}) {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *BigTwoGame) isValidTurnMove(cards []entity.BigTwoCard) bool {
+	if len(b.TopCards) == 1 && b.TopCards[0] == entity.PassCard() {
 		// IF IS PassCard : all passed
-		if len(cards) == 1 {
+		if isMatchSingle(cards) {
 			// IF playCard match single patten
 			return true
 		}
 		return false
-	} else if len(b.TopCards) == 1 {
-		// IF IS single card
-		if len(cards) == 1 {
+	} else {
+		if isMatchSingle(b.TopCards) && isMatchSingle(cards) {
+			// IF IS single card
 			// IF playCard match single patten
 			return cards[0].Compare(b.TopCards[0]) == 1
 		}
-		return false
-	} else {
 		return false
 	}
 }
 
 func (b *BigTwoGame) updateDeskCard(card []entity.BigTwoCard) {
 	b.TopCards = card
+}
+
+// helpers
+
+func hasClubsThree(cards []entity.BigTwoCard) bool {
+	for _, v := range cards {
+		if v == (entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) {
+			return true
+		}
+	}
+	return false
+}
+
+func isMatchSingle(cards []entity.BigTwoCard) bool {
+	return len(cards) == 1
 }
