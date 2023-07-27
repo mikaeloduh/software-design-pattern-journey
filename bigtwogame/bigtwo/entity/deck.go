@@ -102,6 +102,20 @@ func (p PairPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
+type StraightPattenComparator struct {
+	Next PattenHandler
+}
+
+func (p StraightPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
+	if isMatchStraight(topCards) {
+		return compareStraight(playCards, topCards)
+	} else if p.Next != nil {
+		return p.Next.Do(topCards, playCards)
+	} else {
+		return false
+	}
+}
+
 type FullHousePattenComparator struct {
 	Next PattenHandler
 }
@@ -285,6 +299,21 @@ func comparePair(subject, target []BigTwoCard) bool {
 	return false
 }
 
+func compareStraight(cards []BigTwoCard, cards2 []BigTwoCard) bool {
+	if !isMatchStraight(cards) || !isMatchStraight(cards2) {
+		return false
+	}
+
+	sort.Slice(cards, func(i, j int) bool {
+		return cards[i].Rank < cards[j].Rank
+	})
+	sort.Slice(cards2, func(i, j int) bool {
+		return cards2[i].Rank < cards2[j].Rank
+	})
+
+	return cards[len(cards)-1].Compare(cards2[len(cards2)-1]) == 1
+}
+
 func compareFullHouse(subject, target []BigTwoCard) bool {
 	if !isMatchFullHouse(subject) || !isMatchFullHouse(target) {
 		return false
@@ -300,29 +329,23 @@ func compareFullHouse(subject, target []BigTwoCard) bool {
 		targetRankCounts[card.Rank]++
 	}
 
-	var subjectThreeRank, subjectTwoRank Rank
+	var subjectThreeRank Rank
 	for rank, count := range subjectRankCounts {
 		if count == 3 {
 			subjectThreeRank = rank
-		} else if count == 2 {
-			subjectTwoRank = rank
 		}
 	}
 
-	var targetThreeRank, targetTwoRank Rank
+	var targetThreeRank Rank
 	for rank, count := range targetRankCounts {
 		if count == 3 {
 			targetThreeRank = rank
-		} else if count == 2 {
-			targetTwoRank = rank
 		}
 	}
 
 	if subjectThreeRank > targetThreeRank {
 		return true
-	} else if subjectThreeRank < targetThreeRank {
+	} else {
 		return false
 	}
-
-	return subjectTwoRank > targetTwoRank
 }
