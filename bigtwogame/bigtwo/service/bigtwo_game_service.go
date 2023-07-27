@@ -43,7 +43,7 @@ func (b *BigTwoGame) PreTakeTurns() {
 	b.TopCards = []entity.BigTwoCard{entity.InitCard()}
 
 	for i, p := range b.Players {
-		if b.haveValidPreTakeMove(p.GetHand()) {
+		if b.hasValidPreTakeTurnMove(p.GetHand()) {
 			var playerTakeTurn func() []entity.BigTwoCard
 
 			playerTakeTurn = func() []entity.BigTwoCard {
@@ -101,22 +101,11 @@ func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
 
 // privates
 
-func (b *BigTwoGame) haveValidPreTakeMove(hand []entity.BigTwoCard) bool {
+func (b *BigTwoGame) hasValidPreTakeTurnMove(hand []entity.BigTwoCard) bool {
 	for _, card := range hand {
-		if b.isValidPreTakeMove([]entity.BigTwoCard{card}) {
+		if b.isValidTurnMove([]entity.BigTwoCard{card}) {
 			return true
 		}
-	}
-	return false
-}
-
-func (b *BigTwoGame) isValidPreTakeMove(cards []entity.BigTwoCard) bool {
-	if !hasClubsThree(cards) {
-		return false
-	}
-	if isMatchSingle(cards) {
-		// IF playCard match single patten
-		return cards[0].Compare(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three}) == 0
 	}
 	return false
 }
@@ -124,7 +113,6 @@ func (b *BigTwoGame) isValidPreTakeMove(cards []entity.BigTwoCard) bool {
 // isValidTurnMove
 func (b *BigTwoGame) isValidTurnMove(cards []entity.BigTwoCard) bool {
 	if isPassCard(b.TopCards) {
-		// card validator
 		if isPassCard(cards) {
 			return false
 		} else if isMatchSingle(cards) {
@@ -134,7 +122,6 @@ func (b *BigTwoGame) isValidTurnMove(cards []entity.BigTwoCard) bool {
 		}
 		return false
 	} else if isInitCard(b.TopCards) {
-		// card validator
 		if !hasClubsThree(cards) {
 			return false
 		}
