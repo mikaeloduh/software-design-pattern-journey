@@ -169,3 +169,70 @@ func TestFullHousePattenValidator(t *testing.T) {
 		})
 	}
 }
+
+func TestFullHousePattenComparator(t *testing.T) {
+	type fields struct {
+		Next PattenHandler
+	}
+	type args struct {
+		topCards  []BigTwoCard
+		playCards []BigTwoCard
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			"Happy test",
+			fields{nil},
+			args{
+				topCards: []BigTwoCard{
+					{Suit: Spades, Rank: Three},
+					{Suit: Diamonds, Rank: Three},
+					{Suit: Hearts, Rank: Three},
+					{Suit: Spades, Rank: Seven},
+					{Suit: Hearts, Rank: Seven},
+				},
+				playCards: []BigTwoCard{
+					{Suit: Diamonds, Rank: Four},
+					{Suit: Hearts, Rank: Four},
+					{Suit: Spades, Rank: Four},
+					{Suit: Diamonds, Rank: Seven},
+					{Suit: Clubs, Rank: Seven},
+				},
+			},
+			true,
+		},
+		{
+			"Unhappy test",
+			fields{nil},
+			args{
+				topCards: []BigTwoCard{
+					{Suit: Spades, Rank: Two},
+					{Suit: Diamonds, Rank: Two},
+					{Suit: Hearts, Rank: Two},
+					{Suit: Spades, Rank: Three},
+					{Suit: Hearts, Rank: Three},
+				},
+				playCards: []BigTwoCard{
+					{Suit: Diamonds, Rank: Three},
+					{Suit: Hearts, Rank: Three},
+					{Suit: Spades, Rank: Three},
+					{Suit: Diamonds, Rank: Four},
+					{Suit: Clubs, Rank: Four},
+				},
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := FullHousePattenComparator{
+				Next: tt.fields.Next,
+			}
+			assert.Equalf(t, tt.want, p.Do(tt.args.topCards, tt.args.playCards), "Do(%v, %v)", tt.args.topCards, tt.args.playCards)
+		})
+	}
+}

@@ -102,6 +102,20 @@ func (p PairPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
+type FullHousePattenComparator struct {
+	Next PattenHandler
+}
+
+func (p FullHousePattenComparator) Do(topCards, playCards []BigTwoCard) bool {
+	if isMatchFullHouse(topCards) {
+		return compareFullHouse(playCards, topCards)
+	} else if p.Next != nil {
+		return p.Next.Do(topCards, playCards)
+	} else {
+		return false
+	}
+}
+
 type PattenValidator interface {
 	Do(cards []BigTwoCard) bool
 }
@@ -269,4 +283,46 @@ func comparePair(subject, target []BigTwoCard) bool {
 		return true
 	}
 	return false
+}
+
+func compareFullHouse(subject, target []BigTwoCard) bool {
+	if !isMatchFullHouse(subject) || !isMatchFullHouse(target) {
+		return false
+	}
+
+	subjectRankCounts := make(map[Rank]int)
+	for _, card := range subject {
+		subjectRankCounts[card.Rank]++
+	}
+
+	targetRankCounts := make(map[Rank]int)
+	for _, card := range target {
+		targetRankCounts[card.Rank]++
+	}
+
+	var subjectThreeRank, subjectTwoRank Rank
+	for rank, count := range subjectRankCounts {
+		if count == 3 {
+			subjectThreeRank = rank
+		} else if count == 2 {
+			subjectTwoRank = rank
+		}
+	}
+
+	var targetThreeRank, targetTwoRank Rank
+	for rank, count := range targetRankCounts {
+		if count == 3 {
+			targetThreeRank = rank
+		} else if count == 2 {
+			targetTwoRank = rank
+		}
+	}
+
+	if subjectThreeRank > targetThreeRank {
+		return true
+	} else if subjectThreeRank < targetThreeRank {
+		return false
+	}
+
+	return subjectTwoRank > targetTwoRank
 }
