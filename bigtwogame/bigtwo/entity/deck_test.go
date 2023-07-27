@@ -123,3 +123,49 @@ func TestStraightPattenValidator(t *testing.T) {
 		})
 	}
 }
+
+func TestFullHousePattenValidator(t *testing.T) {
+	type fields struct {
+		Next PattenValidator
+	}
+	type args struct {
+		cards []BigTwoCard
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			"should be a full-house",
+			fields{nil},
+			args{[]BigTwoCard{
+				{Suit: Diamonds, Rank: Three},
+				{Suit: Clubs, Rank: Three},
+				{Suit: Spades, Rank: Three},
+				{Suit: Clubs, Rank: Two},
+				{Suit: Hearts, Rank: Two}}},
+			true,
+		},
+		{
+			"should not be a full-house",
+			fields{nil},
+			args{[]BigTwoCard{
+				{Suit: Diamonds, Rank: Three},
+				{Suit: Clubs, Rank: Three},
+				{Suit: Spades, Rank: Three},
+				{Suit: Clubs, Rank: Two},
+				{Suit: Hearts, Rank: Ace}}},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			v := FullHousePattenValidator{
+				Next: tt.fields.Next,
+			}
+			assert.Equalf(t, tt.want, v.Do(tt.args.cards), "Do(%v)", tt.args.cards)
+		})
+	}
+}

@@ -162,6 +162,20 @@ func (v StraightPattenValidator) Do(cards []BigTwoCard) bool {
 	}
 }
 
+type FullHousePattenValidator struct {
+	Next PattenValidator
+}
+
+func (v FullHousePattenValidator) Do(cards []BigTwoCard) bool {
+	if isMatchFullHouse(cards) {
+		return true
+	} else if v.Next != nil {
+		return v.Next.Do(cards)
+	} else {
+		return false
+	}
+}
+
 type YouShallNotPass struct {
 	Next PattenValidator
 }
@@ -210,6 +224,29 @@ func isMatchStraight(cards []BigTwoCard) bool {
 		}
 	}
 	return true
+}
+
+func isMatchFullHouse(cards []BigTwoCard) bool {
+	if len(cards) != 5 {
+		return false
+	}
+
+	rankCount := make(map[Rank]int)
+	for _, card := range cards {
+		rankCount[card.Rank]++
+	}
+
+	var hasTwo, hasThree bool
+	for _, count := range rankCount {
+		switch count {
+		case 2:
+			hasTwo = true
+		case 3:
+			hasThree = true
+		}
+	}
+
+	return hasTwo && hasThree
 }
 
 func hasClubsThree(cards []BigTwoCard) bool {
