@@ -2,6 +2,7 @@ package entity
 
 import (
 	"bigtwogame/template"
+	"sort"
 )
 
 type BigTwoDeck struct {
@@ -147,6 +148,20 @@ func (v PairPattenValidator) Do(cards []BigTwoCard) bool {
 	}
 }
 
+type StraightPattenValidator struct {
+	Next PattenValidator
+}
+
+func (v StraightPattenValidator) Do(cards []BigTwoCard) bool {
+	if isMatchStraight(cards) {
+		return true
+	} else if v.Next != nil {
+		return v.Next.Do(cards)
+	} else {
+		return false
+	}
+}
+
 type YouShallNotPass struct {
 	Next PattenValidator
 }
@@ -178,6 +193,23 @@ func isMatchPair(cards []BigTwoCard) bool {
 		return true
 	}
 	return false
+}
+
+func isMatchStraight(cards []BigTwoCard) bool {
+	if len(cards) < 5 {
+		return false
+	}
+
+	sort.Slice(cards, func(i, j int) bool {
+		return cards[i].Rank < cards[j].Rank
+	})
+
+	for i := 0; i < len(cards)-1; i++ {
+		if cards[i].Rank+1 != cards[i+1].Rank {
+			return false
+		}
+	}
+	return true
 }
 
 func hasClubsThree(cards []BigTwoCard) bool {
