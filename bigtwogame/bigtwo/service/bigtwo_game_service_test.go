@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -162,7 +163,7 @@ func FakeNewBigTwoGame(players []entity.IBigTwoPlayer) (*template.GameFramework[
 	deck := entity.NewBigTwoDeck()
 	playingGame := &BigTwoGame{Players: players, Deck: deck}
 	game := &template.GameFramework[entity.BigTwoCard]{
-		Deck:        deck,
+		Deck:        &deck.Deck,
 		Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
 		NumCard:     13,
 		PlayingGame: playingGame,
@@ -181,4 +182,12 @@ func FakeNewPlayers() []entity.IBigTwoPlayer {
 		&entity.AiBigTwoPlayer{Name: "Computer 3"},
 		&entity.AiBigTwoPlayer{Name: "Computer 4"},
 	}
+}
+
+func isMatchPair(cards []entity.BigTwoCard) bool {
+	if len(cards) == 2 && cards[0].Rank == cards[1].Rank {
+		fmt.Println("paiir!!!")
+		return true
+	}
+	return false
 }
