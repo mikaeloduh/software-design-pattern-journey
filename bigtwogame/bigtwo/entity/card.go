@@ -50,12 +50,12 @@ type BigTwoCard struct {
 	Rank Rank
 }
 
-// PassCard is use on when you want to pass
+// PassCard is for when you want to pass.
 func PassCard() BigTwoCard {
 	return BigTwoCard{Suit: -1, Rank: -1}
 }
 
-// InitCard represent the beginning status of a game
+// InitCard represent the initial status of a game
 func InitCard() BigTwoCard {
 	return BigTwoCard{}
 }
