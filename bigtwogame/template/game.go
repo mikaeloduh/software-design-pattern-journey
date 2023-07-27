@@ -5,6 +5,7 @@ type IGame interface {
 }
 
 type PlayingGame[T ICard] interface {
+	Init()
 	PreTakeTurns()
 	TakeTurnStep(player IPlayer[T])
 	GetCurrentPlayer() IPlayer[T]
@@ -33,6 +34,7 @@ func (f *GameFramework[T]) Init() {
 	for _, p := range f.Players {
 		p.Rename()
 	}
+	f.PlayingGame.Init()
 }
 
 func (f *GameFramework[T]) ShuffleDeck() {

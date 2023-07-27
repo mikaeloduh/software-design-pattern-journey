@@ -2,26 +2,31 @@ package entity
 
 type TurnMove struct {
 	hand     *[]BigTwoCard
-	selected []int
+	selected []BigTwoCard
 }
 
-func NewTurnMove(hand *[]BigTwoCard, selected []int) *TurnMove {
+func NewTurnMove(hand *[]BigTwoCard, selected []BigTwoCard) *TurnMove {
 	return &TurnMove{hand: hand, selected: selected}
 }
 
 func (t *TurnMove) DryRun() []BigTwoCard {
-	var cards []BigTwoCard
-	for _, v := range t.selected {
-		cards = append(cards, (*t.hand)[v])
-	}
-	return cards
+	return t.selected
 }
 
 func (t *TurnMove) Play() []BigTwoCard {
-	playCards := t.DryRun()
-	for i := range t.selected {
-		*t.hand = append((*t.hand)[:i], (*t.hand)[i+1:]...)
+	cardsToRemove := make(map[BigTwoCard]bool)
+	for _, c := range t.selected {
+		cardsToRemove[c] = true
 	}
 
-	return playCards
+	var filteredCards []BigTwoCard
+	for _, c := range *t.hand {
+		if _, found := cardsToRemove[c]; !found {
+			filteredCards = append(filteredCards, c)
+		}
+
+	}
+	*t.hand = filteredCards
+
+	return t.selected
 }

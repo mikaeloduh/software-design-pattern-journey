@@ -36,6 +36,8 @@ func NewShowdownGame(players []entity.IShowdownPlayer) *template.GameFramework[e
 	return game
 }
 
+func (g *ShowdownGame) Init() {}
+
 func (g *ShowdownGame) PreTakeTurns() {
 	fmt.Printf("Game Start")
 }

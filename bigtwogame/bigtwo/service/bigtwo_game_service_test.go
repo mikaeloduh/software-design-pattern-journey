@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ func TestBigTwo(t *testing.T) {
 	t.Parallel()
 
 	t.Run("New game success and have 4 players", func(t *testing.T) {
-		players := NewPlayers()
+		players := FakeNewPlayers()
 		game := NewBigTwoGame(players)
 
 		assert.Equal(t, 4, len(game.Players))
@@ -31,7 +30,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("New game and have card deal to all players", func(t *testing.T) {
-		players := NewPlayers()
+		players := FakeNewPlayers()
 		game := NewBigTwoGame(players)
 
 		game.DrawHands(game.NumCard)
@@ -44,135 +43,138 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("PreTakeTurn should play ♣3 from whoever had (single only)", func(t *testing.T) {
-		players := NewPlayers()
-		deck := entity.NewBigTwoDeck()
-		playingGame := &BigTwoGame{Players: players, Deck: deck}
-		game := &template.GameFramework[entity.BigTwoCard]{
-			Deck:        deck,
-			Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
-			NumCard:     13,
-			PlayingGame: playingGame,
-		}
-		for i, player := range players {
-			game.Players[i] = player
-		}
+		players := FakeNewPlayers()
+		game, playingGame := FakeNewBigTwoGame(players)
 
+		playingGame.SetActionCards()
 		game.ShuffleDeck()
 		game.DrawHands(game.NumCard)
 		game.PreTakeTurns()
 
-		assert.Equal(t, []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Three}}, playingGame.TopCards)
+		assert.Contains(t, playingGame.TopCards, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three})
 	})
 
-	t.Run("TakeTurnStep should respect the rule (single only)", func(t *testing.T) {
-		players := NewPlayers()
-		deck := entity.NewBigTwoDeck()
-		playingGame := &BigTwoGame{Players: players, Deck: deck}
-		game := &template.GameFramework[entity.BigTwoCard]{
-			Deck:        deck,
-			Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
-			NumCard:     13,
-			PlayingGame: playingGame,
-		}
-		for i, player := range players {
-			game.Players[i] = player
-		}
+	t.Run("Testing TakeTurn while player not pass, played card should be a valid single", func(t *testing.T) {
+		players := FakeNewPlayers()
+		_, playingGame := FakeNewBigTwoGame(players)
+		playingGame.TopCards = []entity.BigTwoCard{{
+			Suit: entity.Spades,
+			Rank: entity.Eight}}
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Spades, Rank: entity.Three})
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Hearts, Rank: entity.Four})
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Diamonds, Rank: entity.Five})
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Hearts, Rank: entity.Jack})
 
-		game.ShuffleDeck()
-		game.DrawHands(game.NumCard)
-		game.PreTakeTurns()
+		playingGame.CurrentPlayer = 0
+		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 
-		firstTop := playingGame.TopCards[0]
-
-		p := playingGame.GetCurrentPlayer()
-		playingGame.TakeTurnStep(p)
-
-		actualCard := playingGame.TopCards[0]
-
-		assert.Equal(t, 1, actualCard.Compare(firstTop))
+		assert.Len(t, players[0].GetHand(), 3)
+		assert.Equal(t, []entity.BigTwoCard{{Suit: entity.Hearts, Rank: entity.Jack}}, playingGame.TopCards)
 		assert.Equal(t, 0, playingGame.Passed)
-		assert.Len(t, playingGame.GetCurrentPlayer().GetHand(), 13-1)
 	})
 
-	t.Run("TakeTurnStep no valid card should pass (single only)", func(t *testing.T) {
-		players := NewPlayers()
-		deck := entity.NewBigTwoDeck()
-		playingGame := &BigTwoGame{Players: players, Deck: deck}
-		game := &template.GameFramework[entity.BigTwoCard]{
-			Deck:        deck,
-			Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
-			NumCard:     13,
-			PlayingGame: playingGame,
-		}
-		for i, player := range players {
-			game.Players[i] = player
-		}
+	t.Run("Testing TakeTurn while player not pass, played card should be a valid pair", func(t *testing.T) {
+		players := FakeNewPlayers()
+		_, playingGame := FakeNewBigTwoGame(players)
+		playingGame.TopCards = []entity.BigTwoCard{
+			{Suit: entity.Clubs, Rank: entity.Three},
+			{Suit: entity.Diamonds, Rank: entity.Three}}
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.King})
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Spades, Rank: entity.King})
 
-		a := entity.BigTwoCard{Rank: -1}
-		fmt.Println(a.String())
+		playingGame.CurrentPlayer = 0
+		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 
-		playingGame.TopCards = []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
+		assert.Contains(t, playingGame.TopCards, entity.BigTwoCard{Suit: entity.Spades, Rank: entity.King})
+		assert.Contains(t, playingGame.TopCards, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.King})
+		assert.Len(t, playingGame.GetCurrentPlayer().GetHand(), 0)
+	})
+
+	t.Run("Testing TakeTurn while player not pass, played card should be a valid pair (full)", func(t *testing.T) {
+		players := FakeNewPlayers()
+		game, playingGame := FakeNewBigTwoGame(players)
+
+		game.ShuffleDeck()
+		game.DrawHands(game.NumCard)
+		playingGame.TopCards = []entity.BigTwoCard{
+			{Suit: entity.Clubs, Rank: entity.Three},
+			{Suit: entity.Diamonds, Rank: entity.Three}}
+
+		playingGame.CurrentPlayer = 3
+		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
+
+		assert.Equal(t, true, isMatchPair(playingGame.TopCards))
+		assert.Len(t, playingGame.GetCurrentPlayer().GetHand(), 13-2)
+	})
+
+	t.Run("Testing TakeTurn with no valid card player should pass (single only)", func(t *testing.T) {
+		players := FakeNewPlayers()
+		_, playingGame := FakeNewBigTwoGame(players)
+		playingGame.SetActionCards()
+		expectedTopCards := []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
+		playingGame.TopCards = expectedTopCards
 		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Nine})
 		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Eight})
 
-		firstTop := playingGame.TopCards
-
-		p := playingGame.GetCurrentPlayer()
-		playingGame.TakeTurnStep(p)
+		playingGame.CurrentPlayer = 0
+		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 
 		assert.Equal(t, 1, playingGame.Passed)
-		assert.Equal(t, firstTop, playingGame.TopCards)
+		assert.Equal(t, expectedTopCards, playingGame.TopCards)
 		assert.Len(t, playingGame.GetCurrentPlayer().GetHand(), 2)
 	})
 
-	t.Run("TakeTurnStep three pass in line should start new turn (single only)", func(t *testing.T) {
-		players := NewPlayers()
-		deck := entity.NewBigTwoDeck()
-		playingGame := &BigTwoGame{Players: players, Deck: deck}
-		game := &template.GameFramework[entity.BigTwoCard]{
-			Deck:        deck,
-			Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
-			NumCard:     13,
-			PlayingGame: playingGame,
-		}
-		for i, player := range players {
-			game.Players[i] = player
-		}
+	t.Run("Testing TakeTurn, when three pass in a line, a new turn should start (single only)", func(t *testing.T) {
+		players := FakeNewPlayers()
+		_, playingGame := FakeNewBigTwoGame(players)
 
+		playingGame.SetActionCards()
 		// TopCards is Club 10
 		playingGame.TopCards = []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
+		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Nine})
+		players[1].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Eight})
+		players[2].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Seven})
+		players[3].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two})
 
-		players[0].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two})
-		players[1].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Nine})
-		players[2].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Eight})
-		players[3].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Seven})
-
-		_ = playingGame.TopCards
-
-		// 1
-		playingGame.CurrentPlayer = 1
+		// Player 0
+		playingGame.CurrentPlayer = 0
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
-		// 2
+		// Player 1
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
-		// 3
+		// Player 2
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
-		// 0
+		// Player 3
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
 
-		//assert.Equal(t, 3, playingGame.Passed)
 		assert.Equal(t, []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Two}}, playingGame.TopCards)
+		assert.Len(t, players[0].GetHand(), 1)
 		assert.Len(t, players[1].GetHand(), 1)
 		assert.Len(t, players[2].GetHand(), 1)
-		assert.Len(t, players[3].GetHand(), 1)
-		assert.Len(t, players[0].GetHand(), 0)
+		assert.Len(t, players[3].GetHand(), 0)
 	})
 }
 
-func NewPlayers() []entity.IBigTwoPlayer {
+func FakeNewBigTwoGame(players []entity.IBigTwoPlayer) (*template.GameFramework[entity.BigTwoCard], *BigTwoGame) {
+	deck := entity.NewBigTwoDeck()
+	playingGame := &BigTwoGame{Players: players, Deck: deck}
+	game := &template.GameFramework[entity.BigTwoCard]{
+		Deck:        deck,
+		Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
+		NumCard:     13,
+		PlayingGame: playingGame,
+	}
+	for i, player := range players {
+		game.Players[i] = player
+	}
+
+	return game, playingGame
+}
+
+func FakeNewPlayers() []entity.IBigTwoPlayer {
 	return []entity.IBigTwoPlayer{
 		&entity.AiBigTwoPlayer{Name: "Computer 1"},
 		&entity.AiBigTwoPlayer{Name: "Computer 2"},
