@@ -108,8 +108,8 @@ func (b *BigTwoGame) hasValidPreTakeTurnMove(hand []entity.BigTwoCard) bool {
 	return false
 }
 
-func (b *BigTwoGame) isValidTurnMove(cards []entity.BigTwoCard) bool {
-	return b.Deck.BigTwoHandler().Do(b.TopCards, cards)
+func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
+	return b.Deck.BigTwoHandler().Do(b.TopCards, playCards)
 }
 
 func (b *BigTwoGame) updateDeskCard(cards []entity.BigTwoCard) {
