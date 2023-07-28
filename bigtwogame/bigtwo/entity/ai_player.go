@@ -1,15 +1,8 @@
 package entity
 
 import (
-	"bigtwogame/template"
 	"math/rand"
 )
-
-type IBigTwoPlayer interface {
-	template.IPlayer[BigTwoCard]
-	TakeTurnMove() *TurnMove
-	SetActionCard(card BigTwoCard)
-}
 
 type AiBigTwoPlayer struct {
 	Name        string
@@ -17,43 +10,43 @@ type AiBigTwoPlayer struct {
 	ActionCards []BigTwoCard
 }
 
-func (a *AiBigTwoPlayer) GetName() string {
-	return a.Name
+func (p *AiBigTwoPlayer) GetName() string {
+	return p.Name
 }
 
-func (a *AiBigTwoPlayer) Rename() {
+func (p *AiBigTwoPlayer) Rename() {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (a *AiBigTwoPlayer) AddPoint() {
+func (p *AiBigTwoPlayer) AddPoint() {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (a *AiBigTwoPlayer) GetHand() []BigTwoCard {
-	return a.Hand
+func (p *AiBigTwoPlayer) GetHand() []BigTwoCard {
+	return p.Hand
 }
 
-func (a *AiBigTwoPlayer) SetCard(card BigTwoCard) {
-	a.Hand = append(a.Hand, card)
+func (p *AiBigTwoPlayer) SetCard(card BigTwoCard) {
+	p.Hand = append(p.Hand, card)
 }
 
-func (a *AiBigTwoPlayer) SetActionCard(card BigTwoCard) {
-	a.ActionCards = append(a.ActionCards, card)
+func (p *AiBigTwoPlayer) SetActionCard(card BigTwoCard) {
+	p.ActionCards = append(p.ActionCards, card)
 }
 
-func (a *AiBigTwoPlayer) RemoveCard(index int) BigTwoCard {
-	card := a.Hand[index]
-	a.Hand = append(a.Hand[:index], a.Hand[index+1:]...)
+func (p *AiBigTwoPlayer) RemoveCard(index int) BigTwoCard {
+	card := p.Hand[index]
+	p.Hand = append(p.Hand[:index], p.Hand[index+1:]...)
 	return card
 }
 
-func (a *AiBigTwoPlayer) TakeTurnMove() *TurnMove {
-	passibleMoves := findPassibleMove(a.Hand, a.ActionCards)
+func (p *AiBigTwoPlayer) TakeTurnMove() *TurnMove {
+	passibleMoves := findPassibleMove(p.Hand, p.ActionCards)
 	selectedMove := passibleMoves[rand.Intn(len(passibleMoves))]
 
-	return NewTurnMove(&a.Hand, selectedMove)
+	return NewTurnMove(&p.Hand, selectedMove)
 }
 
 func findPassibleMove(hand, actionCards []BigTwoCard) [][]BigTwoCard {

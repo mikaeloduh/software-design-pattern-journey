@@ -1,7 +1,11 @@
 package service
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +18,7 @@ func TestBigTwo(t *testing.T) {
 	t.Parallel()
 
 	t.Run("New game success and have 4 players", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		game := NewBigTwoGame(players)
 
 		assert.Equal(t, 4, len(game.Players))
@@ -31,7 +35,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("New game and have card deal to all players", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		game := NewBigTwoGame(players)
 
 		game.DrawHands(game.NumCard)
@@ -44,7 +48,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("PreTakeTurn should play ♣3 from whoever had (single only)", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		game, playingGame := FakeNewBigTwoGame(players)
 
 		playingGame.SetActionCards()
@@ -56,7 +60,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("Testing TakeTurn while player not pass, played card should be a valid single", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		_, playingGame := FakeNewBigTwoGame(players)
 		playingGame.TopCards = []entity.BigTwoCard{{
 			Suit: entity.Spades,
@@ -75,7 +79,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("Testing TakeTurn while player not pass, played card should be a valid pair", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		_, playingGame := FakeNewBigTwoGame(players)
 		playingGame.TopCards = []entity.BigTwoCard{
 			{Suit: entity.Clubs, Rank: entity.Three},
@@ -92,7 +96,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("Testing TakeTurn while player not pass, played card should be a valid pair (full)", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		game, playingGame := FakeNewBigTwoGame(players)
 
 		game.ShuffleDeck()
@@ -109,7 +113,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("Testing TakeTurn with no valid card player should pass (single only)", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		_, playingGame := FakeNewBigTwoGame(players)
 		playingGame.SetActionCards()
 		expectedTopCards := []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
@@ -126,7 +130,7 @@ func TestBigTwo(t *testing.T) {
 	})
 
 	t.Run("Testing TakeTurn, when three pass in a line, a new turn should start (single only)", func(t *testing.T) {
-		players := FakeNewPlayers()
+		players := FakeNewAIPlayers()
 		_, playingGame := FakeNewBigTwoGame(players)
 
 		playingGame.SetActionCards()
@@ -159,6 +163,60 @@ func TestBigTwo(t *testing.T) {
 	})
 }
 
+func TestBigTwoAcceptanceTest(t *testing.T) {
+	t.Skip()
+
+	inputData, _ := os.Open("./test_data/always-play-first-card.in")
+	defer inputData.Close()
+	inputDataReader := bufio.NewScanner(inputData)
+	scanInputDataText := func() string {
+		inputDataReader.Scan()
+		return inputDataReader.Text()
+	}
+
+	outputData, _ := os.Open("./test_data/always-play-first-card.out")
+	defer outputData.Close()
+	outputDataReader := bufio.NewScanner(inputData)
+	scanOutputDataText := func() string {
+		outputDataReader.Scan()
+		return outputDataReader.Text()
+	}
+
+	// Create a temporary buffer to capture the output
+	var writer *bytes.Buffer
+	writerWrite := func() string {
+		return writer.String()
+	}
+	// Set up custom input data using a bytes.Buffer
+	var reader *bytes.Buffer
+	readerRead := func(s string) {
+		reader = bytes.NewBufferString(s)
+	}
+
+	game, _ := FakeNewBigTwoGame(FakeNewHumanPlayers(reader, writer))
+
+	// Set up deck
+	scanInputDataText()
+	//playingGame.Deck = NewMockDeck(fileReader.Text())
+
+	// Player rename
+	game.Init()
+	readerRead(scanInputDataText())
+	readerRead(scanInputDataText())
+	readerRead(scanInputDataText())
+	readerRead(scanInputDataText())
+
+	// Draw
+	game.DrawHands(game.NumCard)
+	expectedOut := scanOutputDataText()
+	actualOut := writerWrite()
+
+	assert.Equal(t, expectedOut, actualOut)
+
+	// PreTakeTurn
+	game.PreTakeTurns()
+}
+
 func FakeNewBigTwoGame(players []entity.IBigTwoPlayer) (*template.GameFramework[entity.BigTwoCard], *BigTwoGame) {
 	deck := entity.NewBigTwoDeck()
 	playingGame := &BigTwoGame{Players: players, Deck: deck}
@@ -175,12 +233,21 @@ func FakeNewBigTwoGame(players []entity.IBigTwoPlayer) (*template.GameFramework[
 	return game, playingGame
 }
 
-func FakeNewPlayers() []entity.IBigTwoPlayer {
+func FakeNewAIPlayers() []entity.IBigTwoPlayer {
 	return []entity.IBigTwoPlayer{
 		&entity.AiBigTwoPlayer{Name: "Computer 1"},
 		&entity.AiBigTwoPlayer{Name: "Computer 2"},
 		&entity.AiBigTwoPlayer{Name: "Computer 3"},
 		&entity.AiBigTwoPlayer{Name: "Computer 4"},
+	}
+}
+
+func FakeNewHumanPlayers(r io.Reader, w io.Writer) []entity.IBigTwoPlayer {
+	return []entity.IBigTwoPlayer{
+		&entity.HumanPlayer{Name: "Player 1", Reader: r, Writer: w},
+		&entity.HumanPlayer{Name: "Player 2", Reader: r, Writer: w},
+		&entity.HumanPlayer{Name: "Player 3", Reader: r, Writer: w},
+		&entity.HumanPlayer{Name: "Player 4", Reader: r, Writer: w},
 	}
 }
 
