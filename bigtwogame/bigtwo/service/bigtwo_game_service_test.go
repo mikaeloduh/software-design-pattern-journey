@@ -19,7 +19,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("New game success and have 4 players", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		game := NewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		game := NewBigTwoGame(deck, players)
 
 		assert.Equal(t, 4, len(game.Players))
 	})
@@ -36,7 +37,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("New game and have card deal to all players", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		game := NewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		game := NewBigTwoGame(deck, players)
 
 		game.DrawHands(game.NumCard)
 
@@ -49,7 +51,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("PreTakeTurn should play ♣3 from whoever had (single only)", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		game, playingGame := FakeNewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		game, playingGame := FakeNewBigTwoGame(deck, players)
 
 		playingGame.SetActionCards()
 		game.ShuffleDeck()
@@ -61,7 +64,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("Testing TakeTurn while player not pass, played card should be a valid single", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		_, playingGame := FakeNewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		_, playingGame := FakeNewBigTwoGame(deck, players)
 		playingGame.TopCards = []entity.BigTwoCard{{
 			Suit: entity.Spades,
 			Rank: entity.Eight}}
@@ -80,7 +84,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("Testing TakeTurn while player not pass, played card should be a valid pair", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		_, playingGame := FakeNewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		_, playingGame := FakeNewBigTwoGame(deck, players)
 		playingGame.TopCards = []entity.BigTwoCard{
 			{Suit: entity.Clubs, Rank: entity.Three},
 			{Suit: entity.Diamonds, Rank: entity.Three}}
@@ -97,7 +102,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("Testing TakeTurn while player not pass, played card should be a valid pair (full)", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		game, playingGame := FakeNewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		game, playingGame := FakeNewBigTwoGame(deck, players)
 
 		game.ShuffleDeck()
 		game.DrawHands(game.NumCard)
@@ -114,7 +120,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("Testing TakeTurn with no valid card player should pass (single only)", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		_, playingGame := FakeNewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		_, playingGame := FakeNewBigTwoGame(deck, players)
 		playingGame.SetActionCards()
 		expectedTopCards := []entity.BigTwoCard{{Suit: entity.Clubs, Rank: entity.Ten}}
 		playingGame.TopCards = expectedTopCards
@@ -131,7 +138,8 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("Testing TakeTurn, when three pass in a line, a new turn should start (single only)", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		_, playingGame := FakeNewBigTwoGame(players)
+		deck := entity.NewBigTwoDeck()
+		_, playingGame := FakeNewBigTwoGame(deck, players)
 
 		playingGame.SetActionCards()
 		// TopCards is Club 10
@@ -193,7 +201,8 @@ func TestBigTwoAcceptanceTest(t *testing.T) {
 		reader = bytes.NewBufferString(s)
 	}
 
-	game, _ := FakeNewBigTwoGame(FakeNewHumanPlayers(reader, writer))
+	deck := entity.NewBigTwoDeck()
+	game, _ := FakeNewBigTwoGame(deck, FakeNewHumanPlayers(reader, writer))
 
 	// Set up deck
 	scanInputDataText()
@@ -217,8 +226,7 @@ func TestBigTwoAcceptanceTest(t *testing.T) {
 	game.PreTakeTurns()
 }
 
-func FakeNewBigTwoGame(players []entity.IBigTwoPlayer) (*template.GameFramework[entity.BigTwoCard], *BigTwoGame) {
-	deck := entity.NewBigTwoDeck()
+func FakeNewBigTwoGame(deck *entity.BigTwoDeck, players []entity.IBigTwoPlayer) (*template.GameFramework[entity.BigTwoCard], *BigTwoGame) {
 	playingGame := &BigTwoGame{Players: players, Deck: deck}
 	game := &template.GameFramework[entity.BigTwoCard]{
 		Deck:        &deck.Deck,

@@ -14,8 +14,7 @@ type BigTwoGame struct {
 	Passed        int
 }
 
-func NewBigTwoGame(players []entity.IBigTwoPlayer) *template.GameFramework[entity.BigTwoCard] {
-	deck := entity.NewBigTwoDeck()
+func NewBigTwoGame(deck *entity.BigTwoDeck, players []entity.IBigTwoPlayer) *template.GameFramework[entity.BigTwoCard] {
 	game := &template.GameFramework[entity.BigTwoCard]{
 		Deck:        &deck.Deck,
 		Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
