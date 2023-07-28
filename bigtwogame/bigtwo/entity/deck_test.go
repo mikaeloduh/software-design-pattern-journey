@@ -5,9 +5,9 @@ import (
 	"testing"
 )
 
-func TestSinglePattenComparator(t *testing.T) {
+func TestSinglePatternComparator(t *testing.T) {
 	type fields struct {
-		Next PattenHandler
+		Next IPatternHandler
 	}
 	type args struct {
 		topCards  []BigTwoCard
@@ -40,7 +40,7 @@ func TestSinglePattenComparator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := SinglePattenComparator{Next: tt.fields.Next}
+			h := SinglePatternComparator{Next: tt.fields.Next}
 			got := h.Do(tt.args.topCards, tt.args.playCards)
 
 			assert.Equal(t, tt.want, got)
@@ -48,9 +48,9 @@ func TestSinglePattenComparator(t *testing.T) {
 	}
 }
 
-func TestSinglePattenValidator(t *testing.T) {
+func TestSinglePatternValidator(t *testing.T) {
 	type fields struct {
-		Next PattenValidator
+		Next IPatternValidator
 	}
 	type args struct {
 		cards []BigTwoCard
@@ -70,7 +70,7 @@ func TestSinglePattenValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := SinglePattenValidator{Next: tt.fields.Next}
+			v := SinglePatternValidator{Next: tt.fields.Next}
 			got := v.Do(tt.args.cards)
 
 			assert.Equal(t, tt.want, got)
@@ -78,9 +78,9 @@ func TestSinglePattenValidator(t *testing.T) {
 	}
 }
 
-func TestStraightPattenValidator(t *testing.T) {
+func TestStraightPatternValidator(t *testing.T) {
 	type fields struct {
-		Next PattenValidator
+		Next IPatternValidator
 	}
 	type args struct {
 		cards []BigTwoCard
@@ -116,7 +116,7 @@ func TestStraightPattenValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := StraightPattenValidator{Next: tt.fields.Next}
+			v := StraightPatternValidator{Next: tt.fields.Next}
 			got := v.Do(tt.args.cards)
 
 			assert.Equalf(t, tt.want, got, "Do(%v)", tt.args.cards)
@@ -124,9 +124,9 @@ func TestStraightPattenValidator(t *testing.T) {
 	}
 }
 
-func TestStraightPattenComparator(t *testing.T) {
+func TestStraightPatternComparator(t *testing.T) {
 	type fields struct {
-		Next PattenHandler
+		Next IPatternHandler
 	}
 	type args struct {
 		topCards  []BigTwoCard
@@ -162,7 +162,7 @@ func TestStraightPattenComparator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := StraightPattenComparator{Next: tt.fields.Next}
+			p := StraightPatternComparator{Next: tt.fields.Next}
 			got := p.Do(tt.args.topCards, tt.args.playCards)
 
 			assert.Equalf(t, tt.want, got, "Do(%v, %v)", tt.args.topCards, tt.args.playCards)
@@ -170,9 +170,9 @@ func TestStraightPattenComparator(t *testing.T) {
 	}
 }
 
-func TestFullHousePattenValidator(t *testing.T) {
+func TestFullHousePatternValidator(t *testing.T) {
 	type fields struct {
-		Next PattenValidator
+		Next IPatternValidator
 	}
 	type args struct {
 		cards []BigTwoCard
@@ -208,7 +208,7 @@ func TestFullHousePattenValidator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := FullHousePattenValidator{Next: tt.fields.Next}
+			v := FullHousePatternValidator{Next: tt.fields.Next}
 			got := v.Do(tt.args.cards)
 
 			assert.Equalf(t, tt.want, got, "Do(%v)", tt.args.cards)
@@ -216,9 +216,9 @@ func TestFullHousePattenValidator(t *testing.T) {
 	}
 }
 
-func TestFullHousePattenComparator(t *testing.T) {
+func TestFullHousePatternComparator(t *testing.T) {
 	type fields struct {
-		Next PattenHandler
+		Next IPatternHandler
 	}
 	type args struct {
 		topCards  []BigTwoCard
@@ -296,7 +296,7 @@ func TestFullHousePattenComparator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := FullHousePattenComparator{Next: tt.fields.Next}
+			p := FullHousePatternComparator{Next: tt.fields.Next}
 			got := p.Do(tt.args.topCards, tt.args.playCards)
 
 			assert.Equalf(t, tt.want, got, "Do(%v, %v)", tt.args.topCards, tt.args.playCards)

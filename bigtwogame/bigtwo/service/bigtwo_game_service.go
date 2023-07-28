@@ -3,6 +3,7 @@ package service
 import (
 	"bigtwogame/bigtwo/entity"
 	"bigtwogame/template"
+	"fmt"
 )
 
 type BigTwoGame struct {
@@ -89,13 +90,22 @@ func (b *BigTwoGame) UpdateGameAndMoveToNext() {
 }
 
 func (b *BigTwoGame) IsGameFinished() bool {
-	//TODO implement me
-	panic("implement me")
+	for _, player := range b.Players {
+		if len(player.GetHand()) == 0 {
+			return true
+		}
+	}
+	return false
 }
 
-func (b *BigTwoGame) GameResult() template.IPlayer[entity.BigTwoCard] {
-	//TODO implement me
-	panic("implement me")
+func (b *BigTwoGame) GameResult() (winner template.IPlayer[entity.BigTwoCard]) {
+	for _, player := range b.Players {
+		if len(player.GetHand()) == 0 {
+			fmt.Printf("%s is the winner!\n", player.GetName())
+			winner = player
+		}
+	}
+	return winner
 }
 
 // Privates
@@ -109,7 +119,7 @@ func (b *BigTwoGame) hasValidPreTakeTurnMove(hand []entity.BigTwoCard) bool {
 }
 
 func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
-	return b.Deck.BigTwoHandler().Do(b.TopCards, playCards)
+	return b.Deck.PatternHandler().Do(b.TopCards, playCards)
 }
 
 func (b *BigTwoGame) updateDeskCard(cards []entity.BigTwoCard) {

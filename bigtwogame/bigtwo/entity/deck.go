@@ -20,25 +20,32 @@ func NewBigTwoDeck() *BigTwoDeck {
 	return deck
 }
 
-func (d *BigTwoDeck) BigTwoHandler() PattenHandler {
+func (d *BigTwoDeck) PatternHandler() IPatternHandler {
 	return InitCardHandler{
 		AllPassHandler{
 			PassCardHandler{
-				SinglePattenComparator{
-					PairPattenComparator{nil}}}}}
+				SinglePatternComparator{
+					PairPatternComparator{
+						StraightPatternComparator{
+							FullHousePatternComparator{nil}}}}}}}
 }
 
-type PattenHandler interface {
+// IPatternHandler interface
+type IPatternHandler interface {
 	Do(topCards, playCards []BigTwoCard) bool
 }
 
 type InitCardHandler struct {
-	Next PattenHandler
+	Next IPatternHandler
 }
 
 func (h InitCardHandler) Do(topCards, playCards []BigTwoCard) bool {
 	if isInitCard(topCards) {
-		return ClubsThreeValidator{SinglePattenValidator{PairPattenValidator{nil}}}.Do(playCards)
+		return ClubsThreeValidator{
+			SinglePatternValidator{
+				PairPatternValidator{
+					StraightPatternValidator{
+						FullHousePatternValidator{nil}}}}}.Do(playCards)
 	} else if h.Next != nil {
 		return h.Next.Do(topCards, playCards)
 	} else {
@@ -47,12 +54,16 @@ func (h InitCardHandler) Do(topCards, playCards []BigTwoCard) bool {
 }
 
 type AllPassHandler struct {
-	Next PattenHandler
+	Next IPatternHandler
 }
 
 func (h AllPassHandler) Do(topCards, playCards []BigTwoCard) bool {
 	if isPassCard(topCards) {
-		return YouShallNotPass{SinglePattenValidator{PairPattenValidator{nil}}}.Do(playCards)
+		return YouShallNotPass{
+			SinglePatternValidator{
+				PairPatternValidator{
+					StraightPatternValidator{
+						FullHousePatternValidator{nil}}}}}.Do(playCards)
 	} else if h.Next != nil {
 		return h.Next.Do(topCards, playCards)
 	} else {
@@ -61,7 +72,7 @@ func (h AllPassHandler) Do(topCards, playCards []BigTwoCard) bool {
 }
 
 type PassCardHandler struct {
-	Next PattenHandler
+	Next IPatternHandler
 }
 
 func (h PassCardHandler) Do(topCards, playCards []BigTwoCard) bool {
@@ -74,11 +85,11 @@ func (h PassCardHandler) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
-type SinglePattenComparator struct {
-	Next PattenHandler
+type SinglePatternComparator struct {
+	Next IPatternHandler
 }
 
-func (h SinglePattenComparator) Do(topCards, playCards []BigTwoCard) bool {
+func (h SinglePatternComparator) Do(topCards, playCards []BigTwoCard) bool {
 	if isMatchSingle(topCards) {
 		return compareSingle(playCards, topCards)
 	} else if h.Next != nil {
@@ -88,11 +99,11 @@ func (h SinglePattenComparator) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
-type PairPattenComparator struct {
-	Next PattenHandler
+type PairPatternComparator struct {
+	Next IPatternHandler
 }
 
-func (p PairPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
+func (p PairPatternComparator) Do(topCards, playCards []BigTwoCard) bool {
 	if isMatchPair(topCards) {
 		return comparePair(playCards, topCards)
 	} else if p.Next != nil {
@@ -102,11 +113,11 @@ func (p PairPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
-type StraightPattenComparator struct {
-	Next PattenHandler
+type StraightPatternComparator struct {
+	Next IPatternHandler
 }
 
-func (p StraightPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
+func (p StraightPatternComparator) Do(topCards, playCards []BigTwoCard) bool {
 	if isMatchStraight(topCards) {
 		return compareStraight(playCards, topCards)
 	} else if p.Next != nil {
@@ -116,11 +127,11 @@ func (p StraightPattenComparator) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
-type FullHousePattenComparator struct {
-	Next PattenHandler
+type FullHousePatternComparator struct {
+	Next IPatternHandler
 }
 
-func (p FullHousePattenComparator) Do(topCards, playCards []BigTwoCard) bool {
+func (p FullHousePatternComparator) Do(topCards, playCards []BigTwoCard) bool {
 	if isMatchFullHouse(topCards) {
 		return compareFullHouse(playCards, topCards)
 	} else if p.Next != nil {
@@ -130,12 +141,13 @@ func (p FullHousePattenComparator) Do(topCards, playCards []BigTwoCard) bool {
 	}
 }
 
-type PattenValidator interface {
+// IPatternValidator interface
+type IPatternValidator interface {
 	Do(cards []BigTwoCard) bool
 }
 
 type ClubsThreeValidator struct {
-	Next PattenValidator
+	Next IPatternValidator
 }
 
 func (v ClubsThreeValidator) Do(cards []BigTwoCard) bool {
@@ -148,11 +160,11 @@ func (v ClubsThreeValidator) Do(cards []BigTwoCard) bool {
 	}
 }
 
-type SinglePattenValidator struct {
-	Next PattenValidator
+type SinglePatternValidator struct {
+	Next IPatternValidator
 }
 
-func (v SinglePattenValidator) Do(cards []BigTwoCard) bool {
+func (v SinglePatternValidator) Do(cards []BigTwoCard) bool {
 	if isMatchSingle(cards) {
 		return true
 	} else if v.Next != nil {
@@ -162,11 +174,11 @@ func (v SinglePattenValidator) Do(cards []BigTwoCard) bool {
 	}
 }
 
-type PairPattenValidator struct {
-	Next PattenValidator
+type PairPatternValidator struct {
+	Next IPatternValidator
 }
 
-func (v PairPattenValidator) Do(cards []BigTwoCard) bool {
+func (v PairPatternValidator) Do(cards []BigTwoCard) bool {
 	if isMatchPair(cards) {
 		return true
 	} else if v.Next != nil {
@@ -176,11 +188,11 @@ func (v PairPattenValidator) Do(cards []BigTwoCard) bool {
 	}
 }
 
-type StraightPattenValidator struct {
-	Next PattenValidator
+type StraightPatternValidator struct {
+	Next IPatternValidator
 }
 
-func (v StraightPattenValidator) Do(cards []BigTwoCard) bool {
+func (v StraightPatternValidator) Do(cards []BigTwoCard) bool {
 	if isMatchStraight(cards) {
 		return true
 	} else if v.Next != nil {
@@ -190,11 +202,11 @@ func (v StraightPattenValidator) Do(cards []BigTwoCard) bool {
 	}
 }
 
-type FullHousePattenValidator struct {
-	Next PattenValidator
+type FullHousePatternValidator struct {
+	Next IPatternValidator
 }
 
-func (v FullHousePattenValidator) Do(cards []BigTwoCard) bool {
+func (v FullHousePatternValidator) Do(cards []BigTwoCard) bool {
 	if isMatchFullHouse(cards) {
 		return true
 	} else if v.Next != nil {
@@ -205,7 +217,7 @@ func (v FullHousePattenValidator) Do(cards []BigTwoCard) bool {
 }
 
 type YouShallNotPass struct {
-	Next PattenValidator
+	Next IPatternValidator
 }
 
 func (v YouShallNotPass) Do(cards []BigTwoCard) bool {
