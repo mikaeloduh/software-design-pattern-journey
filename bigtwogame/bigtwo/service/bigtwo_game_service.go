@@ -130,16 +130,6 @@ func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
 	return b.Deck.PatternComparator().Do(top, played)
 }
 
-func typeofTop(cards []entity.BigTwoCard) string {
-	if len(cards) == 1 && cards[0] == entity.PassCard() {
-		return "PassCard"
-	} else if len(cards) == 1 && cards[0] == entity.InitCard() {
-		return "InitCard"
-	} else {
-		return "Default"
-	}
-}
-
 func (b *BigTwoGame) updateDeskCard(cards []entity.BigTwoCard) {
 	if cards[0] == entity.PassCard() {
 		b.Passed++
