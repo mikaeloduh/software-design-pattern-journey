@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"reflect"
 	"sort"
 )
 
@@ -16,10 +15,10 @@ func NewStraightPattern(cards []BigTwoCard) StraightPattern {
 }
 
 func (p StraightPattern) Compare(tar ICardPattern) bool {
-	return compareStraight(p, tar.GetThis())
+	return compareStraight(p, tar.This())
 }
 
-func (p StraightPattern) GetThis() CardPattern {
+func (p StraightPattern) This() CardPattern {
 	return CardPattern(p)
 }
 
@@ -37,12 +36,12 @@ func (h StraightPatternConstructor) Do(cards []BigTwoCard) ICardPattern {
 	}
 }
 
-type StraightComparator struct {
+type StraightPatternComparator struct {
 	Next IPatternComparator
 }
 
-func (v StraightComparator) Do(top ICardPattern, played ICardPattern) bool {
-	if reflect.TypeOf(top) == reflect.TypeOf(StraightPattern{}) && reflect.TypeOf(top) == reflect.TypeOf(played) {
+func (v StraightPatternComparator) Do(top ICardPattern, played ICardPattern) bool {
+	if IsSameType(top, StraightPattern{}) && IsSameType(top, played) {
 		return played.Compare(top)
 	} else if v.Next != nil {
 		return v.Next.Do(top, played)

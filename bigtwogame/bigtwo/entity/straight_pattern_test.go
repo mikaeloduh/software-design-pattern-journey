@@ -43,7 +43,7 @@ func TestStraightComparator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := StraightComparator{Next: tt.fields.Next}
+			p := StraightPatternComparator{Next: tt.fields.Next}
 			got := p.Do(tt.args.topCards, tt.args.playCards)
 
 			assert.Equalf(t, tt.want, got, "Do(%v, %v)", tt.args.topCards, tt.args.playCards)

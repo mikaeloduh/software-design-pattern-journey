@@ -1,7 +1,5 @@
 package entity
 
-import "reflect"
-
 // PairPattern
 type PairPattern CardPattern
 
@@ -13,16 +11,10 @@ func NewPairPattern(cards []BigTwoCard) PairPattern {
 }
 
 func (p PairPattern) Compare(tar ICardPattern) bool {
-	// subject greater than target -> true
-	//if p[0].Compare(tar.GetThis()[0]) == 1 || p[0].Compare(tar.GetThis()[1]) == 1 || p[1].Compare(tar.GetThis()[0]) == 1 || p[1].Compare(tar.GetThis()[1]) == 1 {
-	//	return true
-	//}
-	//return false
-
-	return comparePair(p, tar.GetThis())
+	return comparePair(p, tar.This())
 }
 
-func (p PairPattern) GetThis() CardPattern {
+func (p PairPattern) This() CardPattern {
 	return CardPattern(p)
 }
 
@@ -40,12 +32,12 @@ func (h PairPatternConstructor) Do(cards []BigTwoCard) ICardPattern {
 	}
 }
 
-type PairComparator struct {
+type PairPatternComparator struct {
 	Next IPatternComparator
 }
 
-func (v PairComparator) Do(top ICardPattern, played ICardPattern) bool {
-	if reflect.TypeOf(top) == reflect.TypeOf(PairPattern{}) && reflect.TypeOf(top) == reflect.TypeOf(played) {
+func (v PairPatternComparator) Do(top ICardPattern, played ICardPattern) bool {
+	if IsSameType(top, PairPattern{}) && IsSameType(top, played) {
 		return played.Compare(top)
 	} else if v.Next != nil {
 		return v.Next.Do(top, played)
@@ -56,6 +48,17 @@ func (v PairComparator) Do(top ICardPattern, played ICardPattern) bool {
 
 func isMatchPair(cards []BigTwoCard) bool {
 	if len(cards) == 2 && cards[0].Rank == cards[1].Rank {
+		return true
+	}
+	return false
+}
+
+func comparePair(subject, target []BigTwoCard) bool {
+	// subject greater than target -> true
+	if !isMatchPair(subject) || !isMatchPair(target) {
+		return false
+	}
+	if subject[0].Compare(target[0]) == 1 || subject[0].Compare(target[1]) == 1 || subject[1].Compare(target[0]) == 1 || subject[1].Compare(target[1]) == 1 {
 		return true
 	}
 	return false

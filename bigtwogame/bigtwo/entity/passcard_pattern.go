@@ -15,7 +15,7 @@ func (p PassCardPattern) Compare(tar ICardPattern) bool {
 	return true
 }
 
-func (p PassCardPattern) GetThis() CardPattern {
+func (p PassCardPattern) This() CardPattern {
 	return CardPattern(p)
 }
 
@@ -62,4 +62,8 @@ func (v AllPassComparator) Do(top ICardPattern, played ICardPattern) bool {
 	} else {
 		return false
 	}
+}
+
+func isPassCard(cards []BigTwoCard) bool {
+	return len(cards) == 1 && cards[0] == PassCard()
 }

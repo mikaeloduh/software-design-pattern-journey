@@ -40,7 +40,7 @@ func TestSingleComparator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := SingleComparator{Next: tt.fields.Next}
+			h := SinglePatternComparator{Next: tt.fields.Next}
 			got := h.Do(tt.args.topCards, tt.args.playCards)
 
 			assert.Equal(t, tt.want, got)

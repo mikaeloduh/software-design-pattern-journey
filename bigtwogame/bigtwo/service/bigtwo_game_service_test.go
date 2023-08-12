@@ -3,7 +3,6 @@ package service
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -59,10 +58,6 @@ func TestBigTwo(t *testing.T) {
 		game.DrawHands(game.NumCard)
 		game.PreTakeTurns()
 
-		fmt.Println("====================")
-		fmt.Printf("%#v\n", playingGame.TopCards)
-		fmt.Println("====================")
-
 		assert.Contains(t, playingGame.TopCards, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three})
 	})
 
@@ -111,14 +106,16 @@ func TestBigTwo(t *testing.T) {
 
 		game.ShuffleDeck()
 		game.DrawHands(game.NumCard)
-		playingGame.TopCards = []entity.BigTwoCard{
+		oldTopCards := []entity.BigTwoCard{
 			{Suit: entity.Clubs, Rank: entity.Three},
 			{Suit: entity.Diamonds, Rank: entity.Three}}
+		playingGame.TopCards = oldTopCards
 
 		playingGame.CurrentPlayer = 3
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 
-		assert.Equal(t, true, isMatchPair(playingGame.TopCards))
+		assert.Equal(t, playingGame.TopCards[0].Rank, playingGame.TopCards[1].Rank)
+		assert.Greater(t, playingGame.TopCards[0].Rank, oldTopCards[0].Rank)
 		assert.Len(t, playingGame.GetCurrentPlayer().GetHand(), 13-2)
 	})
 
@@ -261,12 +258,4 @@ func FakeNewHumanPlayers(r io.Reader, w io.Writer) []entity.IBigTwoPlayer {
 		&entity.HumanPlayer{Name: "Player 3", Reader: r, Writer: w},
 		&entity.HumanPlayer{Name: "Player 4", Reader: r, Writer: w},
 	}
-}
-
-func isMatchPair(cards []entity.BigTwoCard) bool {
-	if len(cards) == 2 && cards[0].Rank == cards[1].Rank {
-		fmt.Println("paiir!!!")
-		return true
-	}
-	return false
 }

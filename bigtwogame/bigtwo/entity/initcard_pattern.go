@@ -15,7 +15,7 @@ func (p InitCardPattern) Compare(tar ICardPattern) bool {
 	return true
 }
 
-func (p InitCardPattern) GetThis() CardPattern {
+func (p InitCardPattern) This() CardPattern {
 	return CardPattern(p)
 }
 
@@ -39,10 +39,18 @@ type InitCardComparator struct {
 
 func (v InitCardComparator) Do(top ICardPattern, played ICardPattern) bool {
 	if reflect.TypeOf(top) == reflect.TypeOf(InitCardPattern{}) {
-		return ContainsElement(played.GetThis(), BigTwoCard{Suit: Clubs, Rank: Three})
+		return hasClubsThree(played.This())
 	} else if v.Next != nil {
 		return v.Next.Do(top, played)
 	} else {
 		return false
 	}
+}
+
+func isInitCard(cards []BigTwoCard) bool {
+	return len(cards) == 1 && cards[0] == InitCard()
+}
+
+func hasClubsThree(cards []BigTwoCard) bool {
+	return ContainsElement(cards, BigTwoCard{Suit: Clubs, Rank: Three})
 }

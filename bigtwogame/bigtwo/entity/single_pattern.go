@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"reflect"
-)
-
 type SinglePattern CardPattern
 
 func NewSinglePattern(cards []BigTwoCard) SinglePattern {
@@ -14,10 +10,10 @@ func NewSinglePattern(cards []BigTwoCard) SinglePattern {
 }
 
 func (p SinglePattern) Compare(tar ICardPattern) bool {
-	return compareSingle(p, tar.GetThis())
+	return compareSingle(p, tar.This())
 }
 
-func (p SinglePattern) GetThis() CardPattern {
+func (p SinglePattern) This() CardPattern {
 	return CardPattern(p)
 }
 
@@ -35,16 +31,27 @@ func (h SinglePatternConstructor) Do(cards []BigTwoCard) ICardPattern {
 	}
 }
 
-type SingleComparator struct {
+type SinglePatternComparator struct {
 	Next IPatternComparator
 }
 
-func (v SingleComparator) Do(top ICardPattern, played ICardPattern) bool {
-	if reflect.TypeOf(top) == reflect.TypeOf(SinglePattern{}) && reflect.TypeOf(top) == reflect.TypeOf(played) {
+func (v SinglePatternComparator) Do(top ICardPattern, played ICardPattern) bool {
+	if IsSameType(top, SinglePattern{}) && IsSameType(top, played) {
 		return played.Compare(top)
 	} else if v.Next != nil {
 		return v.Next.Do(top, played)
 	} else {
 		return false
 	}
+}
+
+func isMatchSingle(cards []BigTwoCard) bool {
+	return len(cards) == 1
+}
+
+func compareSingle(sub, tar []BigTwoCard) bool {
+	if !isMatchSingle(sub) || !isMatchSingle(tar) {
+		return false
+	}
+	return sub[0].Compare(tar[0]) == 1
 }
