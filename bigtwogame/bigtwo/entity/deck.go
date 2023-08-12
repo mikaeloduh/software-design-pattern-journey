@@ -2,7 +2,6 @@ package entity
 
 import (
 	"bigtwogame/template"
-	"sort"
 )
 
 type BigTwoDeck struct {
@@ -28,6 +27,50 @@ func (d *BigTwoDeck) PatternHandler() IPatternHandler {
 					PairPatternComparator{
 						StraightPatternComparator{
 							FullHousePatternComparator{nil}}}}}}}
+}
+
+func (d *BigTwoDeck) InitCardValidator() IPatternValidator {
+	return ClubsThreeValidator{
+		SinglePatternValidator{
+			PairPatternValidator{
+				StraightPatternValidator{
+					FullHousePatternValidator{nil}}}}}
+}
+
+func (d *BigTwoDeck) AllPassValidator() IPatternValidator {
+	return YouShallNotPass{
+		SinglePatternValidator{
+			PairPatternValidator{
+				StraightPatternValidator{
+					FullHousePatternValidator{nil}}}}}
+}
+
+func (d *BigTwoDeck) CardPatternHandler() IPatternHandler {
+	return PassCardHandler{
+		SinglePatternComparator{
+			PairPatternComparator{
+				StraightPatternComparator{
+					FullHousePatternComparator{nil}}}}}
+}
+
+// New!
+func (d *BigTwoDeck) AllPatternConstructor() IPatternConstructor {
+	return InitCardConstructor{
+		PassCardConstructor{
+			SinglePatternConstructor{
+				PairPatternConstructor{
+					StraightPatternConstructor{
+						FullHousePatternConstructor{nil}}}}}}
+}
+
+func (d *BigTwoDeck) AllPatternComparator() IPatternComparator {
+	return InitCardComparator{
+		AllPassComparator{
+			PassCardComparator{
+				SingleComparator{
+					PairComparator{
+						StraightComparator{
+							FullHouseComparator{nil}}}}}}}
 }
 
 // IPatternHandler interface
@@ -242,30 +285,6 @@ func isMatchSingle(cards []BigTwoCard) bool {
 	return len(cards) == 1
 }
 
-func isMatchPair(cards []BigTwoCard) bool {
-	if len(cards) == 2 && cards[0].Rank == cards[1].Rank {
-		return true
-	}
-	return false
-}
-
-func isMatchStraight(cards []BigTwoCard) bool {
-	if len(cards) < 5 {
-		return false
-	}
-
-	sort.Slice(cards, func(i, j int) bool {
-		return cards[i].Rank < cards[j].Rank
-	})
-
-	for i := 0; i < len(cards)-1; i++ {
-		if cards[i].Rank+1 != cards[i+1].Rank {
-			return false
-		}
-	}
-	return true
-}
-
 func isMatchFullHouse(cards []BigTwoCard) bool {
 	if len(cards) != 5 {
 		return false
@@ -309,21 +328,6 @@ func comparePair(subject, target []BigTwoCard) bool {
 		return true
 	}
 	return false
-}
-
-func compareStraight(cards []BigTwoCard, cards2 []BigTwoCard) bool {
-	if !isMatchStraight(cards) || !isMatchStraight(cards2) {
-		return false
-	}
-
-	sort.Slice(cards, func(i, j int) bool {
-		return cards[i].Rank < cards[j].Rank
-	})
-	sort.Slice(cards2, func(i, j int) bool {
-		return cards2[i].Rank < cards2[j].Rank
-	})
-
-	return cards[len(cards)-1].Compare(cards2[len(cards2)-1]) == 1
 }
 
 func compareFullHouse(subject, target []BigTwoCard) bool {

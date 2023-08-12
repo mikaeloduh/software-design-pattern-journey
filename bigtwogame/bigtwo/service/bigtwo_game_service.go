@@ -118,8 +118,49 @@ func (b *BigTwoGame) hasValidPreTakeTurnMove(hand []entity.BigTwoCard) bool {
 }
 
 func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
-	return b.Deck.PatternHandler().Do(b.TopCards, playCards)
+	played := b.Deck.AllPatternConstructor().Do(playCards)
+	if played == nil {
+		return false
+	}
+	top := b.Deck.AllPatternConstructor().Do(b.TopCards)
+
+	return b.Deck.AllPatternComparator().Do(top, played)
 }
+
+//func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
+//	// get current deskCards status (initCard, allPassed, passCard, others...)
+//	// is playCards a valid pattern? (the validator CoR)
+//	// is playCards pattern greater than deskCards? ()
+//	status := typeofTop(b.TopCards)
+//	switch status {
+//	case "InitCard":
+//		// InitCardValidator (CoR)
+//		b.Deck.InitCardValidator().Do(playCards)
+//	case "PassCard":
+//		// AllPassedHandler (CoR)
+//		b.Deck.AllPassValidator().Do(playCards)
+//	default:
+//		p := b.Deck.CardPatternHandler() // (CoR)
+//
+//		return p.Do(b.TopCards, playCards)
+//	}
+//
+//	return b.Deck.PatternHandler().Do(b.TopCards, playCards)
+//}
+
+func typeofTop(cards []entity.BigTwoCard) string {
+	if len(cards) == 1 && cards[0] == entity.PassCard() {
+		return "PassCard"
+	} else if len(cards) == 1 && cards[0] == entity.InitCard() {
+		return "InitCard"
+	} else {
+		return "Default"
+	}
+}
+
+//func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
+//	return b.Deck.PatternHandler().Do(b.TopCards, playCards)
+//}
 
 func (b *BigTwoGame) updateDeskCard(cards []entity.BigTwoCard) {
 	if cards[0] == entity.PassCard() {

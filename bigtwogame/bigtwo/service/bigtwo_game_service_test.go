@@ -59,6 +59,10 @@ func TestBigTwo(t *testing.T) {
 		game.DrawHands(game.NumCard)
 		game.PreTakeTurns()
 
+		fmt.Println("====================")
+		fmt.Printf("%#v\n", playingGame.TopCards)
+		fmt.Println("====================")
+
 		assert.Contains(t, playingGame.TopCards, entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Three})
 	})
 
@@ -149,17 +153,17 @@ func TestBigTwo(t *testing.T) {
 		players[2].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Seven})
 		players[3].SetCard(entity.BigTwoCard{Suit: entity.Clubs, Rank: entity.Two})
 
-		// Player 0
+		// Player 0 should pass
 		playingGame.CurrentPlayer = 0
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
-		// Player 1
+		// Player 1 should pass
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
-		// Player 2
+		// Player 2 should pass
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
-		// Player 3
+		// Player 3 should play hand
 		playingGame.TakeTurnStep(playingGame.GetCurrentPlayer())
 		playingGame.UpdateGameAndMoveToNext()
 

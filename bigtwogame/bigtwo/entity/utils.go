@@ -32,7 +32,7 @@ func ContainsElement(list interface{}, element interface{}) (found bool) {
 
 // ObjectsAreEqual determines if two objects are considered equal.
 //
-// This function does no assertion of any kind.
+// GetThis function does no assertion of any kind.
 func ObjectsAreEqual(expected, actual interface{}) bool {
 	if expected == nil || actual == nil {
 		return expected == actual
