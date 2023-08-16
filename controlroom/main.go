@@ -30,6 +30,18 @@ func (t *Telecom) Disconnect() {
 	fmt.Fprint(t.Writer, "The telecom has been turned off.\n")
 }
 
+type MainController struct {
+	tank    Tank
+	telecom Telecom
+}
+
+func (c *MainController) Input(in string) {
+	switch in {
+	case "q":
+		c.tank.MoveForward()
+	}
+}
+
 func main() {
 	fmt.Println("Hello world")
 }
