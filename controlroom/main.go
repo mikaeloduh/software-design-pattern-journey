@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 )
@@ -15,6 +16,18 @@ func (t *Tank) MoveForward() {
 
 func (t *Tank) MoveBackward() {
 	fmt.Fprint(t.Writer, "The tank has moved backward.\n")
+}
+
+type Telecom struct {
+	Writer *bytes.Buffer
+}
+
+func (t *Telecom) Connect() {
+	fmt.Fprint(t.Writer, "The telecom has been turned on.\n")
+}
+
+func (t *Telecom) Disconnect() {
+	fmt.Fprint(t.Writer, "The telecom has been turned off.\n")
 }
 
 func main() {
