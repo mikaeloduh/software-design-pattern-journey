@@ -31,15 +31,31 @@ func (t *Telecom) Disconnect() {
 }
 
 type MainController struct {
-	tank    Tank
-	telecom Telecom
+	commands map[string]ICommand
+}
+
+func NewMainController() *MainController {
+	return &MainController{commands: make(map[string]ICommand)}
+}
+
+func (c *MainController) SetCommand(key string, command ICommand) {
+	c.commands[key] = command
 }
 
 func (c *MainController) Input(in string) {
-	switch in {
-	case "q":
-		c.tank.MoveForward()
-	}
+	c.commands[in].Execute()
+}
+
+type ICommand interface {
+	Execute()
+}
+
+type MoveForwardTankCommand struct {
+	tank Tank
+}
+
+func (c MoveForwardTankCommand) Execute() {
+	c.tank.MoveForward()
 }
 
 func main() {
