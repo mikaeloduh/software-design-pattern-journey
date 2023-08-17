@@ -30,3 +30,7 @@ func (c *MainController) Undo() {
 	todo.Undo()
 	c.undoHistory.Push(todo)
 }
+
+func (c *MainController) setMacro(s string, macro Macro) {
+	c.commands[s] = macro
+}
