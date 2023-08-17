@@ -49,7 +49,7 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		c.SetCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+		c.BindCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
 
 		c.Input("q")
 
@@ -60,7 +60,7 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		c.SetCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+		c.BindCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
 
 		c.Input("q")
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
