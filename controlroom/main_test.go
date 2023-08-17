@@ -45,15 +45,20 @@ func TestControlRoom(t *testing.T) {
 		assert.Equal(t, "The telecom has been turned off.\n", writer.String())
 	})
 
-	t.Run("test MainController", func(t *testing.T) {
+	t.Run("test MainController bind and run command", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
 		c.BindCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+		c.BindCommand("w", ConnectTelecomCommand{telecom: Telecom{Writer: &writer}})
 
 		c.Input("q")
 
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
+		writer.Reset()
+
+		c.Input("w")
+		assert.Equal(t, "The telecom has been turned on.\n", writer.String())
 	})
 
 	t.Run("test Undo", func(t *testing.T) {
