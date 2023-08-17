@@ -2,19 +2,20 @@ package main
 
 import (
 	"bytes"
-	"controlroom/entity"
 	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"controlroom/entity"
 )
 
 func TestControlRoom(t *testing.T) {
 
 	t.Run("test Tank MoveForward", func(t *testing.T) {
 		var writer bytes.Buffer
+		tank := FakeNewTank(&writer)
 
-		tank := &entity.Tank{Writer: &writer}
 		tank.MoveForward()
 
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
@@ -22,8 +23,8 @@ func TestControlRoom(t *testing.T) {
 
 	t.Run("test Tank MoveBackward", func(t *testing.T) {
 		var writer bytes.Buffer
+		tank := FakeNewTank(&writer)
 
-		tank := &entity.Tank{Writer: &writer}
 		tank.MoveBackward()
 
 		assert.Equal(t, "The tank has moved backward.\n", writer.String())
@@ -31,8 +32,8 @@ func TestControlRoom(t *testing.T) {
 
 	t.Run("test Telecom Connect", func(t *testing.T) {
 		var writer bytes.Buffer
+		telecom := FakeNewTelecom(&writer)
 
-		telecom := &entity.Telecom{Writer: &writer}
 		telecom.Connect()
 
 		assert.Equal(t, "The telecom has been turned on.\n", writer.String())
@@ -40,8 +41,8 @@ func TestControlRoom(t *testing.T) {
 
 	t.Run("test Telecom Disconnect", func(t *testing.T) {
 		var writer bytes.Buffer
+		telecom := FakeNewTelecom(&writer)
 
-		telecom := &entity.Telecom{Writer: &writer}
 		telecom.Disconnect()
 
 		assert.Equal(t, "The telecom has been turned off.\n", writer.String())
@@ -49,7 +50,6 @@ func TestControlRoom(t *testing.T) {
 
 	t.Run("test MainController bind and run command", func(t *testing.T) {
 		var writer bytes.Buffer
-
 		c := entity.NewMainController()
 		c.BindCommand("f", entity.MoveForwardTankCommand{Tank: FakeNewTank(&writer)})
 		c.BindCommand("c", entity.ConnectTelecomCommand{Telecom: FakeNewTelecom(&writer)})
@@ -65,7 +65,6 @@ func TestControlRoom(t *testing.T) {
 
 	t.Run("test Undo and Redo", func(t *testing.T) {
 		var writer bytes.Buffer
-
 		c := entity.NewMainController()
 		c.BindCommand("f", entity.MoveForwardTankCommand{Tank: FakeNewTank(&writer)})
 
@@ -83,7 +82,6 @@ func TestControlRoom(t *testing.T) {
 
 	t.Run("test macro and its undo and redo", func(t *testing.T) {
 		var writer bytes.Buffer
-
 		c := entity.NewMainController()
 		tank := FakeNewTank(&writer)
 		telecom := FakeNewTelecom(&writer)
