@@ -1,16 +1,20 @@
-package main
+package entity
+
+import (
+	"controlroom/commons"
+)
 
 type MainController struct {
 	commands    map[string]ICommand
-	doHistory   *Stack[ICommand]
-	undoHistory *Stack[ICommand]
+	doHistory   *commons.Stack[ICommand]
+	undoHistory *commons.Stack[ICommand]
 }
 
 func NewMainController() *MainController {
 	return &MainController{
 		commands:    make(map[string]ICommand),
-		doHistory:   NewStack[ICommand](),
-		undoHistory: NewStack[ICommand](),
+		doHistory:   commons.NewStack[ICommand](),
+		undoHistory: commons.NewStack[ICommand](),
 	}
 }
 

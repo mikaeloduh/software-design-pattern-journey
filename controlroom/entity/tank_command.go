@@ -1,27 +1,27 @@
-package main
+package entity
 
 // MoveForwardTankCommand
 type MoveForwardTankCommand struct {
-	tank *Tank
+	Tank *Tank
 }
 
 func (c MoveForwardTankCommand) Execute() {
-	c.tank.MoveForward()
+	c.Tank.MoveForward()
 }
 
 func (c MoveForwardTankCommand) Undo() {
-	c.tank.MoveBackward()
+	c.Tank.MoveBackward()
 }
 
 // MoveBackwardCommand
 type MoveBackwardCommand struct {
-	tank *Tank
+	Tank *Tank
 }
 
 func (c MoveBackwardCommand) Execute() {
-	c.tank.MoveBackward()
+	c.Tank.MoveBackward()
 }
 
 func (c MoveBackwardCommand) Undo() {
-	c.tank.MoveForward()
+	c.Tank.MoveForward()
 }

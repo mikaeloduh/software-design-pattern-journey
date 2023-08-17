@@ -1,27 +1,27 @@
-package main
+package entity
 
 // ConnectTelecomCommand
 type ConnectTelecomCommand struct {
-	telecom *Telecom
+	Telecom *Telecom
 }
 
 func (c ConnectTelecomCommand) Execute() {
-	c.telecom.Connect()
+	c.Telecom.Connect()
 }
 
 func (c ConnectTelecomCommand) Undo() {
-	c.telecom.Disconnect()
+	c.Telecom.Disconnect()
 }
 
 // DisconnectTelecomCommand
 type DisconnectTelecomCommand struct {
-	telecom *Telecom
+	Telecom *Telecom
 }
 
 func (c DisconnectTelecomCommand) Execute() {
-	c.telecom.Disconnect()
+	c.Telecom.Disconnect()
 }
 
 func (c DisconnectTelecomCommand) Undo() {
-	c.telecom.Connect()
+	c.Telecom.Connect()
 }

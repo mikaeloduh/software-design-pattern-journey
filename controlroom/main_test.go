@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"controlroom/entity"
 	"io"
 	"testing"
 
@@ -13,7 +14,7 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test Tank MoveForward", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		tank := &Tank{Writer: &writer}
+		tank := &entity.Tank{Writer: &writer}
 		tank.MoveForward()
 
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
@@ -22,7 +23,7 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test Tank MoveBackward", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		tank := &Tank{Writer: &writer}
+		tank := &entity.Tank{Writer: &writer}
 		tank.MoveBackward()
 
 		assert.Equal(t, "The tank has moved backward.\n", writer.String())
@@ -31,7 +32,7 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test Telecom Connect", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		telecom := &Telecom{Writer: &writer}
+		telecom := &entity.Telecom{Writer: &writer}
 		telecom.Connect()
 
 		assert.Equal(t, "The telecom has been turned on.\n", writer.String())
@@ -40,7 +41,7 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test Telecom Disconnect", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		telecom := &Telecom{Writer: &writer}
+		telecom := &entity.Telecom{Writer: &writer}
 		telecom.Disconnect()
 
 		assert.Equal(t, "The telecom has been turned off.\n", writer.String())
@@ -49,9 +50,9 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test MainController bind and run command", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := NewMainController()
-		c.BindCommand("f", MoveForwardTankCommand{tank: FakeNewTank(&writer)})
-		c.BindCommand("c", ConnectTelecomCommand{telecom: FakeNewTelecom(&writer)})
+		c := entity.NewMainController()
+		c.BindCommand("f", entity.MoveForwardTankCommand{Tank: FakeNewTank(&writer)})
+		c.BindCommand("c", entity.ConnectTelecomCommand{Telecom: FakeNewTelecom(&writer)})
 
 		c.Input("f")
 
@@ -65,8 +66,8 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test Undo and Redo", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := NewMainController()
-		c.BindCommand("f", MoveForwardTankCommand{tank: FakeNewTank(&writer)})
+		c := entity.NewMainController()
+		c.BindCommand("f", entity.MoveForwardTankCommand{Tank: FakeNewTank(&writer)})
 
 		c.Input("f")
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
@@ -83,18 +84,18 @@ func TestControlRoom(t *testing.T) {
 	t.Run("test macro and its undo and redo", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := NewMainController()
+		c := entity.NewMainController()
 		tank := FakeNewTank(&writer)
 		telecom := FakeNewTelecom(&writer)
-		c.BindCommand("f", MoveForwardTankCommand{tank: tank})
-		c.BindCommand("r", MoveBackwardCommand{tank: tank})
-		c.BindCommand("i", ConnectTelecomCommand{telecom: telecom})
-		c.BindCommand("d", DisconnectTelecomCommand{telecom: telecom})
-		c.BindCommand("q", Macro{
-			ConnectTelecomCommand{telecom: telecom},
-			MoveForwardTankCommand{tank: tank},
-			MoveForwardTankCommand{tank: tank},
-			MoveForwardTankCommand{tank: tank},
+		c.BindCommand("f", entity.MoveForwardTankCommand{Tank: tank})
+		c.BindCommand("r", entity.MoveBackwardCommand{Tank: tank})
+		c.BindCommand("i", entity.ConnectTelecomCommand{Telecom: telecom})
+		c.BindCommand("d", entity.DisconnectTelecomCommand{Telecom: telecom})
+		c.BindCommand("q", entity.Macro{
+			entity.ConnectTelecomCommand{Telecom: telecom},
+			entity.MoveForwardTankCommand{Tank: tank},
+			entity.MoveForwardTankCommand{Tank: tank},
+			entity.MoveForwardTankCommand{Tank: tank},
 		})
 
 		c.Input("f")
@@ -123,10 +124,10 @@ func TestControlRoom(t *testing.T) {
 	})
 }
 
-func FakeNewTank(w io.Writer) *Tank {
-	return &Tank{Writer: w}
+func FakeNewTank(w io.Writer) *entity.Tank {
+	return &entity.Tank{Writer: w}
 }
 
-func FakeNewTelecom(w io.Writer) *Telecom {
-	return &Telecom{Writer: w}
+func FakeNewTelecom(w io.Writer) *entity.Telecom {
+	return &entity.Telecom{Writer: w}
 }
