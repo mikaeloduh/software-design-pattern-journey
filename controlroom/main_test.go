@@ -62,7 +62,7 @@ func TestControlRoom(t *testing.T) {
 		assert.Equal(t, "The telecom has been turned on.\n", writer.String())
 	})
 
-	t.Run("test Undo", func(t *testing.T) {
+	t.Run("test Undo and Redo", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
@@ -74,6 +74,10 @@ func TestControlRoom(t *testing.T) {
 		writer.Reset()
 		c.Undo()
 		assert.Equal(t, "The tank has moved backward.\n", writer.String())
+
+		writer.Reset()
+		c.Redo()
+		assert.Equal(t, "The tank has moved forward.\n", writer.String())
 	})
 
 	t.Run("test macro and its undo and redo", func(t *testing.T) {
