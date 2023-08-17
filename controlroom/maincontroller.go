@@ -30,3 +30,9 @@ func (c *MainController) Undo() {
 	todo.Undo()
 	c.undoHistory.Push(todo)
 }
+
+func (c *MainController) Redo() {
+	todo, _ := c.undoHistory.Pop()
+	todo.Execute()
+	c.doHistory.Push(todo)
+}
