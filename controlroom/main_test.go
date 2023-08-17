@@ -49,15 +49,15 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		c.BindCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
-		c.BindCommand("w", ConnectTelecomCommand{telecom: Telecom{Writer: &writer}})
+		c.BindCommand("f", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+		c.BindCommand("c", ConnectTelecomCommand{telecom: Telecom{Writer: &writer}})
 
-		c.Input("q")
+		c.Input("f")
 
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
 		writer.Reset()
 
-		c.Input("w")
+		c.Input("c")
 		assert.Equal(t, "The telecom has been turned on.\n", writer.String())
 	})
 
@@ -65,9 +65,9 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		c.BindCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+		c.BindCommand("f", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
 
-		c.Input("q")
+		c.Input("f")
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
 
 		writer.Reset()
@@ -81,16 +81,19 @@ func TestControlRoom(t *testing.T) {
 		c := NewMainController()
 		tank := Tank{Writer: &writer}
 		telecom := Telecom{Writer: &writer}
-		c.BindCommand("k", MoveForwardTankCommand{tank: tank})
-		c.BindCommand("j", MoveBackwardCommand{tank: tank})
+		c.BindCommand("f", MoveForwardTankCommand{tank: tank})
+		c.BindCommand("r", MoveBackwardCommand{tank: tank})
 		c.BindCommand("i", ConnectTelecomCommand{telecom: telecom})
-		c.BindCommand("o", DisconnectTelecomCommand{telecom: telecom})
-		c.setMacro("q", Macro{
+		c.BindCommand("d", DisconnectTelecomCommand{telecom: telecom})
+		c.BindCommand("q", Macro{
 			ConnectTelecomCommand{telecom: telecom},
 			MoveForwardTankCommand{tank: tank},
 			MoveForwardTankCommand{tank: tank},
 			MoveForwardTankCommand{tank: tank},
 		})
+
+		c.Input("f")
+		writer.Reset()
 
 		c.Input("q")
 
