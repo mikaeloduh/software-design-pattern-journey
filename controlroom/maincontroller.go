@@ -36,3 +36,7 @@ func (c *MainController) Redo() {
 	todo.Execute()
 	c.doHistory.Push(todo)
 }
+
+func (c *MainController) Reset() {
+	c.commands = make(map[string]ICommand)
+}
