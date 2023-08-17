@@ -2,7 +2,7 @@ package main
 
 // MoveForwardTankCommand
 type MoveForwardTankCommand struct {
-	tank Tank
+	tank *Tank
 }
 
 func (c MoveForwardTankCommand) Execute() {
@@ -15,7 +15,7 @@ func (c MoveForwardTankCommand) Undo() {
 
 // MoveBackwardCommand
 type MoveBackwardCommand struct {
-	tank Tank
+	tank *Tank
 }
 
 func (c MoveBackwardCommand) Execute() {

@@ -2,7 +2,7 @@ package main
 
 // ConnectTelecomCommand
 type ConnectTelecomCommand struct {
-	telecom Telecom
+	telecom *Telecom
 }
 
 func (c ConnectTelecomCommand) Execute() {
@@ -15,7 +15,7 @@ func (c ConnectTelecomCommand) Undo() {
 
 // DisconnectTelecomCommand
 type DisconnectTelecomCommand struct {
-	telecom Telecom
+	telecom *Telecom
 }
 
 func (c DisconnectTelecomCommand) Execute() {

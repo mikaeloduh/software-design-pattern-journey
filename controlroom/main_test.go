@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -49,8 +50,8 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		c.BindCommand("f", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
-		c.BindCommand("c", ConnectTelecomCommand{telecom: Telecom{Writer: &writer}})
+		c.BindCommand("f", MoveForwardTankCommand{tank: FakeNewTank(&writer)})
+		c.BindCommand("c", ConnectTelecomCommand{telecom: FakeNewTelecom(&writer)})
 
 		c.Input("f")
 
@@ -65,7 +66,7 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		c.BindCommand("f", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+		c.BindCommand("f", MoveForwardTankCommand{tank: FakeNewTank(&writer)})
 
 		c.Input("f")
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
@@ -79,8 +80,8 @@ func TestControlRoom(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := NewMainController()
-		tank := Tank{Writer: &writer}
-		telecom := Telecom{Writer: &writer}
+		tank := FakeNewTank(&writer)
+		telecom := FakeNewTelecom(&writer)
 		c.BindCommand("f", MoveForwardTankCommand{tank: tank})
 		c.BindCommand("r", MoveBackwardCommand{tank: tank})
 		c.BindCommand("i", ConnectTelecomCommand{telecom: telecom})
@@ -116,4 +117,12 @@ func TestControlRoom(t *testing.T) {
 			"The tank has moved forward.\n"+
 			"The tank has moved forward.\n", writer.String())
 	})
+}
+
+func FakeNewTank(w io.Writer) *Tank {
+	return &Tank{Writer: w}
+}
+
+func FakeNewTelecom(w io.Writer) *Telecom {
+	return &Telecom{Writer: w}
 }

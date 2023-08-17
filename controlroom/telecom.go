@@ -1,12 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"io"
+	"os"
 )
 
 type Telecom struct {
-	Writer *bytes.Buffer
+	Writer io.Writer
+}
+
+func NewTelecom() *Telecom {
+	return &Telecom{Writer: os.Stdout}
 }
 
 func (t *Telecom) Connect() {
