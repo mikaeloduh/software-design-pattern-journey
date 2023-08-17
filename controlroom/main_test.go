@@ -56,4 +56,17 @@ func TestControlRoom(t *testing.T) {
 		assert.Equal(t, "The tank has moved forward.\n", writer.String())
 	})
 
+	t.Run("test Undo", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := NewMainController()
+		c.SetCommand("q", MoveForwardTankCommand{tank: Tank{Writer: &writer}})
+
+		c.Input("q")
+		assert.Equal(t, "The tank has moved forward.\n", writer.String())
+
+		writer.Reset()
+		c.Undo()
+		assert.Equal(t, "The tank has moved backward.\n", writer.String())
+	})
 }

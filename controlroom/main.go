@@ -31,11 +31,17 @@ func (t *Telecom) Disconnect() {
 }
 
 type MainController struct {
-	commands map[string]ICommand
+	commands    map[string]ICommand
+	doHistory   *Stack[ICommand]
+	undoHistory *Stack[ICommand]
 }
 
 func NewMainController() *MainController {
-	return &MainController{commands: make(map[string]ICommand)}
+	return &MainController{
+		commands:    make(map[string]ICommand),
+		doHistory:   NewStack[ICommand](),
+		undoHistory: NewStack[ICommand](),
+	}
 }
 
 func (c *MainController) SetCommand(key string, command ICommand) {
@@ -43,11 +49,21 @@ func (c *MainController) SetCommand(key string, command ICommand) {
 }
 
 func (c *MainController) Input(in string) {
-	c.commands[in].Execute()
+	todo := c.commands[in]
+	todo.Execute()
+	c.doHistory.Push(todo)
+	c.undoHistory.Clear()
+}
+
+func (c *MainController) Undo() {
+	todo, _ := c.doHistory.Pop()
+	todo.Undo()
+	c.undoHistory.Push(todo)
 }
 
 type ICommand interface {
 	Execute()
+	Undo()
 }
 
 type MoveForwardTankCommand struct {
@@ -56,6 +72,10 @@ type MoveForwardTankCommand struct {
 
 func (c MoveForwardTankCommand) Execute() {
 	c.tank.MoveForward()
+}
+
+func (c MoveForwardTankCommand) Undo() {
+	c.tank.MoveBackward()
 }
 
 func main() {
