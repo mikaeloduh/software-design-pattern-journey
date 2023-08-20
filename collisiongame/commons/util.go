@@ -1,12 +1,12 @@
-package main
+package commons
 
 import "reflect"
 
-func isSameType(a, b interface{}) bool {
+func IsSameType(a, b interface{}) bool {
 	return reflect.TypeOf(a) == reflect.TypeOf(b)
 }
 
-func inputCoord() (x1, x2 int) {
+func InputCoord() (x1, x2 int) {
 	// TODO: implement stdin
 	return 0, 0
 }

@@ -1,4 +1,4 @@
-package main
+package entity
 
 // IHandler interface
 type IHandler interface {

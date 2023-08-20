@@ -1,8 +1,8 @@
-package main
+package entity
 
 type Hero struct {
 	Sprite
-	hp int
+	Hp int
 }
 
 func (h *Hero) String() string {
@@ -10,9 +10,9 @@ func (h *Hero) String() string {
 }
 
 func (h *Hero) SetHp(n int) {
-	h.hp += n
+	h.Hp += n
 }
 
 func NewHero() *Hero {
-	return &Hero{hp: 30}
+	return &Hero{Hp: 30}
 }

@@ -1,15 +1,17 @@
-package main
+package entity
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 // World the happy sprites world
 type World struct {
-	coord   [30]Sprite
-	handler IHandler
+	Coord   [30]Sprite
+	Handler IHandler
 }
 
 func NewWorld(h IHandler) *World {
-	w := &World{handler: h}
+	w := &World{Handler: h}
 	w.Init()
 	return w
 }
@@ -25,16 +27,16 @@ func (w *World) Init() {
 	}
 
 	for _, num := range numbers[:10] {
-		w.coord[num] = RandNewSprite()
+		w.Coord[num] = RandNewSprite()
 	}
 }
 
 func (w *World) Move(x1 int, x2 int) {
 	// TODO: isValidMove(x1, x2)
 
-	c1Ptr := &w.coord[x1]
-	c2Ptr := &w.coord[x2]
+	c1Ptr := &w.Coord[x1]
+	c2Ptr := &w.Coord[x2]
 
 	// toCollide and move
-	w.handler.Handle(c1Ptr, c2Ptr)
+	w.Handler.Handle(c1Ptr, c2Ptr)
 }

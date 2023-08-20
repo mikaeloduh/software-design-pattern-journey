@@ -1,4 +1,8 @@
-package main
+package entity
+
+import (
+	"collisiongame/commons"
+)
 
 /**
  * | Subject \ target |  Hero  | Water  |  Fire  |
@@ -22,7 +26,7 @@ func NewHeroHeroHandler(next IHandler) *TemplateHandler {
 }
 
 func (h HeroHeroHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Hero{}) && isSameType(*c2Ptr, &Hero{})
+	return commons.IsSameType(*c1Ptr, &Hero{}) && commons.IsSameType(*c2Ptr, &Hero{})
 }
 
 func (h HeroHeroHandler) DoHandling(_, _ *Sprite) {
@@ -43,7 +47,7 @@ func NewHeroWaterHandler(next IHandler) *TemplateHandler {
 }
 
 func (h HeroWaterHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Hero{}) && isSameType(*c2Ptr, &Water{})
+	return commons.IsSameType(*c1Ptr, &Hero{}) && commons.IsSameType(*c2Ptr, &Water{})
 }
 
 func (h HeroWaterHandler) DoHandling(c1Ptr, c2Ptr *Sprite) {
@@ -67,7 +71,7 @@ func NewHeroFireHandler(next IHandler) *TemplateHandler {
 }
 
 func (h HeroFireHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Hero{}) && isSameType(*c2Ptr, &Fire{})
+	return commons.IsSameType(*c1Ptr, &Hero{}) && commons.IsSameType(*c2Ptr, &Fire{})
 }
 
 func (h HeroFireHandler) DoHandling(c1Ptr, c2Ptr *Sprite) {
@@ -91,7 +95,7 @@ func NewWaterHeroHandler(next IHandler) *TemplateHandler {
 }
 
 func (h WaterHeroHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Water{}) && isSameType(*c2Ptr, &Hero{})
+	return commons.IsSameType(*c1Ptr, &Water{}) && commons.IsSameType(*c2Ptr, &Hero{})
 }
 
 func (h WaterHeroHandler) DoHandling(c1Ptr, c2Ptr *Sprite) {
@@ -113,7 +117,7 @@ func NewWaterWaterHandler(next IHandler) *TemplateHandler {
 }
 
 func (h WaterWaterHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Water{}) && isSameType(*c2Ptr, &Water{})
+	return commons.IsSameType(*c1Ptr, &Water{}) && commons.IsSameType(*c2Ptr, &Water{})
 }
 
 func (h WaterWaterHandler) DoHandling(_, _ *Sprite) {
@@ -134,7 +138,7 @@ func NewWaterFireHandler(next IHandler) *TemplateHandler {
 }
 
 func (h WaterFireHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Water{}) && isSameType(*c2Ptr, &Fire{})
+	return commons.IsSameType(*c1Ptr, &Water{}) && commons.IsSameType(*c2Ptr, &Fire{})
 }
 
 func (h WaterFireHandler) DoHandling(c1Ptr, c2Ptr *Sprite) {
@@ -156,7 +160,7 @@ func NewFireHeroHandler(next IHandler) *TemplateHandler {
 }
 
 func (h FireHeroHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Fire{}) && isSameType(*c2Ptr, &Hero{})
+	return commons.IsSameType(*c1Ptr, &Fire{}) && commons.IsSameType(*c2Ptr, &Hero{})
 }
 
 func (h FireHeroHandler) DoHandling(c1Ptr, c2Ptr *Sprite) {
@@ -178,7 +182,7 @@ func NewFireWaterHandler(next IHandler) *TemplateHandler {
 }
 
 func (h FireWaterHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Fire{}) && isSameType(*c2Ptr, &Water{})
+	return commons.IsSameType(*c1Ptr, &Fire{}) && commons.IsSameType(*c2Ptr, &Water{})
 }
 
 func (h FireWaterHandler) DoHandling(c1Ptr, c2Ptr *Sprite) {
@@ -200,7 +204,7 @@ func NewFireFireHandler(next IHandler) *TemplateHandler {
 }
 
 func (h FireFireHandler) Match(c1Ptr, c2Ptr *Sprite) bool {
-	return isSameType(*c1Ptr, &Fire{}) && isSameType(*c2Ptr, &Fire{})
+	return commons.IsSameType(*c1Ptr, &Fire{}) && commons.IsSameType(*c2Ptr, &Fire{})
 }
 
 func (h FireFireHandler) DoHandling(_, _ *Sprite) {
