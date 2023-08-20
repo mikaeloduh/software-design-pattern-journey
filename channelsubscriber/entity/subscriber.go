@@ -1,4 +1,4 @@
-package main
+package entity
 
 // Subscriber type
 type Subscriber struct {
