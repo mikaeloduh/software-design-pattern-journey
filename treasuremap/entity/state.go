@@ -3,6 +3,7 @@ package entity
 // IState interface
 type IState interface {
 	OnRoundStart()
+	OnTakeDamage(damage int) int
 }
 
 // NormalState
@@ -17,6 +18,10 @@ func NewNormalState(character *Character) *NormalState {
 func (s *NormalState) OnRoundStart() {
 }
 
+func (s *NormalState) OnTakeDamage(d int) int {
+	return d
+}
+
 // PoisonedState
 type PoisonedState struct {
 	character *Character
@@ -28,9 +33,34 @@ func NewPoisonedState(character *Character) *PoisonedState {
 }
 
 func (s *PoisonedState) OnRoundStart() {
-	s.character.AddHp(-15)
+	s.character.TakeDamage(15)
 	s.lifetime--
 	if s.lifetime <= 0 {
 		s.character.SetState(NewNormalState(s.character))
 	}
+}
+
+func (s *PoisonedState) OnTakeDamage(d int) int {
+	return d
+}
+
+// InvincibleState
+type InvincibleState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewInvincibleState(character *Character) *InvincibleState {
+	return &InvincibleState{character: character, lifetime: 2}
+}
+
+func (s *InvincibleState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.character.SetState(NewNormalState(s.character))
+	}
+}
+
+func (s *InvincibleState) OnTakeDamage(_ int) int {
+	return 0
 }

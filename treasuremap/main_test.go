@@ -39,4 +39,29 @@ func TestCharacterStatus(t *testing.T) {
 		assert.Equal(t, 300-15-15-15, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
+
+	t.Run("test character in InvincibleState should invulnerable from damage", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := entity.NewCharacter(&writer)
+		g := entity.NewAdventureGame(c)
+
+		c.SetState(entity.NewInvincibleState(c))
+		c.TakeDamage(10)
+
+		assert.IsType(t, &entity.InvincibleState{}, c.State)
+		assert.Equal(t, 300, c.Hp)
+
+		g.StartRound()
+		c.TakeDamage(10)
+
+		assert.Equal(t, 300, c.Hp)
+		assert.IsType(t, &entity.InvincibleState{}, c.State)
+
+		g.StartRound()
+		c.TakeDamage(10)
+
+		assert.Equal(t, 300-10, c.Hp)
+		assert.IsType(t, &entity.NormalState{}, c.State)
+	})
 }

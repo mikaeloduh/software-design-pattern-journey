@@ -17,8 +17,8 @@ func NewCharacter(writer io.Writer) *Character {
 	return c
 }
 
-func (c *Character) AddHp(num int) {
-	c.Hp += num
+func (c *Character) TakeDamage(d int) {
+	c.Hp -= c.State.OnTakeDamage(d)
 }
 
 func (c *Character) SetState(s IState) {
