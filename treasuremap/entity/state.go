@@ -76,9 +76,9 @@ func NewHealingState(character *Character) *HealingState {
 }
 
 func (s *HealingState) OnRoundStart() {
-	s.character.Hp += 30
+	s.character.Heal(30)
 	s.lifetime--
-	if s.lifetime <= 0 {
+	if s.lifetime <= 0 || s.character.Hp >= s.character.MaxHp {
 		s.character.SetState(NewNormalState(s.character))
 	}
 }

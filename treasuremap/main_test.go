@@ -94,4 +94,18 @@ func TestCharacterStatus(t *testing.T) {
 		assert.Equal(t, 300-200+30+30+30+30+30, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
+
+	t.Run("test while character's Hp is fully restored in HealingState, then should recover to NormalState immediately", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := entity.NewCharacter(&writer)
+		g := entity.NewAdventureGame(c)
+
+		c.TakeDamage(10)
+		c.SetState(entity.NewHealingState(c))
+
+		g.StartRound()
+		assert.Equal(t, 300, c.Hp)
+		assert.IsType(t, &entity.NormalState{}, c.State)
+	})
 }
