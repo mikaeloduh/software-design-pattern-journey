@@ -64,3 +64,25 @@ func (s *InvincibleState) OnRoundStart() {
 func (s *InvincibleState) OnTakeDamage(_ int) int {
 	return 0
 }
+
+// HealingState
+type HealingState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewHealingState(character *Character) *HealingState {
+	return &HealingState{character: character, lifetime: 5}
+}
+
+func (s *HealingState) OnRoundStart() {
+	s.character.Hp += 30
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.character.SetState(NewNormalState(s.character))
+	}
+}
+
+func (s *HealingState) OnTakeDamage(d int) int {
+	return d
+}
