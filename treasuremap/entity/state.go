@@ -99,6 +99,7 @@ func NewAcceleratedState(character *Character) *AcceleratedState {
 }
 
 func (s *AcceleratedState) OnRoundStart() {
+	s.character.SetSpeed(2)
 	s.lifetime--
 	if s.lifetime <= 0 {
 		s.character.SetState(NewNormalState(s.character))
