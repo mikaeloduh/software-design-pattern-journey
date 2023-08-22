@@ -100,11 +100,12 @@ func NewAcceleratedState(character *Character) *AcceleratedState {
 
 func (s *AcceleratedState) OnRoundStart() {
 	s.lifetime--
-	if s.lifetime <= 0 || s.character.Hp >= s.character.MaxHp {
+	if s.lifetime <= 0 {
 		s.character.SetState(NewNormalState(s.character))
 	}
 }
 
 func (s *AcceleratedState) OnTakeDamage(damage int) int {
+	s.character.SetState(NewNormalState(s.character))
 	return damage
 }
