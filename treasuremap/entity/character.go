@@ -11,7 +11,7 @@ type Character struct {
 	MaxHp  int
 	Hp     int
 	State  IState
-	speed  int // actions per round
+	Speed  int // actions per round
 }
 
 func NewCharacter(writer io.Writer) *Character {
@@ -21,7 +21,7 @@ func NewCharacter(writer io.Writer) *Character {
 		MaxHp:  300,
 		Hp:     300,
 		State:  NewNormalState(c),
-		speed:  1,
+		Speed:  1,
 	}
 	return c
 }
@@ -43,15 +43,15 @@ func (c *Character) OnRoundStart() {
 func (c *Character) AfterRoundStart() {
 	fmt.Fprint(c.Writer, "take action\n")
 
-	c.speed--
+	c.Speed--
 }
 
 func (c *Character) OnRoundEnd() {
-	c.speed = 1
+	c.Speed = 1
 }
 
 func (c *Character) isRoundEnd() bool {
-	return c.speed <= 0
+	return c.Speed <= 0
 }
 
 func (c *Character) TakeDamage(damage int) {
@@ -63,5 +63,5 @@ func (c *Character) Heal(health int) {
 }
 
 func (c *Character) SetSpeed(speed int) {
-	c.speed = speed
+	c.Speed = speed
 }

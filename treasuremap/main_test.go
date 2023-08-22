@@ -126,12 +126,13 @@ func TestCharacterStatus(t *testing.T) {
 
 		c.SetState(entity.NewAcceleratedState(c))
 
-		g.StartRound()
 		assert.IsType(t, &entity.AcceleratedState{}, c.State)
+		assert.Equal(t, 2, c.Speed)
 
 		g.StartRound()
 		c.TakeDamage(1)
 
 		assert.IsType(t, &entity.NormalState{}, c.State)
+		assert.Equal(t, 1, c.Speed)
 	})
 }
