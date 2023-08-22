@@ -20,12 +20,17 @@ func (s *NormalState) OnRoundStart() {
 // PoisonedState
 type PoisonedState struct {
 	character *Character
+	lifetime  Round
 }
 
 func NewPoisonedState(character *Character) *PoisonedState {
-	return &PoisonedState{character: character}
+	return &PoisonedState{character: character, lifetime: 3}
 }
 
 func (s *PoisonedState) OnRoundStart() {
 	s.character.AddHp(-15)
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.character.SetState(NewNormalState(s.character))
+	}
 }

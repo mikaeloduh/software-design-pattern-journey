@@ -1,8 +1,10 @@
 package entity
 
+type Round int
+
 type AdventureGame struct {
 	character *Character
-	round     int
+	round     Round
 }
 
 func NewAdventureGame(character *Character) *AdventureGame {

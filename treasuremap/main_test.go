@@ -10,7 +10,7 @@ import (
 
 func TestCharacterStatus(t *testing.T) {
 
-	t.Run("test when character poisoned, HP should -15 for each following two round", func(t *testing.T) {
+	t.Run("test when character poisoned, HP should -15 for 3 rounds, then return to NormalState", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := entity.NewCharacter(&writer)
@@ -20,6 +20,7 @@ func TestCharacterStatus(t *testing.T) {
 
 		assert.Equal(t, "The character is poisoned.\n", writer.String())
 		assert.Equal(t, 300, c.Hp)
+		assert.IsType(t, &entity.PoisonedState{}, c.State)
 
 		g.StartRound()
 
@@ -28,5 +29,14 @@ func TestCharacterStatus(t *testing.T) {
 		g.StartRound()
 
 		assert.Equal(t, 300-15-15, c.Hp)
+
+		g.StartRound()
+
+		assert.Equal(t, 300-15-15-15, c.Hp)
+
+		g.StartRound()
+
+		assert.Equal(t, 300-15-15-15, c.Hp)
+		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
 }
