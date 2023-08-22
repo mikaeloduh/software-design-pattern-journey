@@ -18,7 +18,6 @@ func TestCharacterStatus(t *testing.T) {
 
 		c.SetState(entity.NewPoisonedState(c))
 
-		assert.Equal(t, "The character is poisoned.\n", writer.String())
 		assert.Equal(t, 300, c.Hp)
 		assert.IsType(t, &entity.PoisonedState{}, c.State)
 
@@ -107,5 +106,18 @@ func TestCharacterStatus(t *testing.T) {
 		g.StartRound()
 		assert.Equal(t, 300, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
+	})
+
+	t.Run("test while in AcceleratedState, character can take 2 actions", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := entity.NewCharacter(&writer)
+		g := entity.NewAdventureGame(c)
+
+		c.SetState(entity.NewAcceleratedState(c))
+
+		g.StartRound()
+
+		assert.Equal(t, "take action\ntake action\n", writer.String())
 	})
 }

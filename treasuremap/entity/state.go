@@ -86,3 +86,25 @@ func (s *HealingState) OnRoundStart() {
 func (s *HealingState) OnTakeDamage(d int) int {
 	return d
 }
+
+// AcceleratedState
+type AcceleratedState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewAcceleratedState(character *Character) *AcceleratedState {
+	character.SetSpeed(2)
+	return &AcceleratedState{character: character, lifetime: 3}
+}
+
+func (s *AcceleratedState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 || s.character.Hp >= s.character.MaxHp {
+		s.character.SetState(NewNormalState(s.character))
+	}
+}
+
+func (s *AcceleratedState) OnTakeDamage(damage int) int {
+	return damage
+}
