@@ -6,12 +6,46 @@ import (
 	"math"
 )
 
+type Direction string
+
+const (
+	Up Direction = "up"
+)
+
+type Position struct {
+	game      *AdventureGame
+	character *Character
+	x         int
+	y         int
+	direction Direction
+}
+
+func (p *Position) move(x, y int, d Direction) {
+	px := p.x
+	py := p.y
+
+	p.x = x
+	p.y = y
+	p.direction = d
+
+	p.game.WorldMap[px][py], p.game.WorldMap[p.x][p.y] = p.game.WorldMap[p.x][p.y], p.game.WorldMap[px][py]
+}
+
 type Character struct {
-	Writer io.Writer
-	MaxHp  int
-	Hp     int
-	State  IState
-	Speed  int // actions per round
+	Writer   io.Writer
+	MaxHp    int
+	Hp       int
+	State    IState
+	Speed    int // actions per round
+	position *Position
+}
+
+func (c *Character) MoveStep(direction Direction) {
+	switch direction {
+	case Up:
+		//c.position.move(c.position.x+1, c.position.y, direction)
+		fmt.Fprint(c.Writer, "move up\n")
+	}
 }
 
 func NewCharacter(writer io.Writer) *Character {

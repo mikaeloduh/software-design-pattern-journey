@@ -111,3 +111,19 @@ func (s *AcceleratedState) OnTakeDamage(damage int) int {
 	s.character.SetState(NewNormalState(s.character))
 	return damage
 }
+
+type OrderlessState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewOrderlessState(character *Character) *OrderlessState {
+	return &OrderlessState{character: character, lifetime: 3}
+}
+
+func (s OrderlessState) OnRoundStart() {
+}
+
+func (s OrderlessState) OnTakeDamage(damage int) int {
+	return damage
+}

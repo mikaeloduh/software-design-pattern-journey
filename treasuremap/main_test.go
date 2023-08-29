@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/stretchr/testify/assert"
-	"treasuremap/entity"
-
 	"bytes"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"treasuremap/entity"
 )
 
 func TestCharacterStatus(t *testing.T) {
@@ -105,7 +106,7 @@ func TestCharacterStatus(t *testing.T) {
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
 
-	t.Run("test while in AcceleratedState, character can take 2 actions", func(t *testing.T) {
+	t.Run("test while in AcceleratedState, character can take 2 actions per round", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := entity.NewCharacter(&writer)
@@ -134,5 +135,27 @@ func TestCharacterStatus(t *testing.T) {
 
 		assert.IsType(t, &entity.NormalState{}, c.State)
 		assert.Equal(t, 1, c.Speed)
+	})
+
+	t.Run("test during OrderlessState character can only move two directions", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := entity.NewCharacter(&writer)
+		_ = entity.NewAdventureGame(c)
+
+		c.SetState(entity.NewOrderlessState(c))
+
+		assert.IsType(t, &entity.OrderlessState{}, c.State)
+	})
+
+	t.Run("test Character move", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := entity.NewCharacter(&writer)
+		_ = entity.NewAdventureGame(c)
+
+		c.MoveStep(entity.Up)
+
+		assert.Equal(t, "move up\n", writer.String())
 	})
 }
