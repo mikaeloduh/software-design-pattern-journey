@@ -148,17 +148,6 @@ func TestCharacterStatus(t *testing.T) {
 
 		assert.IsType(t, &entity.OrderlessState{}, c.State)
 	})
-
-	t.Run("test character move", func(t *testing.T) {
-		var writer bytes.Buffer
-
-		c := FakeNewCharacter(&writer)
-		_ = entity.NewAdventureGame(c)
-
-		c.MoveStep(entity.Up)
-
-		assert.Equal(t, "move up\n", writer.String())
-	})
 }
 
 func FakeNewCharacter(writer io.Writer) *entity.Character {

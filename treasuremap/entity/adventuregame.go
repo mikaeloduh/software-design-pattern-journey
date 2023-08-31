@@ -45,6 +45,9 @@ func (g *AdventureGame) StartRound() {
 }
 
 func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {
+	if x2 < 0 || y2 < 0 {
+		return fmt.Errorf("invalid input")
+	}
 	if g.WorldMap[y2][x2] != nil {
 		return fmt.Errorf("invalid position")
 	}

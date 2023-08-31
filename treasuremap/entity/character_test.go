@@ -9,7 +9,6 @@ import (
 
 func TestCharacter_MoveStep(t *testing.T) {
 	t.Run("move up", func(t *testing.T) {
-
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
@@ -21,6 +20,46 @@ func TestCharacter_MoveStep(t *testing.T) {
 		assert.Equal(t, 5, c.Position.x)
 		assert.Same(t, c, g.WorldMap[6][5].character)
 	})
+
+	t.Run("move down", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := NewAdventureGame(c)
+
+		c.MoveStep(Down)
+
+		assert.Equal(t, 4, c.Position.y)
+		assert.Equal(t, 5, c.Position.x)
+		assert.Same(t, c, g.WorldMap[4][5].character)
+	})
+
+	t.Run("move left", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := NewAdventureGame(c)
+
+		c.MoveStep(Left)
+
+		assert.Equal(t, 5, c.Position.y)
+		assert.Equal(t, 4, c.Position.x)
+		assert.Same(t, c, g.WorldMap[5][4].character)
+	})
+
+	t.Run("move right", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := NewAdventureGame(c)
+
+		c.MoveStep(Right)
+
+		assert.Equal(t, 5, c.Position.y)
+		assert.Equal(t, 6, c.Position.x)
+		assert.Same(t, c, g.WorldMap[5][6].character)
+	})
+
 }
 
 func FakeNewCharacter(writer io.Writer) *Character {

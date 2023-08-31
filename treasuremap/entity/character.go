@@ -64,7 +64,16 @@ func (c *Character) MoveStep(direction Direction) {
 	switch direction {
 	case Up:
 		c.Position.move(c.Position.x, c.Position.y+1, Up)
-		fmt.Fprint(c.Writer, "move up\n")
+
+	case Down:
+		c.Position.move(c.Position.x, c.Position.y-1, Down)
+
+	case Left:
+		c.Position.move(c.Position.x-1, c.Position.y, Left)
+
+	case Right:
+		c.Position.move(c.Position.x+1, c.Position.y, Right)
+
 	}
 }
 
