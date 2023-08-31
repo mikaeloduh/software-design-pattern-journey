@@ -4,32 +4,8 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"os"
 )
-
-type Direction string
-
-const (
-	Up Direction = "up"
-)
-
-type Position struct {
-	game      *AdventureGame
-	character *Character
-	x         int
-	y         int
-	direction Direction
-}
-
-func (p *Position) move(x, y int, d Direction) {
-	px := p.x
-	py := p.y
-
-	p.x = x
-	p.y = y
-	p.direction = d
-
-	p.game.WorldMap[px][py], p.game.WorldMap[p.x][p.y] = p.game.WorldMap[p.x][p.y], p.game.WorldMap[px][py]
-}
 
 type Character struct {
 	Writer   io.Writer
@@ -37,31 +13,19 @@ type Character struct {
 	Hp       int
 	State    IState
 	Speed    int // actions per round
-	position *Position
+	Position *Position
 }
 
-func (c *Character) MoveStep(direction Direction) {
-	switch direction {
-	case Up:
-		//c.position.move(c.position.x+1, c.position.y, direction)
-		fmt.Fprint(c.Writer, "move up\n")
-	}
-}
-
-func NewCharacter(writer io.Writer) *Character {
+func NewCharacter() *Character {
 	var c *Character
 	c = &Character{
-		Writer: writer,
+		Writer: os.Stdout,
 		MaxHp:  300,
 		Hp:     300,
 		State:  NewNormalState(c),
 		Speed:  1,
 	}
 	return c
-}
-
-func (c *Character) SetState(s IState) {
-	c.State = s
 }
 
 func (c *Character) OnRoundStart() {
@@ -96,6 +60,22 @@ func (c *Character) Heal(health int) {
 	c.Hp = int(math.Min(float64(float32(c.MaxHp)), float64(c.Hp+health)))
 }
 
+func (c *Character) MoveStep(direction Direction) {
+	switch direction {
+	case Up:
+		c.Position.move(c.Position.x, c.Position.y+1, Up)
+		fmt.Fprint(c.Writer, "move up\n")
+	}
+}
+
+func (c *Character) SetState(s IState) {
+	c.State = s
+}
+
 func (c *Character) SetSpeed(speed int) {
 	c.Speed = speed
+}
+
+func (c *Character) SetPosition(p *Position) {
+	c.Position = p
 }

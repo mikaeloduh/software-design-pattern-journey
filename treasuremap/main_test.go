@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test when character poisoned, HP should -15 for 3 rounds, then return to NormalState", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		g := entity.NewAdventureGame(c)
 
 		c.SetState(entity.NewPoisonedState(c))
@@ -39,7 +40,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test character in InvincibleState should invulnerable from damage", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		g := entity.NewAdventureGame(c)
 
 		c.SetState(entity.NewInvincibleState(c))
@@ -64,7 +65,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test character in HealingState should restore 30 Hp for 5 rounds", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		g := entity.NewAdventureGame(c)
 
 		c.TakeDamage(200)
@@ -94,7 +95,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test while character's Hp is fully restored in HealingState, then should recover to NormalState immediately", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		g := entity.NewAdventureGame(c)
 
 		c.TakeDamage(10)
@@ -109,7 +110,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test while in AcceleratedState, character can take 2 actions per round", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		g := entity.NewAdventureGame(c)
 
 		c.SetState(entity.NewAcceleratedState(c))
@@ -122,7 +123,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test AccelerateState will be interrupted by attack", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		g := entity.NewAdventureGame(c)
 
 		c.SetState(entity.NewAcceleratedState(c))
@@ -140,7 +141,7 @@ func TestCharacterStatus(t *testing.T) {
 	t.Run("test during OrderlessState character can only move two directions", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		_ = entity.NewAdventureGame(c)
 
 		c.SetState(entity.NewOrderlessState(c))
@@ -148,14 +149,26 @@ func TestCharacterStatus(t *testing.T) {
 		assert.IsType(t, &entity.OrderlessState{}, c.State)
 	})
 
-	t.Run("test Character move", func(t *testing.T) {
+	t.Run("test character move", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		c := entity.NewCharacter(&writer)
+		c := FakeNewCharacter(&writer)
 		_ = entity.NewAdventureGame(c)
 
 		c.MoveStep(entity.Up)
 
 		assert.Equal(t, "move up\n", writer.String())
 	})
+}
+
+func FakeNewCharacter(writer io.Writer) *entity.Character {
+	var c *entity.Character
+	c = &entity.Character{
+		Writer: writer,
+		MaxHp:  300,
+		Hp:     300,
+		State:  entity.NewNormalState(c),
+		Speed:  1,
+	}
+	return c
 }
