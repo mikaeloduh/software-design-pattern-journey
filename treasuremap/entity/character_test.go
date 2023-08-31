@@ -14,7 +14,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		c := FakeNewCharacter(&writer)
 		g := NewAdventureGame(c)
 
-		c.MoveStep(Up)
+		c.MoveUp()
 
 		assert.Equal(t, 6, c.Position.y)
 		assert.Equal(t, 5, c.Position.x)
@@ -27,7 +27,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		c := FakeNewCharacter(&writer)
 		g := NewAdventureGame(c)
 
-		c.MoveStep(Down)
+		c.MoveDown()
 
 		assert.Equal(t, 4, c.Position.y)
 		assert.Equal(t, 5, c.Position.x)
@@ -40,7 +40,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		c := FakeNewCharacter(&writer)
 		g := NewAdventureGame(c)
 
-		c.MoveStep(Left)
+		c.MoveLeft()
 
 		assert.Equal(t, 5, c.Position.y)
 		assert.Equal(t, 4, c.Position.x)
@@ -53,7 +53,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		c := FakeNewCharacter(&writer)
 		g := NewAdventureGame(c)
 
-		c.MoveStep(Right)
+		c.MoveRight()
 
 		assert.Equal(t, 5, c.Position.y)
 		assert.Equal(t, 6, c.Position.x)

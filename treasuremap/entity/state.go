@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"treasuremap/commons"
+)
+
 // IState interface
 type IState interface {
 	OnRoundStart()
@@ -122,6 +126,18 @@ func NewOrderlessState(character *Character) *OrderlessState {
 }
 
 func (s OrderlessState) OnRoundStart() {
+	if commons.RandBool() {
+		s.character.DisableAction("MoveUp")
+		s.character.DisableAction("MoveDown")
+	} else {
+		s.character.DisableAction("MoveRight")
+		s.character.DisableAction("MoveLeft")
+	}
+
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.character.SetState(NewNormalState(s.character))
+	}
 }
 
 func (s OrderlessState) OnTakeDamage(damage int) int {

@@ -5,15 +5,17 @@ import (
 	"io"
 	"math"
 	"os"
+	"treasuremap/commons"
 )
 
 type Character struct {
-	Writer   io.Writer
-	MaxHp    int
-	Hp       int
-	State    IState
-	Speed    int // actions per round
-	Position *Position
+	Writer         io.Writer
+	MaxHp          int
+	Hp             int
+	State          IState
+	Speed          int // actions per round
+	Position       *Position
+	disableActions commons.HashSet
 }
 
 func NewCharacter() *Character {
@@ -46,6 +48,7 @@ func (c *Character) AfterRoundStart() {
 
 func (c *Character) OnRoundEnd() {
 	c.Speed = 1
+	c.disableActions = commons.NewHashSet()
 }
 
 func (c *Character) isRoundEnd() bool {
@@ -60,21 +63,32 @@ func (c *Character) Heal(health int) {
 	c.Hp = int(math.Min(float64(float32(c.MaxHp)), float64(c.Hp+health)))
 }
 
-func (c *Character) MoveStep(direction Direction) {
-	switch direction {
-	case Up:
-		c.Position.move(c.Position.x, c.Position.y+1, Up)
-
-	case Down:
-		c.Position.move(c.Position.x, c.Position.y-1, Down)
-
-	case Left:
-		c.Position.move(c.Position.x-1, c.Position.y, Left)
-
-	case Right:
-		c.Position.move(c.Position.x+1, c.Position.y, Right)
-
+func (c *Character) MoveUp() {
+	if c.disableActions.Contains("MoveUp") {
+		return
 	}
+	c.Position.move(c.Position.x, c.Position.y+1, Up)
+}
+
+func (c *Character) MoveDown() {
+	if c.disableActions.Contains("MoveDown") {
+		return
+	}
+	c.Position.move(c.Position.x, c.Position.y-1, Down)
+}
+
+func (c *Character) MoveLeft() {
+	if c.disableActions.Contains("MoveLeft") {
+		return
+	}
+	c.Position.move(c.Position.x-1, c.Position.y, Left)
+}
+
+func (c *Character) MoveRight() {
+	if c.disableActions.Contains("MoveRight") {
+		return
+	}
+	c.Position.move(c.Position.x+1, c.Position.y, Right)
 }
 
 func (c *Character) SetState(s IState) {
@@ -87,4 +101,8 @@ func (c *Character) SetSpeed(speed int) {
 
 func (c *Character) SetPosition(p *Position) {
 	c.Position = p
+}
+
+func (c *Character) DisableAction(action string) {
+	c.disableActions.Add(action)
 }
