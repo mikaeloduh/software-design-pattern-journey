@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"math/rand"
 	"treasuremap/commons"
 )
 
@@ -206,7 +207,7 @@ func NewEruptingState(character *Character) *EruptingState {
 func (s *EruptingState) OnRoundStart() {
 	s.lifetime--
 	if s.lifetime <= 0 {
-		s.character.SetState(NewNormalState(s.character))
+		s.character.SetState(NewTeleportState(s.character))
 	}
 }
 
@@ -224,4 +225,32 @@ func (s *EruptingState) OnAttack(_ AttackMap) AttackMap {
 		}
 	}
 	return a
+}
+
+// TeleportState
+type TeleportState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewTeleportState(character *Character) *TeleportState {
+	return &TeleportState{character: character, lifetime: 1}
+}
+
+func (s *TeleportState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 {
+		x, y := rand.Intn(10), rand.Intn(10)
+		s.character.Position.Move(x, y, s.character.Position.Direction)
+
+		s.character.SetState(NewNormalState(s.character))
+	}
+}
+
+func (s *TeleportState) OnTakeDamage(damage int) int {
+	return damage
+}
+
+func (s *TeleportState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }

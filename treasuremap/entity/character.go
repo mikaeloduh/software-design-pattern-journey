@@ -71,28 +71,28 @@ func (c *Character) MoveUp() {
 	if c.disableActions.Contains("MoveUp") {
 		return
 	}
-	c.Position.move(c.Position.X, c.Position.Y+1, Up)
+	c.Position.Move(c.Position.X, c.Position.Y+1, Up)
 }
 
 func (c *Character) MoveDown() {
 	if c.disableActions.Contains("MoveDown") {
 		return
 	}
-	c.Position.move(c.Position.X, c.Position.Y-1, Down)
+	c.Position.Move(c.Position.X, c.Position.Y-1, Down)
 }
 
 func (c *Character) MoveLeft() {
 	if c.disableActions.Contains("MoveLeft") {
 		return
 	}
-	c.Position.move(c.Position.X-1, c.Position.Y, Left)
+	c.Position.Move(c.Position.X-1, c.Position.Y, Left)
 }
 
 func (c *Character) MoveRight() {
 	if c.disableActions.Contains("MoveRight") {
 		return
 	}
-	c.Position.move(c.Position.X+1, c.Position.Y, Right)
+	c.Position.Move(c.Position.X+1, c.Position.Y, Right)
 }
 
 func (c *Character) SetState(s IState) {

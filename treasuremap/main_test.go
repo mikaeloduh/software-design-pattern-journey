@@ -160,7 +160,7 @@ func TestCharacterStatus(t *testing.T) {
 		assert.IsType(t, &entity.StockpileState{}, c.State)
 	})
 
-	t.Run("test StockpileState enter EruptingState after 3 rounds", func(t *testing.T) {
+	t.Run("test StockpileState will enter EruptingState after 3 rounds", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
@@ -191,6 +191,20 @@ func TestCharacterStatus(t *testing.T) {
 		assert.Empty(t, g.WorldMap[0][0])
 	})
 
+	t.Run("test TeleportState should return NormalState after 1 round", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := entity.NewAdventureGame(c)
+
+		c.SetState(entity.NewTeleportState(c))
+
+		assert.IsType(t, &entity.TeleportState{}, c.State)
+
+		g.StartRound()
+
+		assert.IsType(t, &entity.NormalState{}, c.State)
+	})
 }
 
 func FakeNewCharacter(writer io.Writer) *entity.Character {

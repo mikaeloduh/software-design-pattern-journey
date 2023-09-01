@@ -17,7 +17,7 @@ type Position struct {
 	Direction Direction
 }
 
-func (p *Position) move(x, y int, d Direction) {
+func (p *Position) Move(x, y int, d Direction) {
 	px := p.X
 	py := p.Y
 
