@@ -112,15 +112,14 @@ func (c *Character) DisableAction(action string) {
 }
 
 func (c *Character) Attack() {
-	var damage int
-	var area []XY
+	var attack AttackMap
 
 	x := c.Position.X
 	for y := c.Position.Y + 1; y <= 9; y++ {
-		area = append(area, XY{x, y})
+		attack[y][x] = c.AttackDamage
 	}
 
-	damage, area = c.State.OnAttack(c.AttackDamage, area)
+	attack = c.State.OnAttack(attack)
 
-	c.Position.Game.AttackMap(damage, area)
+	c.Position.Game.Attack(attack)
 }

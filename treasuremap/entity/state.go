@@ -8,7 +8,7 @@ import (
 type IState interface {
 	OnRoundStart()
 	OnTakeDamage(damage int) int
-	OnAttack(damage int, area []XY) (int, []XY)
+	OnAttack(attack AttackMap) AttackMap
 }
 
 // NormalState
@@ -27,8 +27,8 @@ func (s *NormalState) OnTakeDamage(d int) int {
 	return d
 }
 
-func (s *NormalState) OnAttack(damage int, area []XY) (int, []XY) {
-	return damage, area
+func (s *NormalState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }
 
 // PoisonedState
@@ -53,8 +53,8 @@ func (s *PoisonedState) OnTakeDamage(d int) int {
 	return d
 }
 
-func (s *PoisonedState) OnAttack(damage int, area []XY) (int, []XY) {
-	return damage, area
+func (s *PoisonedState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }
 
 // InvincibleState
@@ -78,8 +78,8 @@ func (s *InvincibleState) OnTakeDamage(_ int) int {
 	return 0
 }
 
-func (s *InvincibleState) OnAttack(damage int, area []XY) (int, []XY) {
-	return damage, area
+func (s *InvincibleState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }
 
 // HealingState
@@ -104,8 +104,8 @@ func (s *HealingState) OnTakeDamage(d int) int {
 	return d
 }
 
-func (s *HealingState) OnAttack(damage int, area []XY) (int, []XY) {
-	return damage, area
+func (s *HealingState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }
 
 // AcceleratedState
@@ -133,8 +133,8 @@ func (s *AcceleratedState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s *AcceleratedState) OnAttack(damage int, area []XY) (int, []XY) {
-	return damage, area
+func (s *AcceleratedState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }
 
 type OrderlessState struct {
@@ -165,7 +165,7 @@ func (s OrderlessState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s OrderlessState) OnAttack(damage int, area []XY) (int, []XY) {
+func (s OrderlessState) OnAttack(attack AttackMap) AttackMap {
 	panic("operation not allowed")
 }
 
@@ -190,8 +190,8 @@ func (s *StockpileState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s *StockpileState) OnAttack(damage int, area []XY) (int, []XY) {
-	return damage, area
+func (s *StockpileState) OnAttack(attack AttackMap) AttackMap {
+	return attack
 }
 
 type EruptingState struct {
@@ -214,14 +214,14 @@ func (s *EruptingState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s *EruptingState) OnAttack(damage int, area []XY) (int, []XY) {
-	var a []XY
+func (s *EruptingState) OnAttack(_ AttackMap) AttackMap {
+	var a AttackMap
 	for y := 0; y <= 9; y++ {
 		for x := 0; x <= 9; x++ {
 			if !(x == s.character.Position.X && y == s.character.Position.Y) {
-				a = append(a, XY{x, y})
+				a[y][x] = 50
 			}
 		}
 	}
-	return 50, a
+	return a
 }

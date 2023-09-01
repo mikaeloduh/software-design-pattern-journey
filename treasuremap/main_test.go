@@ -175,7 +175,7 @@ func TestCharacterStatus(t *testing.T) {
 		assert.IsType(t, &entity.EruptingState{}, c.State)
 	})
 
-	t.Run("while in StockpileState, characters attacks are map-wide", func(t *testing.T) {
+	t.Run("while in StockpileState, characters' attacks are game-wide", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)

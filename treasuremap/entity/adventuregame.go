@@ -45,16 +45,15 @@ func (g *AdventureGame) StartRound() {
 	g.characters.OnRoundStart()
 }
 
-type XY struct {
-	X int
-	Y int
-}
+type AttackMap [10][10]int
 
-func (g *AdventureGame) AttackMap(damage int, area []XY) {
-	for _, a := range area {
-		if g.WorldMap[a.Y][a.X] != nil {
-			if g.WorldMap[a.Y][a.X].Object.TakeDamage(damage) <= 0 {
-				g.WorldMap[a.Y][a.X] = nil
+func (g *AdventureGame) Attack(attack AttackMap) {
+	for y, v := range attack {
+		for x, w := range v {
+			if w != 0 && g.WorldMap[y][x] != nil {
+				if g.WorldMap[y][x].Object.TakeDamage(w) <= 0 {
+					g.WorldMap[y][x] = nil
+				}
 			}
 		}
 	}
