@@ -2,26 +2,33 @@ package entity
 
 import (
 	"fmt"
+	"math"
+	"math/rand"
+	"treasuremap/commons"
 )
 
 type Round int
 
 type AdventureGame struct {
 	WorldMap   [10][10]*Position
-	characters *Character
+	Characters *Character
 	round      Round
 }
 
 func NewAdventureGame(character *Character) *AdventureGame {
 	game := &AdventureGame{
-		characters: character,
+		Characters: character,
 	}
 
-	//for _, num := range commons.RandNonRepeatInt(0, 99, 5) {
-	//	x, y := num%10, int(math.Floor(float64(num/10)))
-	//
-	//	game.WorldMap[y][x] = p
-	//}
+	nonRepeatInt := commons.RandNonRepeatInt(0, 99, 5)
+	num := nonRepeatInt[0]
+	x, y := num%10, int(math.Floor(float64(num/10)))
+	game.AddObject(character, x, y, Up)
+
+	for _, num := range nonRepeatInt[1:] {
+		x, y := num%10, int(math.Floor(float64(num/10)))
+		game.AddObject(randNewMapObject(), x, y, Up)
+	}
 
 	game.AddObject(character, 5, 5, Up)
 
@@ -42,7 +49,7 @@ func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
 
 func (g *AdventureGame) StartRound() {
 	g.round++
-	g.characters.OnRoundStart()
+	g.Characters.OnRoundStart()
 }
 
 type AttackMap [10][10]int
@@ -70,4 +77,10 @@ func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {
 	g.WorldMap[y1][x1] = nil
 
 	return nil
+}
+
+func randNewMapObject() IMapObject {
+	return [3]func() IMapObject{
+		func() IMapObject { return NewMonster() },
+	}[rand.Intn(1)]()
 }

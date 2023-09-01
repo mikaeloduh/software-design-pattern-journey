@@ -16,7 +16,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewPoisonedState(c))
 
@@ -41,7 +41,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewInvincibleState(c))
 		c.TakeDamage(10)
@@ -66,7 +66,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.TakeDamage(200)
 		c.SetState(entity.NewHealingState(c))
@@ -96,7 +96,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.TakeDamage(10)
 
@@ -111,7 +111,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewAcceleratedState(c))
 		g.StartRound()
@@ -124,7 +124,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewAcceleratedState(c))
 
@@ -142,7 +142,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		_ = entity.NewAdventureGame(c)
+		_ = FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewOrderlessState(c))
 
@@ -153,7 +153,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		_ = entity.NewAdventureGame(c)
+		_ = FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewStockpileState(c))
 
@@ -164,7 +164,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewStockpileState(c))
 
@@ -179,7 +179,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 		g.AddObject(&entity.Monster{MaxHp: 10, Hp: 10, Speed: 1}, 5, 9, entity.Left)
 		g.AddObject(&entity.Monster{MaxHp: 10, Hp: 10, Speed: 1}, 0, 0, entity.Down)
 
@@ -195,7 +195,7 @@ func TestCharacterStatus(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := entity.NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.SetState(entity.NewTeleportState(c))
 
@@ -217,4 +217,14 @@ func FakeNewCharacter(writer io.Writer) *entity.Character {
 		Speed:  1,
 	}
 	return c
+}
+
+func FakeNewAdventureGame(character *entity.Character) *entity.AdventureGame {
+	game := &entity.AdventureGame{
+		Characters: character,
+	}
+
+	game.AddObject(character, 5, 5, entity.Up)
+
+	return game
 }

@@ -12,7 +12,7 @@ func TestCharacter_SetPosition(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		assert.Same(t, g.WorldMap[5][5].Object, c)
 	})
@@ -23,7 +23,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.MoveUp()
 
@@ -36,7 +36,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.MoveDown()
 
@@ -49,7 +49,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.MoveLeft()
 
@@ -62,7 +62,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 
 		c.MoveRight()
 
@@ -77,7 +77,7 @@ func TestCharacter_Attack(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
-		g := NewAdventureGame(c)
+		g := FakeNewAdventureGame(c)
 		g.AddObject(&Monster{MaxHp: 10, Hp: 10, Speed: 1}, 5, 9, Left)
 
 		c.Attack()
@@ -98,4 +98,14 @@ func FakeNewCharacter(writer io.Writer) *Character {
 		State:        NewNormalState(c),
 	}
 	return c
+}
+
+func FakeNewAdventureGame(character *Character) *AdventureGame {
+	game := &AdventureGame{
+		Characters: character,
+	}
+
+	game.AddObject(character, 5, 5, Up)
+
+	return game
 }

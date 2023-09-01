@@ -19,7 +19,7 @@ type Character struct {
 	disableActions commons.HashSet
 }
 
-func NewCharacter(game *AdventureGame) *Character {
+func NewCharacter() *Character {
 	var c *Character
 	c = &Character{
 		Writer:       os.Stdout,
@@ -95,6 +95,19 @@ func (c *Character) MoveRight() {
 	c.Position.Move(c.Position.X+1, c.Position.Y, Right)
 }
 
+func (c *Character) Attack() {
+	var attack AttackMap
+
+	x := c.Position.X
+	for y := c.Position.Y + 1; y <= 9; y++ {
+		attack[y][x] = c.AttackDamage
+	}
+
+	attack = c.State.OnAttack(attack)
+
+	c.Position.Game.Attack(attack)
+}
+
 func (c *Character) SetState(s IState) {
 	c.State = s
 }
@@ -107,19 +120,18 @@ func (c *Character) SetPosition(p *Position) {
 	c.Position = p
 }
 
-func (c *Character) DisableAction(action string) {
-	c.disableActions.Add(action)
+func (c *Character) GetHp() int {
+	return c.Hp
 }
 
-func (c *Character) Attack() {
-	var attack AttackMap
+func (c *Character) GetMaxHp() int {
+	return c.MaxHp
+}
 
-	x := c.Position.X
-	for y := c.Position.Y + 1; y <= 9; y++ {
-		attack[y][x] = c.AttackDamage
-	}
+func (c *Character) GetPosition() *Position {
+	return c.Position
+}
 
-	attack = c.State.OnAttack(attack)
-
-	c.Position.Game.Attack(attack)
+func (c *Character) DisableAction(action string) {
+	c.disableActions.Add(action)
 }
