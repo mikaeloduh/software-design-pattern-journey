@@ -159,6 +159,38 @@ func TestCharacterStatus(t *testing.T) {
 
 		assert.IsType(t, &entity.StockpileState{}, c.State)
 	})
+
+	t.Run("test StockpileState enter EruptingState after 3 rounds", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := entity.NewAdventureGame(c)
+
+		c.SetState(entity.NewStockpileState(c))
+
+		g.StartRound()
+		g.StartRound()
+		g.StartRound()
+
+		assert.IsType(t, &entity.EruptingState{}, c.State)
+	})
+
+	t.Run("while in StockpileState, characters attacks are map-wide", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := entity.NewAdventureGame(c)
+		g.AddObject(&entity.Monster{MaxHp: 10, Hp: 10, Speed: 1}, 5, 9, entity.Left)
+		g.AddObject(&entity.Monster{MaxHp: 10, Hp: 10, Speed: 1}, 0, 0, entity.Down)
+
+		c.SetState(entity.NewEruptingState(c))
+
+		c.Attack()
+
+		assert.Empty(t, g.WorldMap[9][5])
+		assert.Empty(t, g.WorldMap[0][0])
+	})
+
 }
 
 func FakeNewCharacter(writer io.Writer) *entity.Character {

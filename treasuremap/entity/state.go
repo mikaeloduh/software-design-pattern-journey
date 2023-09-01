@@ -8,6 +8,7 @@ import (
 type IState interface {
 	OnRoundStart()
 	OnTakeDamage(damage int) int
+	OnAttack(damage int, area []XY) (int, []XY)
 }
 
 // NormalState
@@ -24,6 +25,10 @@ func (s *NormalState) OnRoundStart() {
 
 func (s *NormalState) OnTakeDamage(d int) int {
 	return d
+}
+
+func (s *NormalState) OnAttack(damage int, area []XY) (int, []XY) {
+	return damage, area
 }
 
 // PoisonedState
@@ -48,6 +53,10 @@ func (s *PoisonedState) OnTakeDamage(d int) int {
 	return d
 }
 
+func (s *PoisonedState) OnAttack(damage int, area []XY) (int, []XY) {
+	return damage, area
+}
+
 // InvincibleState
 type InvincibleState struct {
 	character *Character
@@ -67,6 +76,10 @@ func (s *InvincibleState) OnRoundStart() {
 
 func (s *InvincibleState) OnTakeDamage(_ int) int {
 	return 0
+}
+
+func (s *InvincibleState) OnAttack(damage int, area []XY) (int, []XY) {
+	return damage, area
 }
 
 // HealingState
@@ -89,6 +102,10 @@ func (s *HealingState) OnRoundStart() {
 
 func (s *HealingState) OnTakeDamage(d int) int {
 	return d
+}
+
+func (s *HealingState) OnAttack(damage int, area []XY) (int, []XY) {
+	return damage, area
 }
 
 // AcceleratedState
@@ -114,6 +131,10 @@ func (s *AcceleratedState) OnTakeDamage(damage int) int {
 	s.character.SetSpeed(1)
 	s.character.SetState(NewNormalState(s.character))
 	return damage
+}
+
+func (s *AcceleratedState) OnAttack(damage int, area []XY) (int, []XY) {
+	return damage, area
 }
 
 type OrderlessState struct {
@@ -144,6 +165,10 @@ func (s OrderlessState) OnTakeDamage(damage int) int {
 	return damage
 }
 
+func (s OrderlessState) OnAttack(damage int, area []XY) (int, []XY) {
+	panic("operation not allowed")
+}
+
 // StockpileState
 type StockpileState struct {
 	character *Character
@@ -157,10 +182,46 @@ func NewStockpileState(character *Character) *StockpileState {
 func (s *StockpileState) OnRoundStart() {
 	s.lifetime--
 	if s.lifetime <= 0 {
-		s.character.SetState(NewNormalState(s.character))
+		s.character.SetState(NewEruptingState(s.character))
 	}
 }
 
 func (s *StockpileState) OnTakeDamage(damage int) int {
 	return damage
+}
+
+func (s *StockpileState) OnAttack(damage int, area []XY) (int, []XY) {
+	return damage, area
+}
+
+type EruptingState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewEruptingState(character *Character) *EruptingState {
+	return &EruptingState{character: character, lifetime: 3}
+}
+
+func (s *EruptingState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.character.SetState(NewNormalState(s.character))
+	}
+}
+
+func (s *EruptingState) OnTakeDamage(damage int) int {
+	return damage
+}
+
+func (s *EruptingState) OnAttack(damage int, area []XY) (int, []XY) {
+	var a []XY
+	for y := 0; y <= 9; y++ {
+		for x := 0; x <= 9; x++ {
+			if !(x == s.character.Position.X && y == s.character.Position.Y) {
+				a = append(a, XY{x, y})
+			}
+		}
+	}
+	return 50, a
 }
