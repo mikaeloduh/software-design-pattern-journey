@@ -5,7 +5,7 @@ import (
 	"io"
 	"math"
 	"os"
-	"treasuremap/commons"
+	"treasuremap/utils"
 )
 
 type Character struct {
@@ -16,7 +16,7 @@ type Character struct {
 	Speed          int // actions per round
 	State          IState
 	Position       *Position
-	disableActions commons.HashSet
+	disableActions utils.HashSet
 }
 
 func NewCharacter() *Character {
@@ -50,7 +50,7 @@ func (c *Character) AfterRoundStart() {
 
 func (c *Character) OnRoundEnd() {
 	c.Speed = 1
-	c.disableActions = commons.NewHashSet()
+	c.disableActions = utils.NewHashSet()
 }
 
 func (c *Character) isRoundEnd() bool {

@@ -4,23 +4,23 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"treasuremap/commons"
+	"treasuremap/utils"
 )
 
 type Round int
 
 type AdventureGame struct {
-	WorldMap   [10][10]*Position
-	Characters *Character
-	round      Round
+	WorldMap  [10][10]*Position
+	Character *Character
+	round     Round
 }
 
 func NewAdventureGame(character *Character) *AdventureGame {
 	game := &AdventureGame{
-		Characters: character,
+		Character: character,
 	}
 
-	nonRepeatInt := commons.RandNonRepeatInt(0, 99, 5)
+	nonRepeatInt := utils.RandNonRepeatInt(0, 99, 5)
 	num := nonRepeatInt[0]
 	x, y := num%10, int(math.Floor(float64(num/10)))
 	game.AddObject(character, x, y, Up)
@@ -49,7 +49,7 @@ func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
 
 func (g *AdventureGame) StartRound() {
 	g.round++
-	g.Characters.OnRoundStart()
+	g.Character.OnRoundStart()
 }
 
 type AttackMap [10][10]int

@@ -221,7 +221,7 @@ func FakeNewCharacter(writer io.Writer) *entity.Character {
 
 func FakeNewAdventureGame(character *entity.Character) *entity.AdventureGame {
 	game := &entity.AdventureGame{
-		Characters: character,
+		Character: character,
 	}
 
 	game.AddObject(character, 5, 5, entity.Up)

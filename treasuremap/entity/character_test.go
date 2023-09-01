@@ -102,7 +102,7 @@ func FakeNewCharacter(writer io.Writer) *Character {
 
 func FakeNewAdventureGame(character *Character) *AdventureGame {
 	game := &AdventureGame{
-		Characters: character,
+		Character: character,
 	}
 
 	game.AddObject(character, 5, 5, Up)

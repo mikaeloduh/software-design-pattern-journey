@@ -1,6 +1,6 @@
 package entity
 
-import "treasuremap/commons"
+import "treasuremap/utils"
 
 type OrderlessState struct {
 	character IMapObject
@@ -12,7 +12,7 @@ func NewOrderlessState(character IMapObject) *OrderlessState {
 }
 
 func (s OrderlessState) OnRoundStart() {
-	if commons.RandBool() {
+	if utils.RandBool() {
 		//s.character.DisableAction("MoveUp")
 		//s.character.DisableAction("MoveDown")
 	} else {
