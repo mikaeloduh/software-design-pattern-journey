@@ -143,3 +143,24 @@ func (s OrderlessState) OnRoundStart() {
 func (s OrderlessState) OnTakeDamage(damage int) int {
 	return damage
 }
+
+// StockpileState
+type StockpileState struct {
+	character *Character
+	lifetime  Round
+}
+
+func NewStockpileState(character *Character) *StockpileState {
+	return &StockpileState{character: character, lifetime: 2}
+}
+
+func (s *StockpileState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.character.SetState(NewNormalState(s.character))
+	}
+}
+
+func (s *StockpileState) OnTakeDamage(damage int) int {
+	return damage
+}

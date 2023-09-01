@@ -148,6 +148,17 @@ func TestCharacterStatus(t *testing.T) {
 
 		assert.IsType(t, &entity.OrderlessState{}, c.State)
 	})
+
+	t.Run("test StockpileState", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		_ = entity.NewAdventureGame(c)
+
+		c.SetState(entity.NewStockpileState(c))
+
+		assert.IsType(t, &entity.StockpileState{}, c.State)
+	})
 }
 
 func FakeNewCharacter(writer io.Writer) *entity.Character {

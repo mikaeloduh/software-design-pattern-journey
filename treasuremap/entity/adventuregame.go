@@ -24,7 +24,6 @@ func NewAdventureGame(character *Character) *AdventureGame {
 	//}
 
 	game.AddObject(character, 5, 5, Up)
-	//game.AddObject(&Monster{}, 5, 6, Left)
 
 	return game
 }
