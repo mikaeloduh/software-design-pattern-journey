@@ -11,7 +11,7 @@ const (
 
 type Position struct {
 	game      *AdventureGame
-	character *Character
+	object    IMapObject
 	x         int
 	y         int
 	direction Direction

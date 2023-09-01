@@ -13,20 +13,9 @@ type AdventureGame struct {
 }
 
 func NewAdventureGame(character *Character) *AdventureGame {
-
-	game := AdventureGame{
+	game := &AdventureGame{
 		characters: character,
 	}
-
-	p := &Position{
-		game:      &game,
-		character: character,
-		x:         5,
-		y:         5,
-		direction: Up,
-	}
-
-	game.WorldMap[5][5] = p
 
 	//for _, num := range commons.RandNonRepeatInt(0, 99, 5) {
 	//	x, y := num%10, int(math.Floor(float64(num/10)))
@@ -34,9 +23,22 @@ func NewAdventureGame(character *Character) *AdventureGame {
 	//	game.WorldMap[y][x] = p
 	//}
 
-	character.SetPosition(p)
+	game.AddObject(character, 5, 5, Up)
+	//game.AddObject(&Monster{}, 5, 6, Left)
 
-	return &game
+	return game
+}
+
+func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
+	p := &Position{
+		game:      g,
+		object:    object,
+		x:         x,
+		y:         y,
+		direction: d,
+	}
+	g.WorldMap[y][x] = p
+	object.SetPosition(p)
 }
 
 func (g *AdventureGame) StartRound() {
