@@ -31,11 +31,11 @@ func NewAdventureGame(character *Character) *AdventureGame {
 
 func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
 	p := &Position{
-		game:      g,
-		object:    object,
-		x:         x,
-		y:         y,
-		direction: d,
+		Game:      g,
+		Object:    object,
+		X:         x,
+		Y:         y,
+		Direction: d,
 	}
 	g.WorldMap[y][x] = p
 	object.SetPosition(p)
@@ -44,6 +44,21 @@ func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
 func (g *AdventureGame) StartRound() {
 	g.round++
 	g.characters.OnRoundStart()
+}
+
+type XY struct {
+	X int
+	Y int
+}
+
+func (g *AdventureGame) AttackMap(damage int, area []XY) {
+	for _, a := range area {
+		if g.WorldMap[a.Y][a.X] != nil {
+			if g.WorldMap[a.Y][a.X].Object.TakeDamage(damage) <= 0 {
+				g.WorldMap[a.Y][a.X] = nil
+			}
+		}
+	}
 }
 
 func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {

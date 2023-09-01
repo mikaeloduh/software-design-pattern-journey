@@ -12,20 +12,22 @@ type Character struct {
 	Writer         io.Writer
 	MaxHp          int
 	Hp             int
-	State          IState
+	AttackDamage   int
 	Speed          int // actions per round
+	State          IState
 	Position       *Position
 	disableActions commons.HashSet
 }
 
-func NewCharacter() *Character {
+func NewCharacter(game *AdventureGame) *Character {
 	var c *Character
 	c = &Character{
-		Writer: os.Stdout,
-		MaxHp:  300,
-		Hp:     300,
-		State:  NewNormalState(c),
-		Speed:  1,
+		Writer:       os.Stdout,
+		MaxHp:        300,
+		Hp:           300,
+		AttackDamage: 999,
+		Speed:        1,
+		State:        NewNormalState(c),
 	}
 	return c
 }
@@ -55,8 +57,10 @@ func (c *Character) isRoundEnd() bool {
 	return c.Speed <= 0
 }
 
-func (c *Character) TakeDamage(damage int) {
+func (c *Character) TakeDamage(damage int) int {
 	c.Hp -= c.State.OnTakeDamage(damage)
+
+	return c.Hp
 }
 
 func (c *Character) Heal(health int) {
@@ -67,28 +71,28 @@ func (c *Character) MoveUp() {
 	if c.disableActions.Contains("MoveUp") {
 		return
 	}
-	c.Position.move(c.Position.x, c.Position.y+1, Up)
+	c.Position.move(c.Position.X, c.Position.Y+1, Up)
 }
 
 func (c *Character) MoveDown() {
 	if c.disableActions.Contains("MoveDown") {
 		return
 	}
-	c.Position.move(c.Position.x, c.Position.y-1, Down)
+	c.Position.move(c.Position.X, c.Position.Y-1, Down)
 }
 
 func (c *Character) MoveLeft() {
 	if c.disableActions.Contains("MoveLeft") {
 		return
 	}
-	c.Position.move(c.Position.x-1, c.Position.y, Left)
+	c.Position.move(c.Position.X-1, c.Position.Y, Left)
 }
 
 func (c *Character) MoveRight() {
 	if c.disableActions.Contains("MoveRight") {
 		return
 	}
-	c.Position.move(c.Position.x+1, c.Position.y, Right)
+	c.Position.move(c.Position.X+1, c.Position.Y, Right)
 }
 
 func (c *Character) SetState(s IState) {
@@ -105,4 +109,14 @@ func (c *Character) SetPosition(p *Position) {
 
 func (c *Character) DisableAction(action string) {
 	c.disableActions.Add(action)
+}
+
+func (c *Character) Attack() {
+	var area []XY
+	x := c.Position.X
+	for y := c.Position.Y + 1; y <= 9; y++ {
+		area = append(area, XY{x, y})
+	}
+
+	c.Position.Game.AttackMap(c.AttackDamage, area)
 }

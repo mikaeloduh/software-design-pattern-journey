@@ -8,4 +8,5 @@ type IMapObject interface {
 	SetPosition(p *Position)
 	SetState(s IState)
 	SetSpeed(speed int)
+	TakeDamage(damage int) (resultHp int)
 }
