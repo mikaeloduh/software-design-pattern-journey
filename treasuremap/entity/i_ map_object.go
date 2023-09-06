@@ -13,8 +13,8 @@ type IStatefulMapObject interface {
 	isRoundEnd() bool
 	SetState(s IState)
 	SetSpeed(speed int)
-	TakeDamage(damage int) (resultHp int)
-	Heal(hp int)
-	GetHp() int
-	GetMaxHp() int
+	TakeDamage(damage Damage) (resultHp Hp)
+	Heal(hp Hp)
+	GetHp() Hp
+	GetMaxHp() Hp
 }

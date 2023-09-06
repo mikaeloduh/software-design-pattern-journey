@@ -3,6 +3,6 @@ package entity
 // IState interface
 type IState interface {
 	OnRoundStart()
-	OnTakeDamage(damage int) int
+	OnTakeDamage(damage Damage) Damage
 	OnAttack(IAttackStrategy) IAttackStrategy
 }

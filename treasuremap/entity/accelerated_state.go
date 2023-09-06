@@ -19,7 +19,7 @@ func (s *AcceleratedState) OnRoundStart() {
 	}
 }
 
-func (s *AcceleratedState) OnTakeDamage(damage int) int {
+func (s *AcceleratedState) OnTakeDamage(damage Damage) Damage {
 	s.character.SetSpeed(1)
 	s.character.SetState(NewNormalState(s.character))
 	return damage

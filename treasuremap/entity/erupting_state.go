@@ -16,18 +16,18 @@ func (s *EruptingState) OnRoundStart() {
 	}
 }
 
-func (s *EruptingState) OnTakeDamage(damage int) int {
+func (s *EruptingState) OnTakeDamage(damage Damage) Damage {
 	return damage
 }
 
 func (s *EruptingState) OnAttack(_ IAttackStrategy) IAttackStrategy {
 
-	return func(worldMap [10][10]*Position) (attackRange AttackRange) {
+	return func(worldMap [10][10]*Position) (damageArea AttackDamageArea) {
 		// Attack hits every character on the entire map, dealing 50 damage with each attack
 		for y := 0; y < len(worldMap); y++ {
 			for x := 0; x < len(worldMap[0]); x++ {
 				if !(x == s.character.GetPosition().X && y == s.character.GetPosition().Y) {
-					attackRange[y][x] = 50
+					damageArea[y][x] = 50
 				}
 			}
 		}

@@ -9,11 +9,13 @@ import (
 	"treasuremap/utils"
 )
 
+type Hp int
+
 type Character struct {
 	Writer         io.Writer
-	MaxHp          int
-	Hp             int
-	AttackDamage   int
+	MaxHp          Hp
+	Hp             Hp
+	AttackDamage   Damage
 	Speed          int // actions per round
 	State          IState
 	Position       *Position
@@ -58,14 +60,14 @@ func (c *Character) isRoundEnd() bool {
 	return c.Speed <= 0
 }
 
-func (c *Character) TakeDamage(damage int) int {
-	c.Hp -= c.State.OnTakeDamage(damage)
+func (c *Character) TakeDamage(damage Damage) Hp {
+	c.Hp -= Hp(c.State.OnTakeDamage(damage))
 
 	return c.Hp
 }
 
-func (c *Character) Heal(health int) {
-	c.Hp = int(math.Min(float64(float32(c.MaxHp)), float64(c.Hp+health)))
+func (c *Character) Heal(hp Hp) {
+	c.Hp = Hp(math.Min(float64(float32(c.MaxHp)), float64(c.Hp+hp)))
 }
 
 func (c *Character) MoveUp() {
@@ -97,7 +99,7 @@ func (c *Character) MoveRight() {
 }
 
 func (c *Character) Attack() {
-	var defaultAttackStrategy = func(worldMap [10][10]*Position) (attackRange AttackRange) {
+	var defaultAttackStrategy = func(worldMap [10][10]*Position) (damageArea AttackDamageArea) {
 		// Attack eliminates all monsters in front of character in a straight line and stop at the first obstacle
 		x := c.Position.X
 		for y := c.Position.Y + 1; y < len(worldMap); y++ {
@@ -107,7 +109,7 @@ func (c *Character) Attack() {
 					return
 				}
 			}
-			attackRange[y][x] = c.AttackDamage
+			damageArea[y][x] = c.AttackDamage
 		}
 		return
 	}
@@ -129,11 +131,11 @@ func (c *Character) SetPosition(p *Position) {
 	c.Position = p
 }
 
-func (c *Character) GetHp() int {
+func (c *Character) GetHp() Hp {
 	return c.Hp
 }
 
-func (c *Character) GetMaxHp() int {
+func (c *Character) GetMaxHp() Hp {
 	return c.MaxHp
 }
 

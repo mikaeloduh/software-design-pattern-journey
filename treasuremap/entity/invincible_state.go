@@ -17,7 +17,7 @@ func (s *InvincibleState) OnRoundStart() {
 	}
 }
 
-func (s *InvincibleState) OnTakeDamage(_ int) int {
+func (s *InvincibleState) OnTakeDamage(damage Damage) Damage {
 	return 0
 }
 

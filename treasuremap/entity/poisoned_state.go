@@ -18,8 +18,8 @@ func (s *PoisonedState) OnRoundStart() {
 	}
 }
 
-func (s *PoisonedState) OnTakeDamage(d int) int {
-	return d
+func (s *PoisonedState) OnTakeDamage(damage Damage) Damage {
+	return damage
 }
 
 func (s *PoisonedState) OnAttack(attack IAttackStrategy) IAttackStrategy {

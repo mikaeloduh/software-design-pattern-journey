@@ -12,8 +12,8 @@ func NewNormalState(character IStatefulMapObject) *NormalState {
 func (s *NormalState) OnRoundStart() {
 }
 
-func (s *NormalState) OnTakeDamage(d int) int {
-	return d
+func (s *NormalState) OnTakeDamage(damage Damage) Damage {
+	return damage
 }
 
 func (s *NormalState) OnAttack(attack IAttackStrategy) IAttackStrategy {

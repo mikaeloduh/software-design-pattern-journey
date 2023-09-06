@@ -17,7 +17,7 @@ func (s *StockpileState) OnRoundStart() {
 	}
 }
 
-func (s *StockpileState) OnTakeDamage(damage int) int {
+func (s *StockpileState) OnTakeDamage(damage Damage) Damage {
 	return damage
 }
 

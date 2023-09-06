@@ -22,7 +22,7 @@ func (s *TeleportState) OnRoundStart() {
 	}
 }
 
-func (s *TeleportState) OnTakeDamage(damage int) int {
+func (s *TeleportState) OnTakeDamage(damage Damage) Damage {
 	return damage
 }
 

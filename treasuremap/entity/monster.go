@@ -1,8 +1,8 @@
 package entity
 
 type Monster struct {
-	MaxHp    int
-	Hp       int
+	MaxHp    Hp
+	Hp       Hp
 	Speed    int
 	State    IState
 	Position *Position
@@ -19,7 +19,7 @@ func NewMonster() *Monster {
 	return m
 }
 
-func (m *Monster) Heal(hp int) {
+func (m *Monster) Heal(hp Hp) {
 }
 
 func (m *Monster) OnRoundStart() {
@@ -47,11 +47,11 @@ func (m *Monster) SetPosition(p *Position) {
 	m.Position = p
 }
 
-func (m *Monster) GetHp() int {
+func (m *Monster) GetHp() Hp {
 	return m.Hp
 }
 
-func (m *Monster) GetMaxHp() int {
+func (m *Monster) GetMaxHp() Hp {
 	return m.MaxHp
 }
 
@@ -59,14 +59,14 @@ func (m *Monster) GetPosition() *Position {
 	return m.Position
 }
 
-func (m *Monster) TakeDamage(damage int) int {
-	m.Hp -= damage
+func (m *Monster) TakeDamage(damage Damage) Hp {
+	m.Hp -= Hp(damage)
 
 	return m.Hp
 }
 
 func (m *Monster) Attack() {
-	m.Position.Game.Attack(func(worldMap [10][10]*Position) (attackRange AttackRange) {
+	m.Position.Game.Attack(func(worldMap [10][10]*Position) (damageArea AttackDamageArea) {
 		// TODO: implement it
 		return
 	})

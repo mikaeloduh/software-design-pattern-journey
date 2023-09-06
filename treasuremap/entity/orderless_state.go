@@ -26,7 +26,7 @@ func (s OrderlessState) OnRoundStart() {
 	}
 }
 
-func (s OrderlessState) OnTakeDamage(damage int) int {
+func (s OrderlessState) OnTakeDamage(damage Damage) Damage {
 	return damage
 }
 

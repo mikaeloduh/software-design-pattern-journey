@@ -18,8 +18,8 @@ func (s *HealingState) OnRoundStart() {
 	}
 }
 
-func (s *HealingState) OnTakeDamage(d int) int {
-	return d
+func (s *HealingState) OnTakeDamage(damage Damage) Damage {
+	return damage
 }
 
 func (s *HealingState) OnAttack(attack IAttackStrategy) IAttackStrategy {

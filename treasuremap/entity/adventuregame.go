@@ -8,9 +8,11 @@ import (
 
 type Round int
 
-type AttackRange [10][10]int
+type Damage int
 
-type IAttackStrategy func(worldMap [10][10]*Position) (attackRange AttackRange)
+type AttackDamageArea [10][10]Damage
+
+type IAttackStrategy func(worldMap [10][10]*Position) AttackDamageArea
 
 // AdventureGame
 type AdventureGame struct {
@@ -62,7 +64,7 @@ func (g *AdventureGame) StartRound() {
 
 func (g *AdventureGame) Attack(attackStrategy IAttackStrategy) {
 
-	var doAttack = func(attackRange AttackRange) {
+	var doAttack = func(attackRange AttackDamageArea) {
 		for y, v := range attackRange {
 			for x, damage := range v {
 				if damage != 0 && g.WorldMap[y][x] != nil {
@@ -76,9 +78,9 @@ func (g *AdventureGame) Attack(attackStrategy IAttackStrategy) {
 		}
 	}
 
-	attackRange := attackStrategy(g.WorldMap)
+	attackArea := attackStrategy(g.WorldMap)
 
-	doAttack(attackRange)
+	doAttack(attackArea)
 }
 
 func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {

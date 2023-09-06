@@ -20,20 +20,20 @@ func TestCharacterStatus(t *testing.T) {
 
 		c.SetState(entity.NewPoisonedState(c))
 
-		assert.Equal(t, 300, c.Hp)
+		assert.EqualValues(t, 300, c.Hp)
 		assert.IsType(t, &entity.PoisonedState{}, c.State)
 
 		g.StartRound()
-		assert.Equal(t, 300-15, c.Hp)
+		assert.EqualValues(t, 300-15, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-15-15, c.Hp)
+		assert.EqualValues(t, 300-15-15, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-15-15-15, c.Hp)
+		assert.EqualValues(t, 300-15-15-15, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-15-15-15, c.Hp)
+		assert.EqualValues(t, 300-15-15-15, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
 
@@ -47,18 +47,18 @@ func TestCharacterStatus(t *testing.T) {
 		c.TakeDamage(10)
 
 		assert.IsType(t, &entity.InvincibleState{}, c.State)
-		assert.Equal(t, 300, c.Hp)
+		assert.EqualValues(t, 300, c.Hp)
 
 		g.StartRound()
 		c.TakeDamage(10)
 
-		assert.Equal(t, 300, c.Hp)
+		assert.EqualValues(t, 300, c.Hp)
 		assert.IsType(t, &entity.InvincibleState{}, c.State)
 
 		g.StartRound()
 		c.TakeDamage(10)
 
-		assert.Equal(t, 300-10, c.Hp)
+		assert.EqualValues(t, 300-10, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
 
@@ -72,23 +72,23 @@ func TestCharacterStatus(t *testing.T) {
 		c.SetState(entity.NewHealingState(c))
 
 		g.StartRound()
-		assert.Equal(t, 300-200+30, c.Hp)
+		assert.EqualValues(t, 300-200+30, c.Hp)
 		assert.IsType(t, &entity.HealingState{}, c.State)
 
 		g.StartRound()
-		assert.Equal(t, 300-200+30+30, c.Hp)
+		assert.EqualValues(t, 300-200+30+30, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-200+30+30+30, c.Hp)
+		assert.EqualValues(t, 300-200+30+30+30, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-200+30+30+30+30, c.Hp)
+		assert.EqualValues(t, 300-200+30+30+30+30, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-200+30+30+30+30+30, c.Hp)
+		assert.EqualValues(t, 300-200+30+30+30+30+30, c.Hp)
 
 		g.StartRound()
-		assert.Equal(t, 300-200+30+30+30+30+30, c.Hp)
+		assert.EqualValues(t, 300-200+30+30+30+30+30, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
 
@@ -103,7 +103,7 @@ func TestCharacterStatus(t *testing.T) {
 		c.SetState(entity.NewHealingState(c))
 		g.StartRound()
 
-		assert.Equal(t, 300, c.Hp)
+		assert.EqualValues(t, 300, c.Hp)
 		assert.IsType(t, &entity.NormalState{}, c.State)
 	})
 
