@@ -12,6 +12,7 @@ type AttackRange [10][10]int
 
 type IAttackStrategy func(worldMap [10][10]*Position) (attackRange AttackRange)
 
+// AdventureGame
 type AdventureGame struct {
 	WorldMap  [10][10]*Position
 	Character *Character
@@ -28,16 +29,16 @@ func NewAdventureGame() *AdventureGame {
 	game.AddObject(character, num%10, int(math.Floor(float64(num/10))), Up)
 
 	num, _ = nonRepeatIntStack.Pop()
-	game.AddObject(NewMonster(), num%10, int(math.Floor(float64(num/10))), Up)
+	game.AddObject(NewMonster(), num%10, int(math.Floor(float64(num/10))), Left)
 
 	num, _ = nonRepeatIntStack.Pop()
-	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), Up)
+	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), None)
 
 	num, _ = nonRepeatIntStack.Pop()
-	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), Up)
+	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), None)
 
 	num, _ = nonRepeatIntStack.Pop()
-	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), Up)
+	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), None)
 
 	return game
 }
