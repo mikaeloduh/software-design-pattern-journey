@@ -3,6 +3,7 @@ package entity
 type Direction string
 
 const (
+	None  Direction = ""
 	Up    Direction = "up"
 	Down  Direction = "down"
 	Left  Direction = "left"

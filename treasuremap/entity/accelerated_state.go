@@ -2,11 +2,11 @@ package entity
 
 // AcceleratedState
 type AcceleratedState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewAcceleratedState(character IMapObject) *AcceleratedState {
+func NewAcceleratedState(character IStatefulMapObject) *AcceleratedState {
 	character.SetSpeed(2)
 	return &AcceleratedState{character: character, lifetime: 3}
 }
@@ -25,6 +25,6 @@ func (s *AcceleratedState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s *AcceleratedState) OnAttack(attack AttackMap) AttackMap {
+func (s *AcceleratedState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	return attack
 }

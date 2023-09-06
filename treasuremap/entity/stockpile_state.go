@@ -2,11 +2,11 @@ package entity
 
 // StockpileState
 type StockpileState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewStockpileState(character IMapObject) *StockpileState {
+func NewStockpileState(character IStatefulMapObject) *StockpileState {
 	return &StockpileState{character: character, lifetime: 2}
 }
 
@@ -21,6 +21,6 @@ func (s *StockpileState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s *StockpileState) OnAttack(attack AttackMap) AttackMap {
+func (s *StockpileState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	return attack
 }

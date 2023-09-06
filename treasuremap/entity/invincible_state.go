@@ -2,11 +2,11 @@ package entity
 
 // InvincibleState
 type InvincibleState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewInvincibleState(character IMapObject) *InvincibleState {
+func NewInvincibleState(character IStatefulMapObject) *InvincibleState {
 	return &InvincibleState{character: character, lifetime: 2}
 }
 
@@ -21,6 +21,6 @@ func (s *InvincibleState) OnTakeDamage(_ int) int {
 	return 0
 }
 
-func (s *InvincibleState) OnAttack(attack AttackMap) AttackMap {
+func (s *InvincibleState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	return attack
 }

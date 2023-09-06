@@ -1,12 +1,16 @@
 package entity
 
 type IMapObject interface {
+	SetPosition(p *Position)
+	GetPosition() *Position
+}
+
+type IStatefulMapObject interface {
+	IMapObject
 	OnRoundStart()
 	AfterRoundStart()
 	OnRoundEnd()
 	isRoundEnd() bool
-	SetPosition(p *Position)
-	GetPosition() *Position
 	SetState(s IState)
 	SetSpeed(speed int)
 	TakeDamage(damage int) (resultHp int)

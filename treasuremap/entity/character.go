@@ -5,6 +5,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"reflect"
 	"treasuremap/utils"
 )
 
@@ -96,16 +97,24 @@ func (c *Character) MoveRight() {
 }
 
 func (c *Character) Attack() {
-	var attack AttackMap
-
-	x := c.Position.X
-	for y := c.Position.Y + 1; y <= 9; y++ {
-		attack[y][x] = c.AttackDamage
+	var defaultAttackStrategy = func(worldMap [10][10]*Position) (attackRange AttackRange) {
+		// Attack eliminates all monsters in front of character in a straight line and stop at the first obstacle
+		x := c.Position.X
+		for y := c.Position.Y + 1; y < len(worldMap); y++ {
+			if worldMap[y][x] != nil {
+				fmt.Println(reflect.TypeOf(worldMap[y][x].Object))
+				if reflect.TypeOf(worldMap[y][x].Object) == reflect.TypeOf(&Obstacle{}) {
+					return
+				}
+			}
+			attackRange[y][x] = c.AttackDamage
+		}
+		return
 	}
 
-	attack = c.State.OnAttack(attack)
+	attackStrategy := c.State.OnAttack(defaultAttackStrategy)
 
-	c.Position.Game.Attack(attack)
+	c.Position.Game.Attack(attackStrategy)
 }
 
 func (c *Character) SetState(s IState) {

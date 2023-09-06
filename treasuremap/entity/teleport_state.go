@@ -4,11 +4,11 @@ import "math/rand"
 
 // TeleportState
 type TeleportState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewTeleportState(character IMapObject) *TeleportState {
+func NewTeleportState(character IStatefulMapObject) *TeleportState {
 	return &TeleportState{character: character, lifetime: 1}
 }
 
@@ -26,6 +26,6 @@ func (s *TeleportState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s *TeleportState) OnAttack(attack AttackMap) AttackMap {
+func (s *TeleportState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	return attack
 }

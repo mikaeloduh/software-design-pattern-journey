@@ -9,6 +9,10 @@ import (
 
 type Round int
 
+type AttackRange [10][10]int
+
+type IAttackStrategy func(worldMap [10][10]*Position) (attackRange AttackRange)
+
 type AdventureGame struct {
 	WorldMap  [10][10]*Position
 	Character *Character
@@ -20,19 +24,33 @@ func NewAdventureGame(character *Character) *AdventureGame {
 		Character: character,
 	}
 
-	nonRepeatInt := utils.RandNonRepeatInt(0, 99, 5)
-	num := nonRepeatInt[0]
-	x, y := num%10, int(math.Floor(float64(num/10)))
+	nonRepeatIntStack := utils.RandNonRepeatIntStack(0, 99, 5)
+
+	pop, _ := nonRepeatIntStack.Pop()
+	x, y := randNonRepeatPosition(pop)
 	game.AddObject(character, x, y, Up)
 
-	for _, num := range nonRepeatInt[1:] {
-		x, y := num%10, int(math.Floor(float64(num/10)))
-		game.AddObject(randNewMapObject(), x, y, Up)
-	}
+	pop, _ = nonRepeatIntStack.Pop()
+	x, y = randNonRepeatPosition(pop)
+	game.AddObject(NewTreasure(), x, y, Up)
 
-	game.AddObject(character, 5, 5, Up)
+	pop, _ = nonRepeatIntStack.Pop()
+	x, y = randNonRepeatPosition(pop)
+	game.AddObject(NewTreasure(), x, y, Up)
+
+	pop, _ = nonRepeatIntStack.Pop()
+	x, y = randNonRepeatPosition(pop)
+	game.AddObject(NewTreasure(), x, y, Up)
+
+	pop, _ = nonRepeatIntStack.Pop()
+	x, y = randNonRepeatPosition(pop)
+	game.AddObject(NewTreasure(), x, y, Up)
 
 	return game
+}
+
+func randNonRepeatPosition(num int) (int, int) {
+	return num % 10, int(math.Floor(float64(num / 10)))
 }
 
 func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
@@ -52,18 +70,25 @@ func (g *AdventureGame) StartRound() {
 	g.Character.OnRoundStart()
 }
 
-type AttackMap [10][10]int
+func (g *AdventureGame) Attack(attackStrategy IAttackStrategy) {
 
-func (g *AdventureGame) Attack(attack AttackMap) {
-	for y, v := range attack {
-		for x, w := range v {
-			if w != 0 && g.WorldMap[y][x] != nil {
-				if g.WorldMap[y][x].Object.TakeDamage(w) <= 0 {
-					g.WorldMap[y][x] = nil
+	var doAttack = func(attackRange AttackRange) {
+		for y, v := range attackRange {
+			for x, damage := range v {
+				if damage != 0 && g.WorldMap[y][x] != nil {
+					if obj, ok := g.WorldMap[y][x].Object.(IStatefulMapObject); ok == true {
+						if obj.TakeDamage(damage) <= 0 {
+							g.WorldMap[y][x] = nil
+						}
+					}
 				}
 			}
 		}
 	}
+
+	attackRange := attackStrategy(g.WorldMap)
+
+	doAttack(attackRange)
 }
 
 func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {
@@ -79,8 +104,10 @@ func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {
 	return nil
 }
 
-func randNewMapObject() IMapObject {
-	return [3]func() IMapObject{
-		func() IMapObject { return NewMonster() },
+func randNewMapObject() IStatefulMapObject {
+	return [3]func() IStatefulMapObject{
+		func() IStatefulMapObject { return NewMonster() },
+		func() IStatefulMapObject { return NewMonster() },
+		func() IStatefulMapObject { return NewMonster() },
 	}[rand.Intn(1)]()
 }

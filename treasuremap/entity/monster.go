@@ -64,3 +64,10 @@ func (m *Monster) TakeDamage(damage int) int {
 
 	return m.Hp
 }
+
+func (m *Monster) Attack() {
+	m.Position.Game.Attack(func(worldMap [10][10]*Position) (attackRange AttackRange) {
+		// TODO: implement it
+		return
+	})
+}

@@ -73,7 +73,7 @@ func TestCharacter_MoveStep(t *testing.T) {
 }
 
 func TestCharacter_Attack(t *testing.T) {
-	t.Run("when character facing left, attack should cleanup all monster in the font", func(t *testing.T) {
+	t.Run("when character facing up, attack should eliminates all monster in font of it", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		c := FakeNewCharacter(&writer)
@@ -82,7 +82,20 @@ func TestCharacter_Attack(t *testing.T) {
 
 		c.Attack()
 
-		assert.Empty(t, g.WorldMap[0][5])
+		assert.Empty(t, g.WorldMap[9][5])
+	})
+
+	t.Run("as above case, character's attack should stop at the obstacle", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		c := FakeNewCharacter(&writer)
+		g := FakeNewAdventureGame(c)
+		g.AddObject(&Monster{MaxHp: 10, Hp: 10, Speed: 1}, 5, 9, Left)
+		g.AddObject(&Obstacle{}, 5, 8, None)
+
+		c.Attack()
+
+		assert.NotEmpty(t, g.WorldMap[9][5])
 	})
 
 }

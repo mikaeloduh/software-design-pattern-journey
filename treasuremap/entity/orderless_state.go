@@ -3,11 +3,11 @@ package entity
 import "treasuremap/utils"
 
 type OrderlessState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewOrderlessState(character IMapObject) *OrderlessState {
+func NewOrderlessState(character IStatefulMapObject) *OrderlessState {
 	return &OrderlessState{character: character, lifetime: 3}
 }
 
@@ -30,6 +30,6 @@ func (s OrderlessState) OnTakeDamage(damage int) int {
 	return damage
 }
 
-func (s OrderlessState) OnAttack(attack AttackMap) AttackMap {
+func (s OrderlessState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	panic("operation not allowed")
 }

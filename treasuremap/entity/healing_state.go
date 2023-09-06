@@ -2,11 +2,11 @@ package entity
 
 // HealingState
 type HealingState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewHealingState(character IMapObject) *HealingState {
+func NewHealingState(character IStatefulMapObject) *HealingState {
 	return &HealingState{character: character, lifetime: 5}
 }
 
@@ -22,6 +22,6 @@ func (s *HealingState) OnTakeDamage(d int) int {
 	return d
 }
 
-func (s *HealingState) OnAttack(attack AttackMap) AttackMap {
+func (s *HealingState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	return attack
 }

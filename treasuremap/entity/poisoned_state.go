@@ -2,11 +2,11 @@ package entity
 
 // PoisonedState
 type PoisonedState struct {
-	character IMapObject
+	character IStatefulMapObject
 	lifetime  Round
 }
 
-func NewPoisonedState(character IMapObject) *PoisonedState {
+func NewPoisonedState(character IStatefulMapObject) *PoisonedState {
 	return &PoisonedState{character: character, lifetime: 3}
 }
 
@@ -22,6 +22,6 @@ func (s *PoisonedState) OnTakeDamage(d int) int {
 	return d
 }
 
-func (s *PoisonedState) OnAttack(attack AttackMap) AttackMap {
+func (s *PoisonedState) OnAttack(attack IAttackStrategy) IAttackStrategy {
 	return attack
 }
