@@ -10,15 +10,15 @@ type Treasure struct {
 	Content  IContent
 }
 
-func (t Treasure) SetPosition(p *Position) {
+func (t *Treasure) SetPosition(p *Position) {
 	t.Position = p
 }
 
-func (t Treasure) GetPosition() *Position {
+func (t *Treasure) GetPosition() *Position {
 	return t.Position
 }
 
-func NewTreasure() Treasure {
+func NewTreasure() *Treasure {
 	// Define the contents of the treasure box and their percentages
 	treasureContents := map[IContent]float64{
 		SuperStar{}:          0.1,
@@ -40,8 +40,8 @@ func NewTreasure() Treasure {
 	for content, probability := range treasureContents {
 		cumulativeProbability += probability
 		if randomNumber <= cumulativeProbability {
-			return Treasure{Content: content}
+			return &Treasure{Content: content}
 		}
 	}
-	return Treasure{Content: HealingPotion{}}
+	return nil
 }

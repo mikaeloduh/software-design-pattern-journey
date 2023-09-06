@@ -3,7 +3,6 @@ package entity
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"treasuremap/utils"
 )
 
@@ -19,38 +18,28 @@ type AdventureGame struct {
 	round     Round
 }
 
-func NewAdventureGame(character *Character) *AdventureGame {
-	game := &AdventureGame{
-		Character: character,
-	}
+func NewAdventureGame() *AdventureGame {
+	character := NewCharacter()
+	game := &AdventureGame{Character: character}
 
 	nonRepeatIntStack := utils.RandNonRepeatIntStack(0, 99, 5)
 
-	pop, _ := nonRepeatIntStack.Pop()
-	x, y := randNonRepeatPosition(pop)
-	game.AddObject(character, x, y, Up)
+	num, _ := nonRepeatIntStack.Pop()
+	game.AddObject(character, num%10, int(math.Floor(float64(num/10))), Up)
 
-	pop, _ = nonRepeatIntStack.Pop()
-	x, y = randNonRepeatPosition(pop)
-	game.AddObject(NewTreasure(), x, y, Up)
+	num, _ = nonRepeatIntStack.Pop()
+	game.AddObject(NewMonster(), num%10, int(math.Floor(float64(num/10))), Up)
 
-	pop, _ = nonRepeatIntStack.Pop()
-	x, y = randNonRepeatPosition(pop)
-	game.AddObject(NewTreasure(), x, y, Up)
+	num, _ = nonRepeatIntStack.Pop()
+	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), Up)
 
-	pop, _ = nonRepeatIntStack.Pop()
-	x, y = randNonRepeatPosition(pop)
-	game.AddObject(NewTreasure(), x, y, Up)
+	num, _ = nonRepeatIntStack.Pop()
+	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), Up)
 
-	pop, _ = nonRepeatIntStack.Pop()
-	x, y = randNonRepeatPosition(pop)
-	game.AddObject(NewTreasure(), x, y, Up)
+	num, _ = nonRepeatIntStack.Pop()
+	game.AddObject(NewTreasure(), num%10, int(math.Floor(float64(num/10))), Up)
 
 	return game
-}
-
-func randNonRepeatPosition(num int) (int, int) {
-	return num % 10, int(math.Floor(float64(num / 10)))
 }
 
 func (g *AdventureGame) AddObject(object IMapObject, x, y int, d Direction) {
@@ -104,10 +93,6 @@ func (g *AdventureGame) MovePosition(x1, y1, x2, y2 int) error {
 	return nil
 }
 
-func randNewMapObject() IStatefulMapObject {
-	return [3]func() IStatefulMapObject{
-		func() IStatefulMapObject { return NewMonster() },
-		func() IStatefulMapObject { return NewMonster() },
-		func() IStatefulMapObject { return NewMonster() },
-	}[rand.Intn(1)]()
+func (g *AdventureGame) Run() {
+	// TODO: To be implement
 }
