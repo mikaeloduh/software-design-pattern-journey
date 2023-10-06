@@ -8,8 +8,8 @@ import (
 
 func TestHero(t *testing.T) {
 	t.Run("test Hero BasicAttack based on it's STR", func(t *testing.T) {
-		unit1 := NewHero()
-		unit2 := NewHero()
+		unit1 := NewHero("p1")
+		unit2 := NewHero("p2")
 		unit2HP := unit2.HP
 
 		action := unit1.SelectSkill(0)
@@ -21,9 +21,9 @@ func TestHero(t *testing.T) {
 
 	t.Run("test Hero WaterBall attack", func(t *testing.T) {
 		w := &WaterBall{Damage: 120}
-		unit1 := NewHero()
+		unit1 := NewHero("p1")
 		unit1.AddSkill(w)
-		unit2 := NewHero()
+		unit2 := NewHero("p2")
 		unit2HP := unit2.HP
 
 		action := unit1.SelectSkill(1)

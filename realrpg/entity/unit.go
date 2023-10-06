@@ -10,17 +10,19 @@ type IUnit interface {
 }
 
 type Hero struct {
-	Skills []ISkill
+	Name   string
 	HP     int
 	STR    int
+	Skills []ISkill
 }
 
-func NewHero() *Hero {
+func NewHero(name string) *Hero {
 	str := 50
 	return &Hero{
-		Skills: []ISkill{&BasicAttack{Damage: str}},
+		Name:   name,
 		HP:     1000,
 		STR:    str,
+		Skills: []ISkill{&BasicAttack{Damage: str}},
 	}
 }
 
