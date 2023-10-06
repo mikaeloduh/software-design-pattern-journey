@@ -18,15 +18,16 @@ func (a WaterBall) Do() {
 }
 
 type BasicAttack struct {
-	units []IUnit
+	Damage  int
+	targets []IUnit
 }
 
 func (a *BasicAttack) SelectTarget(units []IUnit) {
-	a.units = units
+	a.targets = units
 }
 
 func (a *BasicAttack) Do() {
-	for _, unit := range a.units {
-		unit.SetHp(unit.GetHp() - 10)
+	for _, unit := range a.targets {
+		unit.SetHp(unit.GetHp() - a.Damage)
 	}
 }

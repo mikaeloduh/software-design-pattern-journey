@@ -1,6 +1,7 @@
 package entity
 
 type IUnit interface {
+	AddSkill(skill ISkill)
 	TakeAction()
 	SetState()
 	GetHp() int
@@ -10,13 +11,20 @@ type IUnit interface {
 type Hero struct {
 	Skills []ISkill
 	HP     int
+	STR    int
 }
 
-func NewHero(skills []ISkill) *Hero {
+func NewHero() *Hero {
+	str := 50
 	return &Hero{
-		Skills: skills,
-		HP:     100,
+		Skills: []ISkill{&BasicAttack{Damage: str}},
+		HP:     1000,
+		STR:    str,
 	}
+}
+
+func (u *Hero) AddSkill(skill ISkill) {
+	u.Skills = append(u.Skills, skill)
 }
 
 func (u *Hero) TakeAction() {
@@ -35,4 +43,8 @@ func (u *Hero) GetHp() int {
 
 func (u *Hero) SetHp(hp int) {
 	u.HP = hp
+}
+
+func (u *Hero) SelectSkill(i int) ISkill {
+	return u.Skills[i]
 }

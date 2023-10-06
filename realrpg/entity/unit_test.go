@@ -7,14 +7,14 @@ import (
 )
 
 func TestHero(t *testing.T) {
-	t.Run("test Hero BasicAttack", func(t *testing.T) {
-		u1 := NewHero([]ISkill{&BasicAttack{}, WaterBall{}})
-		u2 := NewHero([]ISkill{&BasicAttack{}})
+	t.Run("test Hero BasicAttack based on it's STR", func(t *testing.T) {
+		unit1 := NewHero()
+		unit2 := NewHero()
 
-		action1 := u1.Skills[0]
-		action1.SelectTarget([]IUnit{u2})
-		action1.Do()
+		action := unit1.SelectSkill(0)
+		action.SelectTarget([]IUnit{unit2})
+		action.Do()
 
-		assert.Equal(t, 100-10, u2.HP)
+		assert.Equal(t, 1000-50, unit2.HP)
 	})
 }
