@@ -18,4 +18,18 @@ func TestHero(t *testing.T) {
 
 		assert.Equal(t, unit2HP-unit1.STR, unit2.HP)
 	})
+
+	t.Run("test Hero WaterBall attack", func(t *testing.T) {
+		w := &WaterBall{Damage: 120}
+		unit1 := NewHero()
+		unit1.AddSkill(w)
+		unit2 := NewHero()
+		unit2HP := unit2.HP
+
+		action := unit1.SelectSkill(1)
+		action.SelectTarget([]IUnit{unit2})
+		action.Do()
+
+		assert.Equal(t, unit2HP-w.Damage, unit2.HP)
+	})
 }

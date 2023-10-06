@@ -2,6 +2,7 @@ package entity
 
 type IUnit interface {
 	AddSkill(skill ISkill)
+	SelectSkill(i int) ISkill
 	TakeAction()
 	SetState()
 	GetHp() int
@@ -27,6 +28,10 @@ func (u *Hero) AddSkill(skill ISkill) {
 	u.Skills = append(u.Skills, skill)
 }
 
+func (u *Hero) SelectSkill(i int) ISkill {
+	return u.Skills[i]
+}
+
 func (u *Hero) TakeAction() {
 	//TODO implement me
 	panic("implement me")
@@ -43,8 +48,4 @@ func (u *Hero) GetHp() int {
 
 func (u *Hero) SetHp(hp int) {
 	u.HP = hp
-}
-
-func (u *Hero) SelectSkill(i int) ISkill {
-	return u.Skills[i]
 }

@@ -5,18 +5,6 @@ type ISkill interface {
 	Do()
 }
 
-type WaterBall struct{}
-
-func (a WaterBall) SelectTarget(units []IUnit) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (a WaterBall) Do() {
-	//TODO implement me
-	panic("implement me")
-}
-
 type BasicAttack struct {
 	Damage  int
 	targets []IUnit
@@ -27,6 +15,21 @@ func (a *BasicAttack) SelectTarget(units []IUnit) {
 }
 
 func (a *BasicAttack) Do() {
+	for _, unit := range a.targets {
+		unit.SetHp(unit.GetHp() - a.Damage)
+	}
+}
+
+type WaterBall struct {
+	Damage  int
+	targets []IUnit
+}
+
+func (a *WaterBall) SelectTarget(units []IUnit) {
+	a.targets = units
+}
+
+func (a *WaterBall) Do() {
 	for _, unit := range a.targets {
 		unit.SetHp(unit.GetHp() - a.Damage)
 	}
