@@ -3,6 +3,7 @@ package entity
 type ISkill interface {
 	SelectTarget([]IUnit)
 	Do()
+	GetMPCost() int
 }
 
 type BasicAttack struct {
@@ -20,9 +21,18 @@ func (a *BasicAttack) Do() {
 	}
 }
 
+func (a *BasicAttack) GetMPCost() int {
+	return 0
+}
+
 type WaterBall struct {
 	Damage  int
+	MPCost  int
 	targets []IUnit
+}
+
+func (a *WaterBall) GetMPCost() int {
+	return a.MPCost
 }
 
 func (a *WaterBall) SelectTarget(units []IUnit) {
