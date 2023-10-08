@@ -22,8 +22,8 @@ func (a *BasicAttack) SelectTarget(units []IUnit) {
 
 func (a *BasicAttack) Do() {
 	damage := a.unit.GetState().OnAttack(a.unit.GetSTR())
-	for _, unit := range a.targets {
-		unit.SetHp(unit.GetHp() - damage)
+	for _, target := range a.targets {
+		target.TakeDamage(damage)
 	}
 }
 
@@ -31,6 +31,7 @@ func (a *BasicAttack) GetMPCost() int {
 	return 0
 }
 
+// WaterBall
 type WaterBall struct {
 	Damage  int
 	MPCost  int
@@ -71,6 +72,7 @@ func (a *WaterBall) Do() {
 //	panic("implement me")
 //}
 
+// SelfExplosion
 type SelfExplosion struct {
 	MPCost  int
 	Damage  int
@@ -92,7 +94,7 @@ func (s *SelfExplosion) SelectTarget(unit []IUnit) {
 
 func (s *SelfExplosion) Do() {
 	for _, target := range s.targets {
-		target.SetHp(target.GetHp() - s.Damage)
+		target.TakeDamage(s.Damage)
 	}
 
 	s.unit.SetHp(0)
@@ -102,6 +104,7 @@ func (s *SelfExplosion) GetMPCost() int {
 	return s.MPCost
 }
 
+// CheerUp
 type CheerUp struct {
 	Damage  int
 	MPCost  int
@@ -118,27 +121,33 @@ func (s *CheerUp) SelectTarget(units []IUnit) {
 }
 
 func (s *CheerUp) Do() {
-	for _, unit := range s.targets {
-		unit.SetState(NewCheerUpState(unit))
+	for _, target := range s.targets {
+		target.SetState(NewCheerUpState(target))
 	}
 }
 
+// SelfHealing
 type SelfHealing struct {
-	Damage  int
-	MPCost  int
-	targets []IUnit
+	Damage int
+	MPCost int
+	unit   IUnit
+}
+
+func NewSelfHealing(unit IUnit) *SelfHealing {
+	return &SelfHealing{
+		Damage: -50,
+		MPCost: 50,
+		unit:   unit,
+	}
 }
 
 func (s *SelfHealing) GetMPCost() int {
 	return s.MPCost
 }
 
-func (s *SelfHealing) SelectTarget(units []IUnit) {
-	s.targets = units
+func (s *SelfHealing) SelectTarget([]IUnit) {
 }
 
 func (s *SelfHealing) Do() {
-	for _, unit := range s.targets {
-		unit.SetHp(unit.GetHp() + s.Damage)
-	}
+	s.unit.TakeDamage(s.Damage)
 }

@@ -96,9 +96,9 @@ func TestHero(t *testing.T) {
 		assert.Equal(t, 0, unit1.GetHp())
 	})
 
-	t.Run("test Hero's SelfHealing can heal HP", func(t *testing.T) {
-		selfHealing := &SelfHealing{MPCost: 50, Damage: 50}
+	t.Run("test SelfHealing should self-heal 50 HP", func(t *testing.T) {
 		unit1 := NewHero("p1")
+		selfHealing := NewSelfHealing(unit1)
 		unit1.AddSkill(selfHealing)
 		unit1HP := unit1.HP
 
@@ -106,6 +106,6 @@ func TestHero(t *testing.T) {
 		unit1.selectTarget([]IUnit{unit1})
 		unit1.doSkill()
 
-		assert.Equal(t, unit1HP+selfHealing.Damage, unit1.HP)
+		assert.Equal(t, unit1HP-selfHealing.Damage, unit1.HP)
 	})
 }

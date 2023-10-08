@@ -10,6 +10,7 @@ type IUnit interface {
 	SetHp(int)
 	GetSTR() int
 	GetState() IState
+	TakeDamage(damage int)
 }
 
 type Hero struct {
@@ -50,6 +51,7 @@ func (u *Hero) TakeAction() {
 	u.doSkill()
 }
 
+// Privates
 func (u *Hero) selectSkill(i int) (ISkill, error) {
 	if u.MP < u.Skills[i].GetMPCost() {
 		return nil, fmt.Errorf("not enough MP")
@@ -76,6 +78,14 @@ func (u *Hero) doSkill() {
 	skill.Do()
 }
 
+func (u *Hero) TakeDamage(damage int) {
+	u.HP -= damage
+}
+
+func (u *Hero) GetState() IState {
+	return u.State
+}
+
 func (u *Hero) SetState(s IState) {
 	u.State = s
 }
@@ -84,18 +94,14 @@ func (u *Hero) GetHp() int {
 	return u.HP
 }
 
-func (u *Hero) GetMp() int {
-	return u.MP
-}
-
 func (u *Hero) SetHp(hp int) {
 	u.HP = hp
 }
 
-func (u *Hero) GetSTR() int {
-	return u.STR
+func (u *Hero) GetMp() int {
+	return u.MP
 }
 
-func (u *Hero) GetState() IState {
-	return u.State
+func (u *Hero) GetSTR() int {
+	return u.STR
 }
