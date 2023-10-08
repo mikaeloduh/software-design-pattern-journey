@@ -48,7 +48,7 @@ func (u *Hero) AddSkill(skill ISkill) {
 
 func (u *Hero) TakeAction() {
 	// Select skill
-	if _, err := u.selectSkill(0); err != nil {
+	if err := u.selectSkill(0); err != nil {
 		return
 	}
 	// Select targets
@@ -58,14 +58,20 @@ func (u *Hero) TakeAction() {
 }
 
 // Privates
-func (u *Hero) selectSkill(i int) (ISkill, error) {
+func (u *Hero) selectSkill(i int) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("index out of range")
+		}
+	}()
+
 	if !u.Skills[i].IsMpEnough() {
-		return nil, fmt.Errorf("not enough CurrentMP")
+		err = fmt.Errorf("not enough CurrentMP")
 	}
 
 	u.skillIdx = i
 
-	return u.Skills[i], nil
+	return err
 }
 
 func (u *Hero) getSelectedSkill() ISkill {

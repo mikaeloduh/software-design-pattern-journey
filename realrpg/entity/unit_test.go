@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,9 +56,11 @@ func TestHero(t *testing.T) {
 		unit1.AddSkill(w)
 		unit1.CurrentMP = 30
 
-		_, err := unit1.selectSkill(1)
+		err := unit1.selectSkill(1)
 
-		assert.Error(t, err)
+		if assert.Error(t, err) {
+			assert.Equal(t, err, fmt.Errorf("not enough CurrentMP"))
+		}
 	})
 
 	t.Run("test Summon a Slime to join Troop", func(t *testing.T) {
