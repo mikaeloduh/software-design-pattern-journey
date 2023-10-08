@@ -1,10 +1,9 @@
 package entity
 
 type ISkill interface {
+	IsMpEnough() bool
 	SelectTarget([]IUnit)
 	Do()
-	GetMPCost() int
-	IsMpEnough() bool
 }
 
 // BasicAttack
@@ -32,10 +31,6 @@ func (a *BasicAttack) Do() {
 	}
 }
 
-func (a *BasicAttack) GetMPCost() int {
-	return 0
-}
-
 // WaterBall
 type WaterBall struct {
 	Damage  int
@@ -57,10 +52,6 @@ func (a *WaterBall) IsMpEnough() bool {
 		return false
 	}
 	return true
-}
-
-func (a *WaterBall) GetMPCost() int {
-	return a.MPCost
 }
 
 func (a *WaterBall) SelectTarget(units []IUnit) {
@@ -103,19 +94,19 @@ type SelfExplosion struct {
 	targets []IUnit
 }
 
-func (a *SelfExplosion) IsMpEnough() bool {
-	if a.unit.GetMp() < a.MPCost {
-		return false
-	}
-	return true
-}
-
 func NewSelfExplosion(unit IUnit) *SelfExplosion {
 	return &SelfExplosion{
 		MPCost: 200,
 		Damage: 150,
 		unit:   unit,
 	}
+}
+
+func (a *SelfExplosion) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
 }
 
 func (a *SelfExplosion) SelectTarget(unit []IUnit) {
@@ -128,10 +119,6 @@ func (a *SelfExplosion) Do() {
 	}
 
 	a.unit.SetHp(0)
-}
-
-func (a *SelfExplosion) GetMPCost() int {
-	return a.MPCost
 }
 
 // CheerUp
@@ -147,10 +134,6 @@ func (a *CheerUp) IsMpEnough() bool {
 		return false
 	}
 	return true
-}
-
-func (a *CheerUp) GetMPCost() int {
-	return a.MPCost
 }
 
 func (a *CheerUp) SelectTarget(units []IUnit) {
@@ -183,10 +166,6 @@ func (a *SelfHealing) IsMpEnough() bool {
 		return false
 	}
 	return true
-}
-
-func (a *SelfHealing) GetMPCost() int {
-	return a.MPCost
 }
 
 func (a *SelfHealing) SelectTarget([]IUnit) {
