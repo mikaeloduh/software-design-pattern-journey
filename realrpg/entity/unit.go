@@ -8,27 +8,33 @@ type IUnit interface {
 	SetState(IState)
 	GetHp() int
 	SetHp(int)
+	GetMp() int
 	GetSTR() int
 	GetState() IState
 	TakeDamage(damage int)
+	ConsumeMp(mp int)
 }
 
 type Hero struct {
-	Name     string
-	HP       int
-	MP       int
-	STR      int
-	State    IState
-	Skills   []ISkill
-	skillIdx int
+	Name      string
+	MaxHP     int
+	CurrentHP int
+	MaxMP     int
+	CurrentMP int
+	STR       int
+	State     IState
+	Skills    []ISkill
+	skillIdx  int
 }
 
 func NewHero(name string) *Hero {
 	h := &Hero{
-		Name: name,
-		HP:   1000,
-		MP:   900,
-		STR:  50,
+		Name:      name,
+		MaxHP:     1000,
+		CurrentHP: 1000,
+		MaxMP:     900,
+		CurrentMP: 900,
+		STR:       50,
 	}
 	h.SetState(NewNormalState(h))
 	h.AddSkill(NewBasicAttack(h))
@@ -47,14 +53,14 @@ func (u *Hero) TakeAction() {
 	}
 	// Select targets
 	u.selectTarget(nil)
-	// Consume MP and take action
+	// Consume CurrentMP and take action
 	u.doSkill()
 }
 
 // Privates
 func (u *Hero) selectSkill(i int) (ISkill, error) {
-	if u.MP < u.Skills[i].GetMPCost() {
-		return nil, fmt.Errorf("not enough MP")
+	if !u.Skills[i].IsMpEnough() {
+		return nil, fmt.Errorf("not enough CurrentMP")
 	}
 
 	u.skillIdx = i
@@ -72,14 +78,21 @@ func (u *Hero) selectTarget(targets []IUnit) {
 }
 
 func (u *Hero) doSkill() {
-	skill := u.getSelectedSkill()
-	u.MP -= skill.GetMPCost()
-
-	skill.Do()
+	u.getSelectedSkill().Do()
 }
 
 func (u *Hero) TakeDamage(damage int) {
-	u.HP -= damage
+	result := u.CurrentHP - damage
+	if result < 0 {
+		result = 0
+	} else if result > u.MaxHP {
+		result = u.MaxHP
+	}
+	u.CurrentHP = result
+}
+
+func (u *Hero) ConsumeMp(mp int) {
+	u.CurrentMP -= mp
 }
 
 func (u *Hero) GetState() IState {
@@ -91,15 +104,15 @@ func (u *Hero) SetState(s IState) {
 }
 
 func (u *Hero) GetHp() int {
-	return u.HP
+	return u.CurrentHP
 }
 
 func (u *Hero) SetHp(hp int) {
-	u.HP = hp
+	u.CurrentHP = hp
 }
 
 func (u *Hero) GetMp() int {
-	return u.MP
+	return u.CurrentMP
 }
 
 func (u *Hero) GetSTR() int {

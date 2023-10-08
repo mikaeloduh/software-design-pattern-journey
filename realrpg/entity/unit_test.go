@@ -10,50 +10,50 @@ func TestHero(t *testing.T) {
 	t.Run("test Hero BasicAttack based on it's STR", func(t *testing.T) {
 		unit1 := NewHero("p1")
 		unit2 := NewHero("p2")
-		unit2HP := unit2.HP
+		unit2HP := unit2.CurrentHP
 
 		unit1.selectSkill(0)
 		unit1.selectTarget([]IUnit{unit2})
 		unit1.doSkill()
 
-		assert.Equal(t, unit2HP-unit1.STR, unit2.HP)
+		assert.Equal(t, unit2HP-unit1.STR, unit2.CurrentHP)
 	})
 
 	t.Run("test Hero WaterBall attack", func(t *testing.T) {
-		w := &WaterBall{Damage: 120}
 		unit1 := NewHero("p1")
+		w := NewWaterBall(unit1)
 		unit1.AddSkill(w)
 		unit2 := NewHero("p2")
-		unit2HP := unit2.HP
+		unit2HP := unit2.CurrentHP
 
 		unit1.selectSkill(1)
 		unit1.selectTarget([]IUnit{unit2})
 		unit1.doSkill()
 
-		assert.Equal(t, unit2HP-w.Damage, unit2.HP)
+		assert.Equal(t, unit2HP-w.Damage, unit2.CurrentHP)
 	})
 
 	t.Run("test Hero WaterBall attack should have damage and cost MP", func(t *testing.T) {
-		w := &WaterBall{Damage: 120, MPCost: 50}
 		unit1 := NewHero("p1")
+		w := NewWaterBall(unit1)
 		unit1.AddSkill(w)
 		unit2 := NewHero("p2")
-		unit2HP := unit2.HP
-		unit1MP := unit1.MP
+		unit2HP := unit2.CurrentHP
+		unit1MP := unit1.CurrentMP
 
 		unit1.selectSkill(1)
 		unit1.selectTarget([]IUnit{unit2})
 		unit1.doSkill()
 
-		assert.Equal(t, unit2HP-w.Damage, unit2.HP)
-		assert.Equal(t, unit1MP-w.MPCost, unit1.MP)
+		assert.Equal(t, unit2HP-w.Damage, unit2.CurrentHP)
+		assert.Equal(t, unit1MP-w.MPCost, unit1.CurrentMP)
 	})
 
-	t.Run("test Hero should have enough MP to select WaterBall", func(t *testing.T) {
-		w := &WaterBall{Damage: 120, MPCost: 50}
+	t.Run("test Hero should have enough CurrentMP to select WaterBall", func(t *testing.T) {
 		unit1 := NewHero("p1")
+		w := NewWaterBall(unit1)
 		unit1.AddSkill(w)
-		unit1.MP = 30
+		unit1.CurrentMP = 30
 
 		_, err := unit1.selectSkill(1)
 
@@ -91,21 +91,22 @@ func TestHero(t *testing.T) {
 		selfExplosion.SelectTarget(rpg.units)
 		selfExplosion.Do()
 
-		assert.Equal(t, unit2HP-selfExplosion.Damage, unit2.HP)
-		assert.Equal(t, unit3HP-selfExplosion.Damage, unit3.HP)
+		assert.Equal(t, unit2HP-selfExplosion.Damage, unit2.CurrentHP)
+		assert.Equal(t, unit3HP-selfExplosion.Damage, unit3.CurrentHP)
 		assert.Equal(t, 0, unit1.GetHp())
 	})
 
-	t.Run("test SelfHealing should self-heal 50 HP", func(t *testing.T) {
+	t.Run("test SelfHealing should self-heal 150 HP", func(t *testing.T) {
 		unit1 := NewHero("p1")
 		selfHealing := NewSelfHealing(unit1)
 		unit1.AddSkill(selfHealing)
-		unit1HP := unit1.HP
+		unit1.SetHp(500)
+		unit1HP := unit1.CurrentHP
 
 		unit1.selectSkill(1)
 		unit1.selectTarget([]IUnit{unit1})
 		unit1.doSkill()
 
-		assert.Equal(t, unit1HP-selfHealing.Damage, unit1.HP)
+		assert.Equal(t, unit1HP-selfHealing.Damage, unit1.CurrentHP)
 	})
 }

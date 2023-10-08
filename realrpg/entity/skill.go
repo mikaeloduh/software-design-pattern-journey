@@ -4,6 +4,7 @@ type ISkill interface {
 	SelectTarget([]IUnit)
 	Do()
 	GetMPCost() int
+	IsMpEnough() bool
 }
 
 // BasicAttack
@@ -14,6 +15,10 @@ type BasicAttack struct {
 
 func NewBasicAttack(unit IUnit) *BasicAttack {
 	return &BasicAttack{unit: unit}
+}
+
+func (a *BasicAttack) IsMpEnough() bool {
+	return true
 }
 
 func (a *BasicAttack) SelectTarget(units []IUnit) {
@@ -35,7 +40,23 @@ func (a *BasicAttack) GetMPCost() int {
 type WaterBall struct {
 	Damage  int
 	MPCost  int
+	unit    IUnit
 	targets []IUnit
+}
+
+func NewWaterBall(unit IUnit) *WaterBall {
+	return &WaterBall{
+		Damage: 120,
+		MPCost: 50,
+		unit:   unit,
+	}
+}
+
+func (a *WaterBall) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
 }
 
 func (a *WaterBall) GetMPCost() int {
@@ -50,6 +71,8 @@ func (a *WaterBall) Do() {
 	for _, unit := range a.targets {
 		unit.SetHp(unit.GetHp() - a.Damage)
 	}
+
+	a.unit.ConsumeMp(a.MPCost)
 }
 
 //
@@ -80,6 +103,13 @@ type SelfExplosion struct {
 	targets []IUnit
 }
 
+func (a *SelfExplosion) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
+}
+
 func NewSelfExplosion(unit IUnit) *SelfExplosion {
 	return &SelfExplosion{
 		MPCost: 200,
@@ -88,20 +118,20 @@ func NewSelfExplosion(unit IUnit) *SelfExplosion {
 	}
 }
 
-func (s *SelfExplosion) SelectTarget(unit []IUnit) {
-	s.targets = unit
+func (a *SelfExplosion) SelectTarget(unit []IUnit) {
+	a.targets = unit
 }
 
-func (s *SelfExplosion) Do() {
-	for _, target := range s.targets {
-		target.TakeDamage(s.Damage)
+func (a *SelfExplosion) Do() {
+	for _, target := range a.targets {
+		target.TakeDamage(a.Damage)
 	}
 
-	s.unit.SetHp(0)
+	a.unit.SetHp(0)
 }
 
-func (s *SelfExplosion) GetMPCost() int {
-	return s.MPCost
+func (a *SelfExplosion) GetMPCost() int {
+	return a.MPCost
 }
 
 // CheerUp
@@ -112,16 +142,23 @@ type CheerUp struct {
 	targets []IUnit
 }
 
-func (s *CheerUp) GetMPCost() int {
-	return s.MPCost
+func (a *CheerUp) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
 }
 
-func (s *CheerUp) SelectTarget(units []IUnit) {
-	s.targets = units
+func (a *CheerUp) GetMPCost() int {
+	return a.MPCost
 }
 
-func (s *CheerUp) Do() {
-	for _, target := range s.targets {
+func (a *CheerUp) SelectTarget(units []IUnit) {
+	a.targets = units
+}
+
+func (a *CheerUp) Do() {
+	for _, target := range a.targets {
 		target.SetState(NewCheerUpState(target))
 	}
 }
@@ -141,13 +178,20 @@ func NewSelfHealing(unit IUnit) *SelfHealing {
 	}
 }
 
-func (s *SelfHealing) GetMPCost() int {
-	return s.MPCost
+func (a *SelfHealing) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
 }
 
-func (s *SelfHealing) SelectTarget([]IUnit) {
+func (a *SelfHealing) GetMPCost() int {
+	return a.MPCost
 }
 
-func (s *SelfHealing) Do() {
-	s.unit.TakeDamage(s.Damage)
+func (a *SelfHealing) SelectTarget([]IUnit) {
+}
+
+func (a *SelfHealing) Do() {
+	a.unit.TakeDamage(a.Damage)
 }
