@@ -4,11 +4,12 @@ import "fmt"
 
 type IUnit interface {
 	AddSkill(skill ISkill)
-	selectSkill(i int) (ISkill, error)
 	TakeAction()
-	SetState()
+	SetState(IState)
 	GetHp() int
 	SetHp(int)
+	GetSTR() int
+	GetState() IState
 }
 
 type Hero struct {
@@ -16,19 +17,22 @@ type Hero struct {
 	HP       int
 	MP       int
 	STR      int
+	State    IState
 	Skills   []ISkill
 	skillIdx int
 }
 
 func NewHero(name string) *Hero {
-	str := 50
-	return &Hero{
-		Name:   name,
-		HP:     1000,
-		MP:     900,
-		STR:    str,
-		Skills: []ISkill{&BasicAttack{Damage: str}},
+	h := &Hero{
+		Name: name,
+		HP:   1000,
+		MP:   900,
+		STR:  50,
 	}
+	h.SetState(NewNormalState(h))
+	h.AddSkill(NewBasicAttack(h))
+
+	return h
 }
 
 func (u *Hero) AddSkill(skill ISkill) {
@@ -72,15 +76,26 @@ func (u *Hero) doSkill() {
 	skill.Do()
 }
 
-func (u *Hero) SetState() {
-	//TODO implement me
-	panic("implement me")
+func (u *Hero) SetState(s IState) {
+	u.State = s
 }
 
 func (u *Hero) GetHp() int {
 	return u.HP
 }
 
+func (u *Hero) GetMp() int {
+	return u.MP
+}
+
 func (u *Hero) SetHp(hp int) {
 	u.HP = hp
+}
+
+func (u *Hero) GetSTR() int {
+	return u.STR
+}
+
+func (u *Hero) GetState() IState {
+	return u.State
 }
