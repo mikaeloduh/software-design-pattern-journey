@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHero(t *testing.T) {
+func TestHero_skill(t *testing.T) {
 	t.Run("test Hero BasicAttack based on it's STR", func(t *testing.T) {
 		unit1 := NewHero("p1")
 		unit2 := NewHero("p2")
