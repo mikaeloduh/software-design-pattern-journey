@@ -63,21 +63,6 @@ func TestHero_skill(t *testing.T) {
 		}
 	})
 
-	t.Run("test Summon a Slime to join Troop", func(t *testing.T) {
-
-		//summon := &Summon{MPCost: 150}
-		//unit1 := NewHero("p1")
-		//unit1.AddSkill(summon)
-		//
-		//troop := Troop{
-		//	Roles: []IUnit{unit1},
-		//}
-		//
-		//unit1.selectSkill(1)
-		//
-		//assert.Len(t, 2, troop.Roles)
-	})
-
 	t.Run("test Hero SelfExplosion should attack all unit in field and kill himself", func(t *testing.T) {
 		unit1 := NewHero("p1")
 		unit2 := NewHero("p2")
@@ -111,5 +96,32 @@ func TestHero_skill(t *testing.T) {
 		unit1.doSkill()
 
 		assert.Equal(t, unit1HP-selfHealing.Damage, unit1.CurrentHP)
+	})
+
+	t.Run("test CheerUp targets should be in CheerUpState", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewCheerUp(unit1))
+		unit2 := NewHero("p2")
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		assert.IsType(t, &CheerUpState{}, unit2.GetState())
+	})
+
+	t.Run("test Summon a Slime to join Troop", func(t *testing.T) {
+
+		//summon := &Summon{MPCost: 150}
+		//unit1 := NewHero("p1")
+		//unit1.AddSkill(summon)
+		//
+		//troop := Troop{
+		//	Roles: []IUnit{unit1},
+		//}
+		//
+		//unit1.selectSkill(1)
+		//
+		//assert.Len(t, 2, troop.Roles)
 	})
 }

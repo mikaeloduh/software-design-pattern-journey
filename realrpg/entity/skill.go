@@ -129,6 +129,14 @@ type CheerUp struct {
 	targets []IUnit
 }
 
+func NewCheerUp(unit IUnit) *CheerUp {
+	return &CheerUp{
+		Damage: 0,
+		MPCost: 100,
+		unit:   unit,
+	}
+}
+
 func (a *CheerUp) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
