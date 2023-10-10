@@ -66,26 +66,6 @@ func (a *WaterBall) Do() {
 	a.unit.ConsumeMp(a.MPCost)
 }
 
-//
-//type Summon struct {
-//	MPCost  int
-//	targets []IUnit
-//}
-//
-//func (a *Summon) SelectTarget(_ []IUnit) {
-//	panic("invalid operation")
-//}
-//
-//func (a *Summon) Do() {
-//	slime := NewSlime()
-//
-//}
-//
-//func (a *Summon) GetMPCost() int {
-//	//TODO implement me
-//	panic("implement me")
-//}
-
 // SelfExplosion
 type SelfExplosion struct {
 	MPCost  int
@@ -181,4 +161,32 @@ func (a *SelfHealing) SelectTarget([]IUnit) {
 
 func (a *SelfHealing) Do() {
 	a.unit.TakeDamage(a.Damage)
+}
+
+type Summon struct {
+	MPCost int
+	unit   IUnit
+}
+
+func NewSummon(unit IUnit) *Summon {
+	return &Summon{
+		MPCost: 150,
+		unit:   unit,
+	}
+}
+
+func (a *Summon) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
+}
+
+func (a *Summon) SelectTarget(_ []IUnit) {
+}
+
+func (a *Summon) Do() {
+	slime := NewSlime()
+
+	a.unit.GetTroop().AddUnit(slime)
 }

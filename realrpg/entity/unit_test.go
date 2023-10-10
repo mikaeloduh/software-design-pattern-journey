@@ -113,17 +113,16 @@ func TestHero_skill(t *testing.T) {
 	})
 
 	t.Run("test Summon a Slime to join Troop", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		summon := NewSummon(unit1)
+		unit1.AddSkill(summon)
 
-		//summon := &Summon{MPCost: 150}
-		//unit1 := NewHero("p1")
-		//unit1.AddSkill(summon)
-		//
-		//troop := Troop{
-		//	Roles: []IUnit{unit1},
-		//}
-		//
-		//unit1.selectSkill(1)
-		//
-		//assert.Len(t, 2, troop.Roles)
+		troop1 := NewTroop([]IUnit{unit1})
+		assert.Equal(t, 1, troop1.Len())
+
+		unit1.selectSkill(1)
+		unit1.doSkill()
+
+		assert.Equal(t, 2, troop1.Len())
 	})
 }

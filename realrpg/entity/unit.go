@@ -14,6 +14,8 @@ type IUnit interface {
 	GetState() IState
 	TakeDamage(damage int)
 	ConsumeMp(mp int)
+	GetTroop() *Troop
+	SetTroop(*Troop)
 }
 
 type Hero struct {
@@ -26,6 +28,7 @@ type Hero struct {
 	State     IState
 	Skills    []ISkill
 	skillIdx  int
+	troop     *Troop
 }
 
 func NewHero(name string) *Hero {
@@ -130,4 +133,12 @@ func (u *Hero) GetMp() int {
 
 func (u *Hero) GetSTR() int {
 	return u.STR
+}
+
+func (u *Hero) GetTroop() *Troop {
+	return u.troop
+}
+
+func (u *Hero) SetTroop(t *Troop) {
+	u.troop = t
 }
