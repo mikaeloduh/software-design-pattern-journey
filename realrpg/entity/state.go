@@ -2,6 +2,7 @@ package entity
 
 type IState interface {
 	OnAttack(damage int) int
+	OnRoundStart()
 }
 
 // NormalState
@@ -17,15 +18,26 @@ func (s *NormalState) OnAttack(damage int) int {
 	return damage
 }
 
+func (s *NormalState) OnRoundStart() {
+}
+
 // CheerUpState
 type CheerUpState struct {
-	unit IUnit
+	unit     IUnit
+	lifetime int
 }
 
 func NewCheerUpState(unit IUnit) *CheerUpState {
-	return &CheerUpState{unit: unit}
+	return &CheerUpState{unit: unit, lifetime: 3}
 }
 
-func (c *CheerUpState) OnAttack(damage int) int {
+func (s *CheerUpState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.unit.SetState(NewNormalState(s.unit))
+	}
+}
+
+func (s *CheerUpState) OnAttack(damage int) int {
 	return damage + 50
 }

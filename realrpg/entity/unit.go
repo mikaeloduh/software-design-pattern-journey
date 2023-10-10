@@ -4,6 +4,7 @@ import "fmt"
 
 type IUnit interface {
 	AddSkill(skill ISkill)
+	OnRoundStart()
 	TakeAction()
 	SetState(IState)
 	GetHp() int
@@ -44,6 +45,12 @@ func NewHero(name string) *Hero {
 
 func (u *Hero) AddSkill(skill ISkill) {
 	u.Skills = append(u.Skills, skill)
+}
+
+func (u *Hero) OnRoundStart() {
+	u.State.OnRoundStart()
+
+	u.TakeAction()
 }
 
 func (u *Hero) TakeAction() {

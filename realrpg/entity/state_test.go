@@ -25,4 +25,25 @@ func TestHero_State(t *testing.T) {
 		assert.IsType(t, &CheerUpState{}, unit1.State)
 		assert.Equal(t, unit2HP-unit1.STR-50, unit2.CurrentHP)
 	})
+
+	t.Run("test CheerUpState have lifetime for 3 rounds then return to NormalState", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		troop1 := Troop{unit1}
+		troop2 := Troop{nil}
+		battle := Battle{troop1, troop2}
+
+		battle.Init()
+		battle.StartRound()
+		unit1.SetState(NewCheerUpState(unit1))
+		assert.IsType(t, &CheerUpState{}, unit1.State)
+
+		battle.StartRound()
+		assert.IsType(t, &CheerUpState{}, unit1.State)
+
+		battle.StartRound()
+		assert.IsType(t, &CheerUpState{}, unit1.State)
+
+		battle.StartRound()
+		assert.IsType(t, &NormalState{}, unit1.State)
+	})
 }
