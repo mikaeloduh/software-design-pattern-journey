@@ -67,7 +67,9 @@ func TestHero_skill(t *testing.T) {
 		unit1 := NewHero("p1")
 		unit2 := NewHero("p2")
 		unit3 := NewHero("p3")
-		rpg := NewRPG([]IUnit{unit1, unit2, unit3}, nil)
+		troop1 := Troop{unit1}
+		troop2 := Troop{unit2, unit3}
+		_ = NewBattle(troop1, troop2)
 		unit2HP := unit2.GetHp()
 		unit3HP := unit3.GetHp()
 
@@ -76,7 +78,7 @@ func TestHero_skill(t *testing.T) {
 		unit1.selectSkill(1)
 		unit1.doSkill()
 
-		selfExplosion.SelectTarget(rpg.units)
+		selfExplosion.SelectTarget(troop2)
 		selfExplosion.Do()
 
 		assert.Equal(t, unit2HP-selfExplosion.Damage, unit2.CurrentHP)
