@@ -1,7 +1,9 @@
 package entity
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -69,7 +71,7 @@ func TestHero_skill(t *testing.T) {
 		unit3 := NewHero("p3")
 		troop1 := Troop{unit1}
 		troop2 := Troop{unit2, unit3}
-		_ = NewBattle(troop1, troop2)
+		_ = NewBattle(&troop1, &troop2)
 		unit2HP := unit2.GetHp()
 		unit3HP := unit3.GetHp()
 
@@ -125,4 +127,33 @@ func TestHero_skill(t *testing.T) {
 
 		assert.Equal(t, 2, troop1.Len())
 	})
+
+	t.Run("test summoned Slime should be able to take action in current round", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		unit1 := NewHero("p1")
+		summon := FakeNewSummon(unit1, &writer)
+		unit1.AddSkill(summon)
+		unit2 := NewHero("p2")
+
+		troop1 := NewTroop([]IUnit{unit1})
+		troop2 := NewTroop([]IUnit{unit2})
+
+		battle := NewBattle(troop1, troop2)
+
+		unit1.selectSkill(1)
+		unit1.doSkill()
+
+		battle.StartRound()
+
+		assert.Contains(t, writer.String(), "Slime is taking action")
+	})
+}
+
+func FakeNewSummon(unit IUnit, w io.Writer) *Summon {
+	return &Summon{
+		MPCost: 150,
+		unit:   unit,
+		Writer: w,
+	}
 }

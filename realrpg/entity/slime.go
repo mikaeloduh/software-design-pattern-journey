@@ -1,5 +1,10 @@
 package entity
 
+import (
+	"fmt"
+	"io"
+)
+
 type Slime struct {
 	MaxHP     int
 	CurrentHP int
@@ -10,15 +15,17 @@ type Slime struct {
 	Skills    []ISkill
 	skillIdx  int
 	troop     *Troop
+	Writer    io.Writer
 }
 
-func NewSlime() *Slime {
+func NewSlime(writer io.Writer) *Slime {
 	s := &Slime{
 		MaxHP:     100,
 		CurrentHP: 100,
 		MaxMP:     0,
 		CurrentMP: 0,
 		STR:       50,
+		Writer:    writer,
 	}
 	s.SetState(NewNormalState(s))
 	s.AddSkill(NewBasicAttack(s))
@@ -31,13 +38,13 @@ func (u *Slime) AddSkill(skill ISkill) {
 }
 
 func (u *Slime) OnRoundStart() {
-	//TODO implement me
-	panic("implement me")
+	u.TakeAction()
 }
 
 func (u *Slime) TakeAction() {
-	//TODO implement me
-	panic("implement me")
+	u.State.OnRoundStart()
+
+	fmt.Fprintf(u.Writer, "Slime is taking action")
 }
 
 func (u *Slime) SetState(s IState) {

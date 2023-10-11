@@ -1,5 +1,10 @@
 package entity
 
+import (
+	"io"
+	"os"
+)
+
 type ISkill interface {
 	IsMpEnough() bool
 	SelectTarget([]IUnit)
@@ -166,12 +171,14 @@ func (a *SelfHealing) Do() {
 type Summon struct {
 	MPCost int
 	unit   IUnit
+	Writer io.Writer
 }
 
 func NewSummon(unit IUnit) *Summon {
 	return &Summon{
 		MPCost: 150,
 		unit:   unit,
+		Writer: os.Stdout,
 	}
 }
 
@@ -186,7 +193,7 @@ func (a *Summon) SelectTarget(_ []IUnit) {
 }
 
 func (a *Summon) Do() {
-	slime := NewSlime()
+	slime := NewSlime(a.Writer)
 
 	a.unit.GetTroop().AddUnit(slime)
 }

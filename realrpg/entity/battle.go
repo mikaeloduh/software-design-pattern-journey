@@ -1,11 +1,11 @@
 package entity
 
 type Battle struct {
-	troop1 Troop
-	troop2 Troop
+	troop1 *Troop
+	troop2 *Troop
 }
 
-func NewBattle(troop1 Troop, troop2 Troop) *Battle {
+func NewBattle(troop1 *Troop, troop2 *Troop) *Battle {
 	b := &Battle{troop1: troop1, troop2: troop2}
 	b.Init()
 
@@ -17,7 +17,7 @@ func (b *Battle) Init() {
 }
 
 func (b *Battle) StartRound() {
-	for _, unit := range b.troop1 {
+	for _, unit := range *b.troop1 { // Cannot range over 'b.troop1' (type *Troop)
 		unit.OnRoundStart()
 	}
 }

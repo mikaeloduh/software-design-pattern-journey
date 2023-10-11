@@ -30,7 +30,7 @@ func TestHero_State(t *testing.T) {
 		unit1 := NewHero("p1")
 		troop1 := Troop{unit1}
 		troop2 := Troop{nil}
-		battle := Battle{troop1, troop2}
+		battle := Battle{&troop1, &troop2}
 
 		battle.Init()
 		battle.StartRound()
