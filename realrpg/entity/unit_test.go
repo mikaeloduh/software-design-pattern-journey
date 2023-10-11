@@ -146,7 +146,25 @@ func TestHero_skill(t *testing.T) {
 
 		battle.StartRound()
 
+		assert.IsType(t, &Slime{}, (*troop1)[1])
 		assert.Contains(t, writer.String(), "Slime is taking action")
+	})
+
+	t.Run("test when Slime die, summoner should receive 30 HP", func(t *testing.T) {
+		var writer bytes.Buffer
+		unit1 := NewHero("p1")
+		summon := FakeNewSummon(unit1, &writer)
+		unit1.AddSkill(summon)
+		unit1.SetHp(200)
+		troop1 := NewTroop([]IUnit{unit1})
+
+		unit1.selectSkill(1)
+		unit1.doSkill()
+
+		slime := (*troop1)[1]
+		slime.TakeDamage(100)
+
+		assert.Equal(t, 200+30, unit1.GetHp())
 	})
 }
 

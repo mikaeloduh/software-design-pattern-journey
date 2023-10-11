@@ -194,6 +194,10 @@ func (a *Summon) SelectTarget(_ []IUnit) {
 
 func (a *Summon) Do() {
 	slime := NewSlime(a.Writer)
+	slime.Register(a.unit)
+	a.unit.SetUpdater(func(self IUnit, subject IUnit) {
+		self.TakeDamage(-30)
+	})
 
 	a.unit.GetTroop().AddUnit(slime)
 }

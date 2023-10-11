@@ -16,6 +16,11 @@ type IUnit interface {
 	ConsumeMp(mp int)
 	GetTroop() *Troop
 	SetTroop(*Troop)
+	Register(unit IUnit)
+	UnRegister(unit IUnit)
+	Notify()
+	Update(unit IUnit)
+	SetUpdater(func(self IUnit, subject IUnit))
 }
 
 type Hero struct {
@@ -29,6 +34,8 @@ type Hero struct {
 	Skills    []ISkill
 	skillIdx  int
 	troop     *Troop
+	observers []IUnit
+	updater   func(self IUnit, subject IUnit)
 }
 
 func NewHero(name string) *Hero {
@@ -105,6 +112,34 @@ func (u *Hero) TakeDamage(damage int) {
 		result = u.MaxHP
 	}
 	u.CurrentHP = result
+}
+
+func (u *Hero) Register(unit IUnit) {
+	u.observers = append(u.observers, unit)
+}
+
+func (u *Hero) UnRegister(unit IUnit) {
+	var temp []IUnit
+	for _, o := range u.observers {
+		if o != unit {
+			temp = append(temp, o)
+		}
+	}
+	u.observers = temp
+}
+
+func (u *Hero) Notify() {
+	for _, o := range u.observers {
+		o.Update(u)
+	}
+}
+
+func (u *Hero) Update(subject IUnit) {
+	u.updater(u, subject)
+}
+
+func (u *Hero) SetUpdater(f func(self IUnit, subject IUnit)) {
+	u.updater = f
 }
 
 func (u *Hero) ConsumeMp(mp int) {

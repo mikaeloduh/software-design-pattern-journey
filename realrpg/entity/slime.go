@@ -16,6 +16,8 @@ type Slime struct {
 	skillIdx  int
 	troop     *Troop
 	Writer    io.Writer
+	observers []IUnit
+	updater   func(self IUnit, subject IUnit)
 }
 
 func NewSlime(writer io.Writer) *Slime {
@@ -45,6 +47,34 @@ func (u *Slime) TakeAction() {
 	u.State.OnRoundStart()
 
 	fmt.Fprintf(u.Writer, "Slime is taking action")
+}
+
+func (u *Slime) Register(unit IUnit) {
+	u.observers = append(u.observers, unit)
+}
+
+func (u *Slime) UnRegister(unit IUnit) {
+	var temp []IUnit
+	for _, o := range u.observers {
+		if o != unit {
+			temp = append(temp, o)
+		}
+	}
+	u.observers = temp
+}
+
+func (u *Slime) Notify() {
+	for _, o := range u.observers {
+		o.Update(u)
+	}
+}
+
+func (u *Slime) Update(subject IUnit) {
+	u.updater(u, subject)
+}
+
+func (u *Slime) SetUpdater(f func(self IUnit, subject IUnit)) {
+	u.updater = f
 }
 
 func (u *Slime) SetState(s IState) {
@@ -77,8 +107,17 @@ func (u *Slime) GetState() IState {
 }
 
 func (u *Slime) TakeDamage(damage int) {
-	//TODO implement me
-	panic("implement me")
+	result := u.CurrentHP - damage
+	if result < 0 {
+		result = 0
+	} else if result > u.MaxHP {
+		result = u.MaxHP
+	}
+	u.CurrentHP = result
+
+	if u.CurrentHP <= 0 {
+		u.Notify()
+	}
 }
 
 func (u *Slime) ConsumeMp(mp int) {
