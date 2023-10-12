@@ -166,6 +166,24 @@ func TestHero_skill(t *testing.T) {
 
 		assert.Equal(t, 200+30, unit1.GetHp())
 	})
+
+	t.Run("test when cursed unit dies, the caster regains HP equal to the unit's current MP", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		curse := NewCurse(unit1)
+		unit1.AddSkill(curse)
+		unit1.SetHp(20)
+		unit1HP := unit1.GetHp()
+		unit2 := NewHero("p2")
+		unit2MP := unit2.GetMp()
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		unit2.TakeDamage(1000)
+
+		assert.Equal(t, unit1HP+unit2MP, unit1.GetHp())
+	})
 }
 
 func FakeNewSummon(unit IUnit, w io.Writer) *Summon {

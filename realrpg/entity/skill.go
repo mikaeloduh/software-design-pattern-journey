@@ -7,7 +7,7 @@ import (
 
 type ISkill interface {
 	IsMpEnough() bool
-	SelectTarget([]IUnit)
+	SelectTarget(targets []IUnit)
 	Do()
 }
 
@@ -25,8 +25,8 @@ func (a *BasicAttack) IsMpEnough() bool {
 	return true
 }
 
-func (a *BasicAttack) SelectTarget(units []IUnit) {
-	a.targets = units
+func (a *BasicAttack) SelectTarget(targets []IUnit) {
+	a.targets = targets
 }
 
 func (a *BasicAttack) Do() {
@@ -59,8 +59,8 @@ func (a *WaterBall) IsMpEnough() bool {
 	return true
 }
 
-func (a *WaterBall) SelectTarget(units []IUnit) {
-	a.targets = units
+func (a *WaterBall) SelectTarget(targets []IUnit) {
+	a.targets = targets
 }
 
 func (a *WaterBall) Do() {
@@ -94,8 +94,8 @@ func (a *SelfExplosion) IsMpEnough() bool {
 	return true
 }
 
-func (a *SelfExplosion) SelectTarget(unit []IUnit) {
-	a.targets = unit
+func (a *SelfExplosion) SelectTarget(targets []IUnit) {
+	a.targets = targets
 }
 
 func (a *SelfExplosion) Do() {
@@ -129,8 +129,8 @@ func (a *CheerUp) IsMpEnough() bool {
 	return true
 }
 
-func (a *CheerUp) SelectTarget(units []IUnit) {
-	a.targets = units
+func (a *CheerUp) SelectTarget(targets []IUnit) {
+	a.targets = targets
 }
 
 func (a *CheerUp) Do() {
@@ -200,4 +200,38 @@ func (a *Summon) Do() {
 	})
 
 	a.unit.GetTroop().AddUnit(slime)
+}
+
+// Curse
+type Curse struct {
+	Damage  int
+	MPCost  int
+	unit    IUnit
+	targets []IUnit
+}
+
+func NewCurse(unit IUnit) *Curse {
+	return &Curse{
+		Damage: 0,
+		MPCost: 100,
+		unit:   unit,
+	}
+}
+
+func (a *Curse) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
+}
+
+func (a *Curse) SelectTarget(targets []IUnit) {
+	a.targets = targets
+}
+
+func (a *Curse) Do() {
+	a.targets[0].Register(a.unit)
+	a.unit.SetUpdater(func(self, subject IUnit) {
+		self.TakeDamage(-subject.GetMp())
+	})
 }

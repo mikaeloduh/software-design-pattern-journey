@@ -112,6 +112,10 @@ func (u *Hero) TakeDamage(damage int) {
 		result = u.MaxHP
 	}
 	u.CurrentHP = result
+
+	if u.CurrentHP <= 0 {
+		u.SetState(NewDeadState(u))
+	}
 }
 
 func (u *Hero) Register(unit IUnit) {
