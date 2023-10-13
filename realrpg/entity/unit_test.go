@@ -215,6 +215,43 @@ func TestHero_skill(t *testing.T) {
 		unit2.TakeDamage(9999)
 		assert.Equal(t, unit1HP+30+unit2MP, unit1.GetHp())
 	})
+
+	t.Run("test a Unit should be able to cursed by multiple caster", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewCurse(unit1))
+		unit2 := NewHero("p2")
+		unit2.AddSkill(NewCurse(unit2))
+		unit3 := NewHero("p3")
+		unit3.AddSkill(NewCurse(unit3))
+		unit1.SetHp(10)
+		unit2.SetHp(10)
+		unit3.SetHp(10)
+		unit1Hp := unit1.GetHp()
+		unit2Hp := unit2.GetHp()
+		unit3Hp := unit3.GetHp()
+
+		unitQQ := NewHero("a-poor-guy")
+		unitQQMp := unitQQ.GetMp()
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unitQQ})
+		unit1.doSkill()
+
+		unit2.selectSkill(1)
+		unit2.selectTarget([]IUnit{unitQQ})
+		unit2.doSkill()
+
+		unit3.selectSkill(1)
+		unit3.selectTarget([]IUnit{unitQQ})
+		unit3.doSkill()
+
+		// when cursed unit die
+		unitQQ.TakeDamage(9999)
+
+		assert.Equal(t, unit1Hp+unitQQMp, unit1.GetHp())
+		assert.Equal(t, unit2Hp+unitQQMp, unit2.GetHp())
+		assert.Equal(t, unit3Hp+unitQQMp, unit3.GetHp())
+	})
 }
 
 func FakeNewSummon(unit IUnit, w io.Writer) *Summon {
