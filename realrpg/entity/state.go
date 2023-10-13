@@ -49,6 +49,10 @@ func NewCheerUpState(unit IUnit) *CheerUpState {
 	return &CheerUpState{unit: unit, lifetime: 3}
 }
 
+func (s *CheerUpState) OnAttack(damage int) int {
+	return damage + 50
+}
+
 func (s *CheerUpState) OnRoundStart() {
 	s.lifetime--
 	if s.lifetime <= 0 {
@@ -56,6 +60,25 @@ func (s *CheerUpState) OnRoundStart() {
 	}
 }
 
-func (s *CheerUpState) OnAttack(damage int) int {
-	return damage + 50
+type PetrochemicalState struct {
+	unit     IUnit
+	lifetime int
+}
+
+func NewPetrochemicalState(unit IUnit) *PetrochemicalState {
+	return &PetrochemicalState{
+		unit:     unit,
+		lifetime: 3,
+	}
+}
+
+func (s *PetrochemicalState) OnAttack(damage int) int {
+	return damage
+}
+
+func (s *PetrochemicalState) OnRoundStart() {
+	s.lifetime--
+	if s.lifetime <= 0 {
+		s.unit.SetState(NewNormalState(s.unit))
+	}
 }

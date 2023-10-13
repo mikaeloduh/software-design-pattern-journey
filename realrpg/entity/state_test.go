@@ -46,4 +46,11 @@ func TestHero_State(t *testing.T) {
 		battle.StartRound()
 		assert.IsType(t, &NormalState{}, unit1.State)
 	})
+
+	t.Run("test PetrochemicalState", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.SetState(NewPetrochemicalState(unit1))
+
+		assert.IsType(t, &PetrochemicalState{}, unit1.State)
+	})
 }
