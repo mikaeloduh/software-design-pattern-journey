@@ -16,7 +16,7 @@ type Slime struct {
 	skillIdx  int
 	troop     *Troop
 	Writer    io.Writer
-	observers []IUnit
+	observers []ISkill
 	updater   func(self IUnit, subject IUnit)
 }
 
@@ -49,14 +49,14 @@ func (u *Slime) TakeAction() {
 	fmt.Fprintf(u.Writer, "Slime is taking action")
 }
 
-func (u *Slime) Register(unit IUnit) {
-	u.observers = append(u.observers, unit)
+func (u *Slime) Register(skill ISkill) {
+	u.observers = append(u.observers, skill)
 }
 
-func (u *Slime) UnRegister(unit IUnit) {
-	var temp []IUnit
+func (u *Slime) UnRegister(skill ISkill) {
+	var temp []ISkill
 	for _, o := range u.observers {
-		if o != unit {
+		if o != skill {
 			temp = append(temp, o)
 		}
 	}
@@ -67,10 +67,6 @@ func (u *Slime) Notify() {
 	for _, o := range u.observers {
 		o.Update(u)
 	}
-}
-
-func (u *Slime) Update(subject IUnit) {
-	u.updater(u, subject)
 }
 
 func (u *Slime) SetUpdater(f func(self IUnit, subject IUnit)) {

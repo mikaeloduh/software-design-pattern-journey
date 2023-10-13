@@ -184,6 +184,37 @@ func TestHero_skill(t *testing.T) {
 
 		assert.Equal(t, unit1HP+unit2MP, unit1.GetHp())
 	})
+
+	t.Run("test Summon + Curse together: when Slime and cursed Unit die, Hero should receive correct among of HP", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewSummon(unit1))
+		unit1.AddSkill(NewCurse(unit1))
+		unit1.SetHp(20)
+		unit1HP := unit1.GetHp()
+
+		unit2 := NewHero("p2")
+		unit2MP := unit2.GetMp()
+
+		troop1 := NewTroop([]IUnit{unit1})
+		_ = NewTroop([]IUnit{unit2})
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+		slime := (*troop1)[1]
+
+		unit1.selectSkill(2)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		// when slime die
+		slime.TakeDamage(9999)
+		assert.Equal(t, unit1HP+30, unit1.GetHp())
+
+		// when cursed unit die
+		unit2.TakeDamage(9999)
+		assert.Equal(t, unit1HP+30+unit2MP, unit1.GetHp())
+	})
 }
 
 func FakeNewSummon(unit IUnit, w io.Writer) *Summon {

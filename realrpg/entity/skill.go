@@ -9,6 +9,7 @@ type ISkill interface {
 	IsMpEnough() bool
 	SelectTarget(targets []IUnit)
 	Do()
+	Update(unit IUnit)
 }
 
 // BasicAttack
@@ -34,6 +35,9 @@ func (a *BasicAttack) Do() {
 	for _, target := range a.targets {
 		target.TakeDamage(damage)
 	}
+}
+
+func (a *BasicAttack) Update(unit IUnit) {
 }
 
 // WaterBall
@@ -71,6 +75,9 @@ func (a *WaterBall) Do() {
 	a.unit.ConsumeMp(a.MPCost)
 }
 
+func (a *WaterBall) Update(unit IUnit) {
+}
+
 // SelfExplosion
 type SelfExplosion struct {
 	MPCost  int
@@ -106,6 +113,9 @@ func (a *SelfExplosion) Do() {
 	a.unit.SetHp(0)
 }
 
+func (a *SelfExplosion) Update(unit IUnit) {
+}
+
 // CheerUp
 type CheerUp struct {
 	Damage  int
@@ -139,6 +149,9 @@ func (a *CheerUp) Do() {
 	}
 }
 
+func (a *CheerUp) Update(unit IUnit) {
+}
+
 // SelfHealing
 type SelfHealing struct {
 	Damage int
@@ -168,6 +181,10 @@ func (a *SelfHealing) Do() {
 	a.unit.TakeDamage(a.Damage)
 }
 
+func (a *SelfHealing) Update(unit IUnit) {
+}
+
+// Summon
 type Summon struct {
 	MPCost int
 	unit   IUnit
@@ -194,12 +211,13 @@ func (a *Summon) SelectTarget(_ []IUnit) {
 
 func (a *Summon) Do() {
 	slime := NewSlime(a.Writer)
-	slime.Register(a.unit)
-	a.unit.SetUpdater(func(self IUnit, subject IUnit) {
-		self.TakeDamage(-30)
-	})
-
 	a.unit.GetTroop().AddUnit(slime)
+
+	slime.Register(a)
+}
+
+func (a *Summon) Update(unit IUnit) {
+	a.unit.TakeDamage(-30)
 }
 
 // Curse
@@ -230,8 +248,9 @@ func (a *Curse) SelectTarget(targets []IUnit) {
 }
 
 func (a *Curse) Do() {
-	a.targets[0].Register(a.unit)
-	a.unit.SetUpdater(func(self, subject IUnit) {
-		self.TakeDamage(-subject.GetMp())
-	})
+	a.targets[0].Register(a)
+}
+
+func (a *Curse) Update(subject IUnit) {
+	a.unit.TakeDamage(-subject.GetMp())
 }
