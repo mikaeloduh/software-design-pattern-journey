@@ -5,18 +5,12 @@ type IActionHandler interface {
 }
 
 type RPG struct {
-	units         []IUnit
-	ActionHandler IActionHandler
+	units []IUnit
 }
 
-func NewRPG(units []IUnit, actionHandler IActionHandler) *RPG {
-	return &RPG{units: units, ActionHandler: actionHandler}
+func NewRPG(units []IUnit) *RPG {
+	return &RPG{units: units}
 }
 
 func (g *RPG) Run() {
-
-}
-
-func (g *RPG) HandleAction(target IUnit) {
-	g.ActionHandler.Handle()
 }

@@ -17,7 +17,7 @@ func (b *Battle) Init() {
 }
 
 func (b *Battle) StartRound() {
-	for _, unit := range *b.troop1 { // Cannot range over 'b.troop1' (type *Troop)
+	for _, unit := range *b.troop1 {
 		unit.OnRoundStart()
 	}
 }

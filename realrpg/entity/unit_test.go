@@ -253,9 +253,19 @@ func TestHero_skill(t *testing.T) {
 		assert.Equal(t, unit3Hp+unitQQMp, unit3.GetHp())
 	})
 
+	onePunchHandler := Hp500Handler{
+		PetrochemicalStateHandler{
+			PoisonedStateHandler{
+				CheerUpStateHandler{
+					NormalStateHandler{nil},
+				},
+			},
+		},
+	}
+
 	t.Run("test OnePunch case 1", func(t *testing.T) {
 		unit1 := NewHero("p1")
-		unit1.AddSkill(NewOnePunch(unit1))
+		unit1.AddSkill(NewOnePunch(unit1, onePunchHandler))
 
 		unit2 := NewHero("p2")
 		unit2Hp := unit2.GetHp()
@@ -269,7 +279,7 @@ func TestHero_skill(t *testing.T) {
 
 	t.Run("test OnePunch case 2", func(t *testing.T) {
 		unit1 := NewHero("p1")
-		unit1.AddSkill(NewOnePunch(unit1))
+		unit1.AddSkill(NewOnePunch(unit1, onePunchHandler))
 
 		unit2 := NewHero("p2")
 		unit2.SetHp(499)
@@ -285,7 +295,7 @@ func TestHero_skill(t *testing.T) {
 
 	t.Run("test OnePunch case 3", func(t *testing.T) {
 		unit1 := NewHero("p1")
-		unit1.AddSkill(NewOnePunch(unit1))
+		unit1.AddSkill(NewOnePunch(unit1, onePunchHandler))
 
 		unit2 := NewHero("p2")
 		unit2.SetHp(499)
@@ -302,7 +312,7 @@ func TestHero_skill(t *testing.T) {
 
 	t.Run("test OnePunch case 4", func(t *testing.T) {
 		unit1 := NewHero("p1")
-		unit1.AddSkill(NewOnePunch(unit1))
+		unit1.AddSkill(NewOnePunch(unit1, onePunchHandler))
 
 		unit2 := NewHero("p2")
 		unit2.SetHp(499)

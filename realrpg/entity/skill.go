@@ -3,7 +3,6 @@ package entity
 import (
 	"io"
 	"os"
-	"reflect"
 )
 
 type IObservable interface {
@@ -267,12 +266,14 @@ type OnePunch struct {
 	MPCost  int
 	unit    IUnit
 	targets []IUnit
+	handler ISkillHandler
 }
 
-func NewOnePunch(unit IUnit) *OnePunch {
+func NewOnePunch(unit IUnit, handler ISkillHandler) *OnePunch {
 	return &OnePunch{
-		MPCost: 180,
-		unit:   unit,
+		MPCost:  180,
+		unit:    unit,
+		handler: handler,
 	}
 }
 
@@ -288,17 +289,7 @@ func (a *OnePunch) SelectTarget(targets []IUnit) {
 }
 
 func (a *OnePunch) Do() {
-	target := a.targets[0]
-	if target.GetHp() >= 500 {
-		target.TakeDamage(300)
-	} else if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&PetrochemicalState{}) || reflect.TypeOf(target.GetState()) == reflect.TypeOf(&PetrochemicalState{}) {
-		target.TakeDamage(80)
-	} else if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&CheerUpState{}) {
-		target.TakeDamage(100)
-		target.SetState(NewNormalState(target))
-	} else if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&NormalState{}) {
-		target.TakeDamage(100)
-	}
+	a.handler.Do(a.targets[0])
 }
 
 func (a *OnePunch) Update(_ IObservable) {
