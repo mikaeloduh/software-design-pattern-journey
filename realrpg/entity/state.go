@@ -16,7 +16,7 @@ func NewDeadState(unit IUnit) *DeadState {
 	return &DeadState{Unit: unit}
 }
 
-func (s *DeadState) OnAttack(damage int) int {
+func (s *DeadState) OnAttack(_ int) int {
 	return 0
 }
 

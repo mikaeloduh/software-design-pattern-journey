@@ -2,10 +2,8 @@ package entity
 
 import "fmt"
 
-type IObservable interface {
-	Register(skill ISkill)
-	UnRegister(skill ISkill)
-	Notify()
+type IObserver interface {
+	Update(observable IObservable)
 }
 
 type IUnit interface {
@@ -36,7 +34,7 @@ type Hero struct {
 	Skills    []ISkill
 	skillIdx  int
 	troop     *Troop
-	observers []ISkill
+	observers []IObserver
 }
 
 func NewHero(name string) *Hero {
@@ -119,12 +117,12 @@ func (u *Hero) TakeDamage(damage int) {
 	}
 }
 
-func (u *Hero) Register(skill ISkill) {
+func (u *Hero) Register(skill IObserver) {
 	u.observers = append(u.observers, skill)
 }
 
-func (u *Hero) UnRegister(skill ISkill) {
-	var temp []ISkill
+func (u *Hero) UnRegister(skill IObserver) {
+	var temp []IObserver
 	for _, o := range u.observers {
 		if o != skill {
 			temp = append(temp, o)

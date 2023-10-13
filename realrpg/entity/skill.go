@@ -5,8 +5,10 @@ import (
 	"os"
 )
 
-type IObserver interface {
-	Update(unit IUnit)
+type IObservable interface {
+	Register(observer IObserver)
+	UnRegister(observer IObserver)
+	Notify()
 }
 
 type ISkill interface {
@@ -41,7 +43,7 @@ func (a *BasicAttack) Do() {
 	}
 }
 
-func (a *BasicAttack) Update(unit IUnit) {
+func (a *BasicAttack) Update(_ IObservable) {
 }
 
 // WaterBall
@@ -79,7 +81,7 @@ func (a *WaterBall) Do() {
 	a.unit.ConsumeMp(a.MPCost)
 }
 
-func (a *WaterBall) Update(unit IUnit) {
+func (a *WaterBall) Update(_ IObservable) {
 }
 
 // SelfExplosion
@@ -117,7 +119,7 @@ func (a *SelfExplosion) Do() {
 	a.unit.SetHp(0)
 }
 
-func (a *SelfExplosion) Update(unit IUnit) {
+func (a *SelfExplosion) Update(_ IObservable) {
 }
 
 // CheerUp
@@ -153,7 +155,7 @@ func (a *CheerUp) Do() {
 	}
 }
 
-func (a *CheerUp) Update(unit IUnit) {
+func (a *CheerUp) Update(_ IObservable) {
 }
 
 // SelfHealing
@@ -185,7 +187,7 @@ func (a *SelfHealing) Do() {
 	a.unit.TakeDamage(a.Damage)
 }
 
-func (a *SelfHealing) Update(unit IUnit) {
+func (a *SelfHealing) Update(_ IObservable) {
 }
 
 // Summon
@@ -220,7 +222,7 @@ func (a *Summon) Do() {
 	slime.Register(a)
 }
 
-func (a *Summon) Update(unit IUnit) {
+func (a *Summon) Update(_ IObservable) {
 	a.unit.TakeDamage(-30)
 }
 
@@ -255,6 +257,6 @@ func (a *Curse) Do() {
 	a.targets[0].Register(a)
 }
 
-func (a *Curse) Update(subject IUnit) {
-	a.unit.TakeDamage(-subject.GetMp())
+func (a *Curse) Update(_ IObservable) {
+	a.unit.TakeDamage(-a.targets[0].GetMp())
 }
