@@ -3,6 +3,7 @@ package entity
 import (
 	"io"
 	"os"
+	"reflect"
 )
 
 type IObservable interface {
@@ -259,4 +260,46 @@ func (a *Curse) Do() {
 
 func (a *Curse) Update(_ IObservable) {
 	a.unit.TakeDamage(-a.targets[0].GetMp())
+}
+
+type OnePunch struct {
+	Damage  int
+	MPCost  int
+	unit    IUnit
+	targets []IUnit
+}
+
+func NewOnePunch(unit IUnit) *OnePunch {
+	return &OnePunch{
+		MPCost: 180,
+		unit:   unit,
+	}
+}
+
+func (a *OnePunch) IsMpEnough() bool {
+	if a.unit.GetMp() < a.MPCost {
+		return false
+	}
+	return true
+}
+
+func (a *OnePunch) SelectTarget(targets []IUnit) {
+	a.targets = targets
+}
+
+func (a *OnePunch) Do() {
+	target := a.targets[0]
+	if target.GetHp() >= 500 {
+		target.TakeDamage(300)
+	} else if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&PetrochemicalState{}) || reflect.TypeOf(target.GetState()) == reflect.TypeOf(&PetrochemicalState{}) {
+		target.TakeDamage(80)
+	} else if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&CheerUpState{}) {
+		target.TakeDamage(100)
+		target.SetState(NewNormalState(target))
+	} else if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&NormalState{}) {
+		target.TakeDamage(100)
+	}
+}
+
+func (a *OnePunch) Update(_ IObservable) {
 }

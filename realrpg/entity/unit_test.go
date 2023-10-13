@@ -252,6 +252,69 @@ func TestHero_skill(t *testing.T) {
 		assert.Equal(t, unit2Hp+unitQQMp, unit2.GetHp())
 		assert.Equal(t, unit3Hp+unitQQMp, unit3.GetHp())
 	})
+
+	t.Run("test OnePunch case 1", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewOnePunch(unit1))
+
+		unit2 := NewHero("p2")
+		unit2Hp := unit2.GetHp()
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		assert.Equal(t, unit2Hp-300, unit2.GetHp())
+	})
+
+	t.Run("test OnePunch case 2", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewOnePunch(unit1))
+
+		unit2 := NewHero("p2")
+		unit2.SetHp(499)
+		unit2.SetState(NewPetrochemicalState(unit2))
+		unit2Hp := unit2.GetHp()
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		assert.Equal(t, unit2Hp-80, unit2.GetHp())
+	})
+
+	t.Run("test OnePunch case 3", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewOnePunch(unit1))
+
+		unit2 := NewHero("p2")
+		unit2.SetHp(499)
+		unit2.SetState(NewCheerUpState(unit2))
+		unit2Hp := unit2.GetHp()
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		assert.Equal(t, unit2Hp-100, unit2.GetHp())
+		assert.IsType(t, &NormalState{}, unit2.GetState())
+	})
+
+	t.Run("test OnePunch case 4", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.AddSkill(NewOnePunch(unit1))
+
+		unit2 := NewHero("p2")
+		unit2.SetHp(499)
+		unit2Hp := unit2.GetHp()
+
+		unit1.selectSkill(1)
+		unit1.selectTarget([]IUnit{unit2})
+		unit1.doSkill()
+
+		assert.Equal(t, unit2Hp-100, unit2.GetHp())
+	})
+
 }
 
 func FakeNewSummon(unit IUnit, w io.Writer) *Summon {
