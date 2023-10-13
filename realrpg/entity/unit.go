@@ -10,15 +10,14 @@ type IUnit interface {
 	IObservable
 	AddSkill(skill ISkill)
 	OnRoundStart()
-	TakeAction()
-	SetState(IState)
+	TakeDamage(damage int)
+	ConsumeMp(mp int)
 	GetHp() int
 	SetHp(int)
 	GetMp() int
 	GetSTR() int
 	GetState() IState
-	TakeDamage(damage int)
-	ConsumeMp(mp int)
+	SetState(IState)
 	GetTroop() *Troop
 	SetTroop(*Troop)
 }
@@ -59,10 +58,6 @@ func (u *Hero) AddSkill(skill ISkill) {
 func (u *Hero) OnRoundStart() {
 	u.State.OnRoundStart()
 
-	u.TakeAction()
-}
-
-func (u *Hero) TakeAction() {
 	// Select skill
 	if err := u.selectSkill(0); err != nil {
 		return
@@ -95,8 +90,7 @@ func (u *Hero) getSelectedSkill() ISkill {
 }
 
 func (u *Hero) selectTarget(targets []IUnit) {
-	skill := u.getSelectedSkill()
-	skill.SelectTarget(targets)
+	u.getSelectedSkill().SelectTarget(targets)
 }
 
 func (u *Hero) doSkill() {
@@ -115,6 +109,10 @@ func (u *Hero) TakeDamage(damage int) {
 	if u.CurrentHP <= 0 {
 		u.SetState(NewDeadState(u))
 	}
+}
+
+func (u *Hero) ConsumeMp(mp int) {
+	u.CurrentMP -= mp
 }
 
 func (u *Hero) Register(skill IObserver) {
@@ -137,18 +135,6 @@ func (u *Hero) Notify() {
 	}
 }
 
-func (u *Hero) ConsumeMp(mp int) {
-	u.CurrentMP -= mp
-}
-
-func (u *Hero) GetState() IState {
-	return u.State
-}
-
-func (u *Hero) SetState(s IState) {
-	u.State = s
-}
-
 func (u *Hero) GetHp() int {
 	return u.CurrentHP
 }
@@ -163,6 +149,14 @@ func (u *Hero) GetMp() int {
 
 func (u *Hero) GetSTR() int {
 	return u.STR
+}
+
+func (u *Hero) GetState() IState {
+	return u.State
+}
+
+func (u *Hero) SetState(s IState) {
+	u.State = s
 }
 
 func (u *Hero) GetTroop() *Troop {

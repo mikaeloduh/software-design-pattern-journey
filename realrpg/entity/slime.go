@@ -40,13 +40,27 @@ func (u *Slime) AddSkill(skill ISkill) {
 }
 
 func (u *Slime) OnRoundStart() {
-	u.TakeAction()
-}
-
-func (u *Slime) TakeAction() {
 	u.State.OnRoundStart()
 
 	fmt.Fprintf(u.Writer, "Slime is taking action")
+}
+
+func (u *Slime) TakeDamage(damage int) {
+	result := u.CurrentHP - damage
+	if result < 0 {
+		result = 0
+	} else if result > u.MaxHP {
+		result = u.MaxHP
+	}
+	u.CurrentHP = result
+
+	if u.CurrentHP <= 0 {
+		u.Notify()
+	}
+}
+
+func (u *Slime) ConsumeMp(_ int) {
+	panic("invalid operation")
 }
 
 func (u *Slime) Register(skill IObserver) {
@@ -69,56 +83,28 @@ func (u *Slime) Notify() {
 	}
 }
 
-func (u *Slime) SetUpdater(f func(self IUnit, subject IUnit)) {
-	u.updater = f
+func (u *Slime) GetHp() int {
+	return u.CurrentHP
+}
+
+func (u *Slime) SetHp(hp int) {
+	u.CurrentHP = hp
+}
+
+func (u *Slime) GetMp() int {
+	return u.CurrentMP
+}
+
+func (u *Slime) GetSTR() int {
+	return u.STR
 }
 
 func (u *Slime) SetState(s IState) {
 	u.State = s
 }
 
-func (u *Slime) GetHp() int {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u *Slime) SetHp(i int) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u *Slime) GetMp() int {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u *Slime) GetSTR() int {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (u *Slime) GetState() IState {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u *Slime) TakeDamage(damage int) {
-	result := u.CurrentHP - damage
-	if result < 0 {
-		result = 0
-	} else if result > u.MaxHP {
-		result = u.MaxHP
-	}
-	u.CurrentHP = result
-
-	if u.CurrentHP <= 0 {
-		u.Notify()
-	}
-}
-
-func (u *Slime) ConsumeMp(mp int) {
-	//TODO implement me
-	panic("implement me")
+	return u.State
 }
 
 func (u *Slime) GetTroop() *Troop {
