@@ -1,0 +1,153 @@
+package entity
+
+import "fmt"
+
+type NonHero struct {
+	Name      string
+	MaxHP     int
+	CurrentHP int
+	MaxMP     int
+	CurrentMP int
+	STR       int
+	State     IState
+	Skills    []ISkill
+	skillIdx  int
+	troop     *Troop
+	observers []IObserver
+	ai        AI
+}
+
+func NewNonHero(ai AI) *NonHero {
+	h := &NonHero{
+		Name:      "I-am-a-robot",
+		MaxHP:     1000,
+		CurrentHP: 1000,
+		MaxMP:     900,
+		CurrentMP: 900,
+		STR:       50,
+		ai:        ai,
+	}
+	h.SetState(NewNormalState(h))
+	h.AddSkill(NewBasicAttack(h))
+
+	return h
+}
+
+func (u *NonHero) AddSkill(skill ISkill) {
+	u.Skills = append(u.Skills, skill)
+}
+
+func (u *NonHero) OnRoundStart() {
+	u.State.OnRoundStart()
+
+	// AI Select a skill
+	if err := u.selectSkill(u.ai.RandAction(len(u.Skills))); err != nil {
+		return
+	}
+	u.ai.IncrSeed()
+	// AI Select the targets
+	targets := make([]IUnit, 0)
+	u.selectTarget(targets)
+	u.ai.IncrSeed()
+	// Consume CurrentMP and take action
+	u.doSkill()
+}
+
+// Privates
+func (u *NonHero) selectSkill(i int) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("index out of range")
+		}
+	}()
+
+	if !u.Skills[i].IsMpEnough() {
+		err = fmt.Errorf("not enough CurrentMP")
+	}
+
+	u.skillIdx = i
+
+	return err
+}
+
+func (u *NonHero) getSelectedSkill() ISkill {
+	return u.Skills[u.skillIdx]
+}
+
+func (u *NonHero) selectTarget(targets []IUnit) {
+	u.getSelectedSkill().SelectTarget(targets)
+}
+
+func (u *NonHero) doSkill() {
+	u.getSelectedSkill().Do()
+}
+
+func (u *NonHero) TakeDamage(damage int) {
+	result := u.CurrentHP - damage
+	if result < 0 {
+		result = 0
+	} else if result > u.MaxHP {
+		result = u.MaxHP
+	}
+	u.CurrentHP = result
+
+	if u.CurrentHP <= 0 {
+		u.SetState(NewDeadState(u))
+	}
+}
+
+func (u *NonHero) ConsumeMp(mp int) {
+	u.CurrentMP -= mp
+}
+
+func (u *NonHero) Register(skill IObserver) {
+	u.observers = append(u.observers, skill)
+}
+
+func (u *NonHero) UnRegister(skill IObserver) {
+	var temp []IObserver
+	for _, o := range u.observers {
+		if o != skill {
+			temp = append(temp, o)
+		}
+	}
+	u.observers = temp
+}
+
+func (u *NonHero) Notify() {
+	for _, o := range u.observers {
+		o.Update(u)
+	}
+}
+
+func (u *NonHero) GetHp() int {
+	return u.CurrentHP
+}
+
+func (u *NonHero) SetHp(hp int) {
+	u.CurrentHP = hp
+}
+
+func (u *NonHero) GetMp() int {
+	return u.CurrentMP
+}
+
+func (u *NonHero) GetSTR() int {
+	return u.STR
+}
+
+func (u *NonHero) GetState() IState {
+	return u.State
+}
+
+func (u *NonHero) SetState(s IState) {
+	u.State = s
+}
+
+func (u *NonHero) GetTroop() *Troop {
+	return u.troop
+}
+
+func (u *NonHero) SetTroop(t *Troop) {
+	u.troop = t
+}
