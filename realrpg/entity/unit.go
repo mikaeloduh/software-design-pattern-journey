@@ -2,7 +2,14 @@ package entity
 
 import "fmt"
 
+type IObservable interface {
+	Register(skill ISkill)
+	UnRegister(skill ISkill)
+	Notify()
+}
+
 type IUnit interface {
+	IObservable
 	AddSkill(skill ISkill)
 	OnRoundStart()
 	TakeAction()
@@ -16,9 +23,6 @@ type IUnit interface {
 	ConsumeMp(mp int)
 	GetTroop() *Troop
 	SetTroop(*Troop)
-	Register(skill ISkill)
-	UnRegister(skill ISkill)
-	Notify()
 }
 
 type Hero struct {

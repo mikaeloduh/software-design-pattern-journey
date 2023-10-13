@@ -5,11 +5,15 @@ import (
 	"os"
 )
 
+type IObserver interface {
+	Update(unit IUnit)
+}
+
 type ISkill interface {
+	IObserver
 	IsMpEnough() bool
 	SelectTarget(targets []IUnit)
 	Do()
-	Update(unit IUnit)
 }
 
 // BasicAttack
