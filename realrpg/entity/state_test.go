@@ -53,4 +53,12 @@ func TestHero_State(t *testing.T) {
 
 		assert.IsType(t, &PetrochemicalState{}, unit1.State)
 	})
+
+	t.Run("test PoisonedState", func(t *testing.T) {
+		unit1 := NewHero("p1")
+		unit1.SetState(NewPoisonedState(unit1))
+
+		assert.IsType(t, &PoisonedState{}, unit1.State)
+	})
+
 }
