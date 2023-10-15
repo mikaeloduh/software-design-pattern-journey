@@ -5,12 +5,6 @@ import (
 	"os"
 )
 
-type IObservable interface {
-	Register(observer IObserver)
-	UnRegister(observer IObserver)
-	Notify()
-}
-
 type ISkill interface {
 	IObserver
 	IsMpEnough() bool

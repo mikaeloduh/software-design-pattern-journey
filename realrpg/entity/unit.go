@@ -2,10 +2,6 @@ package entity
 
 import "fmt"
 
-type IObserver interface {
-	Update(observable IObservable)
-}
-
 type IUnit interface {
 	IObservable
 	AddSkill(skill ISkill)
