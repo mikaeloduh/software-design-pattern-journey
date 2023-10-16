@@ -1,6 +1,9 @@
 package entity
 
-import "fmt"
+import (
+	"fmt"
+	"realrpg/utils"
+)
 
 type IUnit interface {
 	IObservable
@@ -58,10 +61,12 @@ func (u *Hero) OnRoundStart() {
 
 func (u *Hero) TakeTurn(targets []IUnit) {
 	// Select skill
+	// TODO: prompt select skill message
 	if err := u.selectSkill(0); err != nil {
 		return
 	}
 	// Select targets
+	// TODO: prompt select target message
 	u.selectTarget(nil)
 	// Consume CurrentMP and take action
 	u.doSkill()
@@ -97,13 +102,7 @@ func (u *Hero) doSkill() {
 }
 
 func (u *Hero) TakeDamage(damage int) {
-	result := u.CurrentHP - damage
-	if result < 0 {
-		result = 0
-	} else if result > u.MaxHP {
-		result = u.MaxHP
-	}
-	u.CurrentHP = result
+	u.CurrentHP = utils.MinMaxLimit(0, u.MaxHP, u.CurrentHP-damage)
 
 	if u.CurrentHP <= 0 {
 		u.SetState(NewDeadState(u))
@@ -111,13 +110,7 @@ func (u *Hero) TakeDamage(damage int) {
 }
 
 func (u *Hero) ConsumeMp(mp int) {
-	result := u.CurrentMP - mp
-	if result < 0 {
-		result = 0
-	} else if result > u.MaxMP {
-		result = u.MaxMP
-	}
-	u.CurrentMP = result
+	u.CurrentMP = utils.MinMaxLimit(0, u.MaxMP, u.CurrentMP-mp)
 }
 
 func (u *Hero) Register(skill IObserver) {

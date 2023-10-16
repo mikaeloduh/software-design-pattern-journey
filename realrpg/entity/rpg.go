@@ -1,9 +1,5 @@
 package entity
 
-type IActionHandler interface {
-	Handle()
-}
-
 type RPG struct {
 	units []IUnit
 }
