@@ -21,7 +21,7 @@ func TestHero_State(t *testing.T) {
 		unit1.SetState(NewCheerUpState(unit1))
 
 		unit1.selectSkill(0)
-		unit1.selectTarget([]IUnit{unit2})
+		unit1.selectTarget(unit2)
 		unit1.doSkill()
 
 		assert.IsType(t, &CheerUpState{}, unit1.State)

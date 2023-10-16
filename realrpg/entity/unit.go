@@ -88,8 +88,8 @@ func (u *Hero) getSelectedSkill() ISkill {
 	return u.Skills[u.skillIdx]
 }
 
-func (u *Hero) selectTarget(targets []IUnit) {
-	u.getSelectedSkill().SelectTarget(targets)
+func (u *Hero) selectTarget(targets ...IUnit) error {
+	return u.getSelectedSkill().SelectTarget(targets...)
 }
 
 func (u *Hero) doSkill() {

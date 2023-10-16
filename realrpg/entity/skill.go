@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"io"
 	"os"
 )
@@ -8,7 +9,7 @@ import (
 type ISkill interface {
 	IObserver
 	IsMpEnough() bool
-	SelectTarget(targets []IUnit)
+	SelectTarget(targets ...IUnit) error
 	Do()
 }
 
@@ -26,8 +27,12 @@ func (a *BasicAttack) IsMpEnough() bool {
 	return true
 }
 
-func (a *BasicAttack) SelectTarget(targets []IUnit) {
+func (a *BasicAttack) SelectTarget(targets ...IUnit) error {
+	if len(targets) != 1 {
+		return fmt.Errorf("invalid number of args: need 1")
+	}
 	a.targets = targets
+	return nil
 }
 
 func (a *BasicAttack) Do() {
@@ -63,8 +68,12 @@ func (a *WaterBall) IsMpEnough() bool {
 	return true
 }
 
-func (a *WaterBall) SelectTarget(targets []IUnit) {
+func (a *WaterBall) SelectTarget(targets ...IUnit) error {
+	if len(targets) != 1 {
+		return fmt.Errorf("invalid number of args: need 1")
+	}
 	a.targets = targets
+	return nil
 }
 
 func (a *WaterBall) Do() {
@@ -101,8 +110,9 @@ func (a *SelfExplosion) IsMpEnough() bool {
 	return true
 }
 
-func (a *SelfExplosion) SelectTarget(targets []IUnit) {
+func (a *SelfExplosion) SelectTarget(targets ...IUnit) error {
 	a.targets = targets
+	return nil
 }
 
 func (a *SelfExplosion) Do() {
@@ -139,8 +149,12 @@ func (a *CheerUp) IsMpEnough() bool {
 	return true
 }
 
-func (a *CheerUp) SelectTarget(targets []IUnit) {
+func (a *CheerUp) SelectTarget(targets ...IUnit) error {
+	if len(targets) <= 3 {
+		return fmt.Errorf("invalid number of args: need 3 or less")
+	}
 	a.targets = targets
+	return nil
 }
 
 func (a *CheerUp) Do() {
@@ -174,7 +188,8 @@ func (a *SelfHealing) IsMpEnough() bool {
 	return true
 }
 
-func (a *SelfHealing) SelectTarget([]IUnit) {
+func (a *SelfHealing) SelectTarget(_ ...IUnit) error {
+	return nil
 }
 
 func (a *SelfHealing) Do() {
@@ -206,7 +221,8 @@ func (a *Summon) IsMpEnough() bool {
 	return true
 }
 
-func (a *Summon) SelectTarget(_ []IUnit) {
+func (a *Summon) SelectTarget(_ ...IUnit) error {
+	return nil
 }
 
 func (a *Summon) Do() {
@@ -243,8 +259,12 @@ func (a *Curse) IsMpEnough() bool {
 	return true
 }
 
-func (a *Curse) SelectTarget(targets []IUnit) {
+func (a *Curse) SelectTarget(targets ...IUnit) error {
+	if len(targets) != 1 {
+		return fmt.Errorf("invalid number of args: need 1")
+	}
 	a.targets = targets
+	return nil
 }
 
 func (a *Curse) Do() {
@@ -278,8 +298,12 @@ func (a *OnePunch) IsMpEnough() bool {
 	return true
 }
 
-func (a *OnePunch) SelectTarget(targets []IUnit) {
+func (a *OnePunch) SelectTarget(targets ...IUnit) error {
+	if len(targets) != 1 {
+		return fmt.Errorf("invalid number of args: need 1")
+	}
 	a.targets = targets
+	return nil
 }
 
 func (a *OnePunch) Do() {

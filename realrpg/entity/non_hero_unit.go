@@ -48,7 +48,7 @@ func (u *NonHero) TakeTurn(targets []IUnit) {
 	}
 	u.ai.IncrSeed()
 	// AI Select the targets
-	u.selectTarget(targets)
+	u.selectTarget(targets...)
 	u.ai.IncrSeed()
 	// Consume CurrentMP and take action
 	u.doSkill()
@@ -75,8 +75,8 @@ func (u *NonHero) getSelectedSkill() ISkill {
 	return u.Skills[u.skillIdx]
 }
 
-func (u *NonHero) selectTarget(targets []IUnit) {
-	u.getSelectedSkill().SelectTarget(targets)
+func (u *NonHero) selectTarget(targets ...IUnit) error {
+	return u.getSelectedSkill().SelectTarget(targets...)
 }
 
 func (u *NonHero) doSkill() {
