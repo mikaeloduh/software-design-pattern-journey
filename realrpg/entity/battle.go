@@ -90,7 +90,7 @@ func (b *Battle) UpdateGameAndMoveToNext() {
 func (b *Battle) GameResult() {
 	var winner int
 	for i, t := range b.troops {
-		if !b.isAnnihilated(t) {
+		if !b.isAnnihilated(t) && !b.isHeroDie(t) {
 			winner = i
 		}
 	}
@@ -98,6 +98,7 @@ func (b *Battle) GameResult() {
 	fmt.Printf("Winnter is %v troop", winner)
 }
 
+// privates
 func (b *Battle) isAnnihilated(troop *Troop) bool {
 	for _, u := range *troop {
 		if b.isAliveUnit(u) {
