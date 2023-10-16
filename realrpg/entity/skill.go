@@ -13,7 +13,7 @@ type ISkill interface {
 	Do()
 }
 
-// BasicAttack
+// BasicAttack is a built-in skill
 type BasicAttack struct {
 	unit    IUnit
 	targets []IUnit
@@ -275,6 +275,7 @@ func (a *Curse) Update(_ IObservable) {
 	a.unit.TakeDamage(-a.targets[0].GetMp())
 }
 
+// OnePunch
 type OnePunch struct {
 	Damage  int
 	MPCost  int
