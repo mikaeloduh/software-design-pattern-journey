@@ -2,7 +2,7 @@ package entity
 
 type Troop []IUnit
 
-func NewTroop(units []IUnit) *Troop {
+func NewTroop(units ...IUnit) *Troop {
 	troop := Troop(units)
 	for _, unit := range units {
 		unit.SetTroop(&troop)

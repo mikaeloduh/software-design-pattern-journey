@@ -10,6 +10,8 @@ import (
 )
 
 func TestHero_skill(t *testing.T) {
+	t.Parallel()
+
 	t.Run("test Hero BasicAttack based on it's STR", func(t *testing.T) {
 		unit1 := NewHero("p1")
 		unit2 := NewHero("p2")
@@ -69,9 +71,6 @@ func TestHero_skill(t *testing.T) {
 		unit1 := NewHero("p1")
 		unit2 := NewHero("p2")
 		unit3 := NewHero("p3")
-		troop1 := Troop{unit1}
-		troop2 := Troop{unit2, unit3}
-		_ = NewBattle(&troop1, &troop2)
 		unit2HP := unit2.GetHp()
 		unit3HP := unit3.GetHp()
 
@@ -80,10 +79,10 @@ func TestHero_skill(t *testing.T) {
 		unit1.selectSkill(1)
 		unit1.doSkill()
 
-		selfExplosion.SelectTarget(troop2)
+		selfExplosion.SelectTarget([]IUnit{unit2, unit3})
 		selfExplosion.Do()
 
-		assert.Equal(t, unit2HP-selfExplosion.Damage, unit2.CurrentHP)
+		assert.Equal(t, unit2HP-selfExplosion.Damage, unit2.GetHp())
 		assert.Equal(t, unit3HP-selfExplosion.Damage, unit3.CurrentHP)
 		assert.Equal(t, 0, unit1.GetHp())
 	})
@@ -119,7 +118,7 @@ func TestHero_skill(t *testing.T) {
 		summon := NewSummon(unit1)
 		unit1.AddSkill(summon)
 
-		troop1 := NewTroop([]IUnit{unit1})
+		troop1 := NewTroop(unit1)
 		assert.Equal(t, 1, troop1.Len())
 
 		unit1.selectSkill(1)
@@ -136,15 +135,15 @@ func TestHero_skill(t *testing.T) {
 		unit1.AddSkill(summon)
 		unit2 := NewHero("p2")
 
-		troop1 := NewTroop([]IUnit{unit1})
-		troop2 := NewTroop([]IUnit{unit2})
+		troop1 := NewTroop(unit1)
+		troop2 := NewTroop(unit2)
 
 		battle := NewBattle(troop1, troop2)
 
 		unit1.selectSkill(1)
 		unit1.doSkill()
 
-		battle.StartRound()
+		battle.OnRoundStart()
 
 		assert.IsType(t, &Slime{}, (*troop1)[1])
 		assert.Contains(t, writer.String(), "Slime is taking action")
@@ -156,7 +155,7 @@ func TestHero_skill(t *testing.T) {
 		summon := FakeNewSummon(unit1, &writer)
 		unit1.AddSkill(summon)
 		unit1.SetHp(200)
-		troop1 := NewTroop([]IUnit{unit1})
+		troop1 := NewTroop(unit1)
 
 		unit1.selectSkill(1)
 		unit1.doSkill()
@@ -195,8 +194,8 @@ func TestHero_skill(t *testing.T) {
 		unit2 := NewHero("p2")
 		unit2MP := unit2.GetMp()
 
-		troop1 := NewTroop([]IUnit{unit1})
-		_ = NewTroop([]IUnit{unit2})
+		troop1 := NewTroop(unit1)
+		_ = NewTroop(unit2)
 
 		unit1.selectSkill(1)
 		unit1.selectTarget([]IUnit{unit2})

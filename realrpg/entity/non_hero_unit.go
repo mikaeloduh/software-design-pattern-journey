@@ -39,14 +39,15 @@ func (u *NonHero) AddSkill(skill ISkill) {
 
 func (u *NonHero) OnRoundStart() {
 	u.State.OnRoundStart()
+}
 
+func (u *NonHero) TakeTurn(targets []IUnit) {
 	// AI Select a skill
 	if err := u.selectSkill(u.ai.RandAction(len(u.Skills))); err != nil {
 		return
 	}
 	u.ai.IncrSeed()
 	// AI Select the targets
-	targets := make([]IUnit, 0)
 	u.selectTarget(targets)
 	u.ai.IncrSeed()
 	// Consume CurrentMP and take action
@@ -97,7 +98,13 @@ func (u *NonHero) TakeDamage(damage int) {
 }
 
 func (u *NonHero) ConsumeMp(mp int) {
-	u.CurrentMP -= mp
+	result := u.CurrentMP - mp
+	if result < 0 {
+		result = 0
+	} else if result > u.MaxMP {
+		result = u.MaxMP
+	}
+	u.CurrentMP = result
 }
 
 func (u *NonHero) Register(skill IObserver) {

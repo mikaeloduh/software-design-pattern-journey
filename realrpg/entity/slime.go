@@ -45,6 +45,11 @@ func (u *Slime) OnRoundStart() {
 	fmt.Fprintf(u.Writer, "Slime is taking action")
 }
 
+func (u *Slime) TakeTurn(targets []IUnit) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (u *Slime) TakeDamage(damage int) {
 	result := u.CurrentHP - damage
 	if result < 0 {

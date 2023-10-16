@@ -6,6 +6,7 @@ type IUnit interface {
 	IObservable
 	AddSkill(skill ISkill)
 	OnRoundStart()
+	TakeTurn(targets []IUnit)
 	TakeDamage(damage int)
 	ConsumeMp(mp int)
 	GetHp() int
@@ -53,7 +54,9 @@ func (u *Hero) AddSkill(skill ISkill) {
 
 func (u *Hero) OnRoundStart() {
 	u.State.OnRoundStart()
+}
 
+func (u *Hero) TakeTurn(targets []IUnit) {
 	// Select skill
 	if err := u.selectSkill(0); err != nil {
 		return
@@ -108,7 +111,13 @@ func (u *Hero) TakeDamage(damage int) {
 }
 
 func (u *Hero) ConsumeMp(mp int) {
-	u.CurrentMP -= mp
+	result := u.CurrentMP - mp
+	if result < 0 {
+		result = 0
+	} else if result > u.MaxMP {
+		result = u.MaxMP
+	}
+	u.CurrentMP = result
 }
 
 func (u *Hero) Register(skill IObserver) {

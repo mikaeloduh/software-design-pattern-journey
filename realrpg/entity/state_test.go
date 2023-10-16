@@ -6,6 +6,8 @@ import (
 )
 
 func TestHero_State(t *testing.T) {
+	t.Parallel()
+
 	t.Run("test Hero initial state is NormalState", func(t *testing.T) {
 		unit1 := NewHero("p1")
 
@@ -28,22 +30,19 @@ func TestHero_State(t *testing.T) {
 
 	t.Run("test CheerUpState have lifetime for 3 rounds then return to NormalState", func(t *testing.T) {
 		unit1 := NewHero("p1")
-		troop1 := Troop{unit1}
-		troop2 := Troop{nil}
-		battle := Battle{&troop1, &troop2}
+		battle := Battle{troops: []*Troop{{unit1}}}
 
-		battle.Init()
-		battle.StartRound()
+		battle.OnRoundStart()
 		unit1.SetState(NewCheerUpState(unit1))
 		assert.IsType(t, &CheerUpState{}, unit1.State)
 
-		battle.StartRound()
+		battle.OnRoundStart()
 		assert.IsType(t, &CheerUpState{}, unit1.State)
 
-		battle.StartRound()
+		battle.OnRoundStart()
 		assert.IsType(t, &CheerUpState{}, unit1.State)
 
-		battle.StartRound()
+		battle.OnRoundStart()
 		assert.IsType(t, &NormalState{}, unit1.State)
 	})
 
