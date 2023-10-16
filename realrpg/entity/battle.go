@@ -31,16 +31,6 @@ func (b *Battle) Init() {
 	}
 }
 
-func (b *Battle) OnRoundStart() {
-	for _, troop := range b.troops {
-		for _, unit := range *troop {
-			if u, ok := unit.(IUnit); ok == true {
-				u.OnRoundStart()
-			}
-		}
-	}
-}
-
 func (b *Battle) Start() {
 	b.OnRoundStart()
 
@@ -50,6 +40,16 @@ func (b *Battle) Start() {
 		b.TakeTurnStep(player)
 
 		b.UpdateGameAndMoveToNext()
+	}
+}
+
+func (b *Battle) OnRoundStart() {
+	for _, troop := range b.troops {
+		for _, unit := range *troop {
+			if u, ok := unit.(IUnit); ok == true {
+				u.OnRoundStart()
+			}
+		}
 	}
 }
 
