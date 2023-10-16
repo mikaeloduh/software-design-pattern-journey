@@ -72,7 +72,6 @@ func (u *Hero) TakeTurn(targets []IUnit) {
 	u.doSkill()
 }
 
-// Privates
 func (u *Hero) selectSkill(i int) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
