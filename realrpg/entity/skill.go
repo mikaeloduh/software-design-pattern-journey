@@ -150,7 +150,7 @@ func (a *CheerUp) IsMpEnough() bool {
 }
 
 func (a *CheerUp) SelectTarget(targets ...IUnit) error {
-	if len(targets) <= 3 {
+	if len(targets) > 3 {
 		return fmt.Errorf("invalid number of args: need 3 or less")
 	}
 	a.targets = targets
