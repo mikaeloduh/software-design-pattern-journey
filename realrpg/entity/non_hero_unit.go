@@ -42,12 +42,12 @@ func (u *NonHero) OnRoundStart() {
 }
 
 func (u *NonHero) TakeTurn(targets []IUnit) {
-	// AI Select a skill
+	// TODO: AI Select a skill
 	if err := u.selectSkill(u.ai.RandAction(len(u.Skills))); err != nil {
 		return
 	}
 	u.ai.IncrSeed()
-	// AI Select the targets
+	// TODO: AI Select the targets
 	u.selectTarget(targets...)
 	u.ai.IncrSeed()
 	// Consume CurrentMP and take action

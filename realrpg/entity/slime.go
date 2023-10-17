@@ -15,19 +15,20 @@ type Slime struct {
 	Skills    []ISkill
 	skillIdx  int
 	troop     *Troop
-	Writer    io.Writer
+	writer    io.Writer
 	observers []IObserver
-	updater   func(self IUnit, subject IUnit)
+	ai        AI
 }
 
-func NewSlime(writer io.Writer) *Slime {
+func NewSlime(ai AI, writer io.Writer) *Slime {
 	s := &Slime{
 		MaxHP:     100,
 		CurrentHP: 100,
 		MaxMP:     0,
 		CurrentMP: 0,
 		STR:       50,
-		Writer:    writer,
+		writer:    writer,
+		ai:        ai,
 	}
 	s.SetState(NewNormalState(s))
 	s.AddSkill(NewBasicAttack(s))
@@ -42,12 +43,15 @@ func (u *Slime) AddSkill(skill ISkill) {
 func (u *Slime) OnRoundStart() {
 	u.State.OnRoundStart()
 
-	fmt.Fprintf(u.Writer, "Slime is taking action")
+	fmt.Fprintf(u.writer, "Slime is taking action")
 }
 
 func (u *Slime) TakeTurn(targets []IUnit) {
-	//TODO implement me
-	panic("implement me")
+	basicAttack := u.Skills[0]
+	// TODO: AI Select the targets
+	basicAttack.SelectTarget(targets...)
+	basicAttack.Do()
+	u.ai.IncrSeed()
 }
 
 func (u *Slime) TakeDamage(damage int) {

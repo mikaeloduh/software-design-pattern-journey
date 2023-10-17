@@ -226,7 +226,7 @@ func (a *Summon) SelectTarget(_ ...IUnit) error {
 }
 
 func (a *Summon) Do() {
-	slime := NewSlime(a.Writer)
+	slime := NewSlime(nil, a.Writer)
 	a.unit.GetTroop().AddUnit(slime)
 
 	slime.Register(a)

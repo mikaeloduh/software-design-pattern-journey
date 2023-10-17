@@ -11,6 +11,10 @@ type DefaultAI struct {
 	seed int64
 }
 
+func NewDefaultAI() *DefaultAI {
+	return &DefaultAI{seed: 0}
+}
+
 func (a *DefaultAI) IncrSeed() {
 	a.seed++
 }

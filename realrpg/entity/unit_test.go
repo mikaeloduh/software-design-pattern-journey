@@ -256,10 +256,7 @@ func TestHero_skill(t *testing.T) {
 		PetrochemicalStateHandler{
 			PoisonedStateHandler{
 				CheerUpStateHandler{
-					NormalStateHandler{nil},
-				},
-			},
-		},
+					NormalStateHandler{nil}}}},
 	}
 
 	t.Run("test OnePunch case 1", func(t *testing.T) {
