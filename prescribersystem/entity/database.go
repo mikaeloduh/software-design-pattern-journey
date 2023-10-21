@@ -5,5 +5,9 @@ type PatientDatabase struct {
 }
 
 func NewPatientDatabase() *PatientDatabase {
-	return &PatientDatabase{}
+	return &PatientDatabase{data: make(map[string]Patient)}
+}
+
+func (d *PatientDatabase) CreatePatient(p Patient) {
+	d.data[p.Id] = p
 }
