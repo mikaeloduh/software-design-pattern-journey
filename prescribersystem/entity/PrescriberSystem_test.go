@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestPrescriber(t *testing.T) {
+func TestPrescriberSystem(t *testing.T) {
 	t.Parallel()
 
 	t.Run("test new PatientDatabase", func(t *testing.T) {
@@ -20,5 +20,15 @@ func TestPrescriber(t *testing.T) {
 
 		assert.IsType(t, &PrescriberSystem{}, sys)
 	})
+}
 
+func TestPrescriber(t *testing.T) {
+	t.Parallel()
+
+	t.Run("test Prescriber Diagnose", func(t *testing.T) {
+		r := &Prescriber{}
+		p := r.Diagnose(Patient{}, []Symptom{})
+
+		assert.IsType(t, Prescription{}, p)
+	})
 }
