@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"encoding/json"
 	"os"
 	"time"
 )
@@ -25,8 +26,13 @@ func NewPrescriberSystemFacade() *PrescriberSystemFacade {
 	return p
 }
 
-func (f *PrescriberSystemFacade) ImportDatabaseByJSON(file os.File) {
-	//f.prescriberSystem.db.CreatePatient(p)
+func (f *PrescriberSystemFacade) ImportDatabaseByJSON(file *os.File) {
+	var patients []Patient
+	decoder := json.NewDecoder(file)
+	decoder.Decode(&patients)
+	for _, p := range patients {
+		f.prescriberSystem.db.CreatePatient(&p)
+	}
 }
 
 func (f *PrescriberSystemFacade) Diagnose(name string, symptoms []Symptom, option Option) {
