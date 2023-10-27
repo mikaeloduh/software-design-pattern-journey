@@ -16,6 +16,10 @@ func (d *PatientDatabase) FindPatientById(id string) *Patient {
 	return d.data[id]
 }
 
+func (d *PatientDatabase) AddPatientCase(p *Patient, c Case) {
+	d.data[p.Id].AddCase(c)
+}
+
 func (d *PatientDatabase) FindPatientByName(name string) *Patient {
 	for _, v := range d.data {
 		if v.Name == name {
