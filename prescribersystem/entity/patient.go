@@ -2,10 +2,6 @@ package entity
 
 import "time"
 
-type Case struct {
-	CaseTime time.Time
-}
-
 type Patient struct {
 	Id     string
 	Name   string
