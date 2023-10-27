@@ -15,3 +15,12 @@ func (d *PatientDatabase) CreatePatient(p *Patient) {
 func (d *PatientDatabase) FindPatientById(id string) *Patient {
 	return d.data[id]
 }
+
+func (d *PatientDatabase) FindPatientByName(name string) *Patient {
+	for _, v := range d.data {
+		if v.Name == name {
+			return v
+		}
+	}
+	return nil
+}

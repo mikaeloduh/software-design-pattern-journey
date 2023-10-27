@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestPrescriberSystem(t *testing.T) {
@@ -27,7 +28,7 @@ func TestPrescriberSystem_Run(t *testing.T) {
 	db := NewPatientDatabase()
 	sys := NewPrescriberSystem(db)
 
-	sys.Run()
+	sys.Up()
 
 	var wg sync.WaitGroup
 
@@ -40,8 +41,13 @@ func TestPrescriberSystem_Run(t *testing.T) {
 				Patient:  *NewPatient("a0000001", "p1", Male, 87, 159, 100),
 				Symptoms: []Symptom{Snore},
 			})
-			sys.SavePrescriptionToDB(p)
-			sys.SavePrescriptionToJSON(p)
+			c := Case{
+				CaseTime:     time.Now(),
+				Symptoms:     nil,
+				Prescription: *p,
+			}
+			sys.SavePatientCaseToDB(c)
+			sys.SavePatientCaseToJSON(c)
 		}
 
 		wg.Add(1)
@@ -58,8 +64,13 @@ func TestPrescriberSystem_Run(t *testing.T) {
 				Patient:  *NewPatient("a0000001", "p1", Male, 87, 159, 100),
 				Symptoms: []Symptom{Snore},
 			})
-			sys.SavePrescriptionToDB(p)
-			sys.SavePrescriptionToCSV(p)
+			c := Case{
+				CaseTime:     time.Now(),
+				Symptoms:     nil,
+				Prescription: *p,
+			}
+			sys.SavePatientCaseToDB(c)
+			sys.SavePatientCaseToJSON(c)
 		}
 
 		wg.Add(1)

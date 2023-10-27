@@ -15,7 +15,7 @@ func NewPrescriberSystem(db *PatientDatabase) *PrescriberSystem {
 	}
 }
 
-func (s *PrescriberSystem) Run() {
+func (s *PrescriberSystem) Up() {
 	go s.worker.Start()
 }
 
@@ -23,7 +23,7 @@ func (s *PrescriberSystem) Down() {
 	s.worker.Stop()
 }
 
-func (s *PrescriberSystem) SchedulePrescriber(d Demand) Prescription {
+func (s *PrescriberSystem) SchedulePrescriber(d Demand) *Prescription {
 	fmt.Printf("Scheduling damand #%d...\n", d.ID)
 	w := s.getWorker()
 	w.reqCh <- d
@@ -36,15 +36,15 @@ func (s *PrescriberSystem) getWorker() *PrescriberWorker {
 	return s.worker
 }
 
-func (s *PrescriberSystem) SavePrescriptionToDB(p Prescription) {
+func (s *PrescriberSystem) SavePatientCaseToDB(c Case) {
 	fmt.Println("saving to DB")
 }
 
-func (s *PrescriberSystem) SavePrescriptionToJSON(p Prescription) {
+func (s *PrescriberSystem) SavePatientCaseToJSON(c Case) {
 	fmt.Println("saving to JSON")
 }
 
-func (s *PrescriberSystem) SavePrescriptionToCSV(p Prescription) {
+func (s *PrescriberSystem) SavePatientCaseToCSV(c Case) {
 	fmt.Println("saving to CSV")
 }
 
@@ -60,7 +60,7 @@ type PrescriberWorker struct {
 	ID         int
 	prescriber *Prescriber
 	reqCh      chan Demand
-	resCh      chan Prescription
+	resCh      chan *Prescription
 	doneCh     chan struct{}
 }
 
@@ -69,7 +69,7 @@ func NewPrescriberWorker(ID int) *PrescriberWorker {
 		ID:         ID,
 		prescriber: NewDefaultPrescriber(),
 		reqCh:      make(chan Demand),
-		resCh:      make(chan Prescription),
+		resCh:      make(chan *Prescription),
 		doneCh:     make(chan struct{}),
 	}
 }
@@ -82,7 +82,7 @@ func (w *PrescriberWorker) Start() {
 			fmt.Printf("Worker %d is processing Demand %d.\n", w.ID, demand.ID)
 			p := w.prescriber.Diagnose(demand.Patient, demand.Symptoms)
 			fmt.Printf("Worker %d finished Demand %d.\n", w.ID, demand.ID)
-			w.resCh <- *p
+			w.resCh <- p
 		case <-w.doneCh:
 			fmt.Printf("Worker %d stopped.\n", w.ID)
 			return
