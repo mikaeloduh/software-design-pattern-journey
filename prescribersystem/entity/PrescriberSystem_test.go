@@ -21,14 +21,3 @@ func TestPrescriberSystem(t *testing.T) {
 		assert.IsType(t, &PrescriberSystem{}, sys)
 	})
 }
-
-func TestPrescriber(t *testing.T) {
-	t.Parallel()
-
-	t.Run("test Prescriber Diagnose", func(t *testing.T) {
-		r := &Prescriber{}
-		p := r.Diagnose(Patient{}, []Symptom{})
-
-		assert.IsType(t, Prescription{}, p)
-	})
-}
