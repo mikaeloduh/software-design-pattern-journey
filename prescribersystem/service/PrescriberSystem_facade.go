@@ -15,7 +15,7 @@ type PrescriberSystemFacade struct {
 
 func NewPrescriberSystemFacade(configFile *os.File) *PrescriberSystemFacade {
 	p := &PrescriberSystemFacade{
-		prescriberSystem: NewPrescriberSystem(entity.NewPatientDatabase(), fileToConfig(configFile)),
+		prescriberSystem: NewPrescriberSystem(NewPatientDatabase(), fileToConfig(configFile)),
 	}
 	p.prescriberSystem.Up()
 

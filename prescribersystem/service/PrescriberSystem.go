@@ -7,12 +7,12 @@ import (
 
 // PrescriberSystem
 type PrescriberSystem struct {
-	db     *entity.PatientDatabase
+	db     *PatientDatabase
 	worker *PrescriberWorker
 	config Config
 }
 
-func NewPrescriberSystem(db *entity.PatientDatabase, config Config) *PrescriberSystem {
+func NewPrescriberSystem(db *PatientDatabase, config Config) *PrescriberSystem {
 	return &PrescriberSystem{
 		db:     db,
 		worker: NewPrescriberWorker(1, config),

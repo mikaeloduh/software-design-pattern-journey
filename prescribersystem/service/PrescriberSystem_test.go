@@ -20,13 +20,13 @@ func TestPrescriberSystem(t *testing.T) {
 	}
 
 	t.Run("test new PatientDatabase", func(t *testing.T) {
-		db := entity.NewPatientDatabase()
+		db := NewPatientDatabase()
 
-		assert.IsType(t, &entity.PatientDatabase{}, db)
+		assert.IsType(t, &PatientDatabase{}, db)
 	})
 
 	t.Run("test new PrescriberSystem", func(t *testing.T) {
-		db := entity.NewPatientDatabase()
+		db := NewPatientDatabase()
 		sys := NewPrescriberSystem(db, config)
 
 		assert.IsType(t, &PrescriberSystem{}, sys)
@@ -34,7 +34,7 @@ func TestPrescriberSystem(t *testing.T) {
 }
 
 func TestPrescriberSystem_Run(t *testing.T) {
-	db := entity.NewPatientDatabase()
+	db := NewPatientDatabase()
 	config := Config{
 		COVID19:            true,
 		Attractive:         true,
