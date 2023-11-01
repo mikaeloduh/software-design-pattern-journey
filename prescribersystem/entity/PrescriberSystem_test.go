@@ -10,6 +10,12 @@ import (
 func TestPrescriberSystem(t *testing.T) {
 	t.Parallel()
 
+	config := Config{
+		COVID19:            true,
+		Attractive:         true,
+		SleepApneaSyndrome: true,
+	}
+
 	t.Run("test new PatientDatabase", func(t *testing.T) {
 		db := NewPatientDatabase()
 
@@ -18,21 +24,26 @@ func TestPrescriberSystem(t *testing.T) {
 
 	t.Run("test new PrescriberSystem", func(t *testing.T) {
 		db := NewPatientDatabase()
-		sys := NewPrescriberSystem(db)
+		sys := NewPrescriberSystem(db, config)
 
 		assert.IsType(t, &PrescriberSystem{}, sys)
 	})
 }
 
 func TestPrescriberSystem_Run(t *testing.T) {
+	config := Config{
+		COVID19:            true,
+		Attractive:         true,
+		SleepApneaSyndrome: true,
+	}
 	db := NewPatientDatabase()
-	sys := NewPrescriberSystem(db)
+	sys := NewPrescriberSystem(db, config)
 
 	sys.Up()
 
 	var wg sync.WaitGroup
 
-	t.Run("test new PatientDatabase", func(t *testing.T) {
+	t.Run("test new PatientDatabase and save as JSON", func(t *testing.T) {
 
 		DemandPrescriptionAndPrintJSON := func() {
 			defer wg.Done()
@@ -55,7 +66,7 @@ func TestPrescriberSystem_Run(t *testing.T) {
 
 	})
 
-	t.Run("tet", func(t *testing.T) {
+	t.Run("test new PatientDatabase and save as CSV", func(t *testing.T) {
 
 		DemandPrescriptionAndPrintCSV := func() {
 			defer wg.Done()
@@ -70,7 +81,7 @@ func TestPrescriberSystem_Run(t *testing.T) {
 				Prescription: *p,
 			}
 			sys.SavePatientCaseToDB(c)
-			sys.SavePatientCaseToJSON(c)
+			sys.SavePatientCaseToCSV(c)
 		}
 
 		wg.Add(1)

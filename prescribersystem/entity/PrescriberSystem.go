@@ -6,12 +6,14 @@ import "fmt"
 type PrescriberSystem struct {
 	db     *PatientDatabase
 	worker *PrescriberWorker
+	config Config
 }
 
-func NewPrescriberSystem(db *PatientDatabase) *PrescriberSystem {
+func NewPrescriberSystem(db *PatientDatabase, config Config) *PrescriberSystem {
 	return &PrescriberSystem{
 		db:     db,
-		worker: NewPrescriberWorker(1),
+		worker: NewPrescriberWorker(1, config),
+		config: config,
 	}
 }
 
@@ -64,10 +66,23 @@ type PrescriberWorker struct {
 	doneCh     chan struct{}
 }
 
-func NewPrescriberWorker(ID int) *PrescriberWorker {
+func NewPrescriberWorker(ID int, config Config) *PrescriberWorker {
+	var rules []IDiagnosticRule
+	if config.IsEnabled(COVID19) {
+		rules = append(rules, &HerbRule{})
+	}
+	if config.IsEnabled(Attractive) {
+		rules = append(rules, &InhibitorRule{})
+	}
+	if config.IsEnabled(SleepApneaSyndrome) {
+		rules = append(rules, &ShutUpRule{})
+	}
+
+	handler := ChainDiagnosticRule(rules...)
+
 	return &PrescriberWorker{
 		ID:         ID,
-		prescriber: NewDefaultPrescriber(),
+		prescriber: NewPrescriber(handler),
 		reqCh:      make(chan Demand),
 		resCh:      make(chan *Prescription),
 		doneCh:     make(chan struct{}),

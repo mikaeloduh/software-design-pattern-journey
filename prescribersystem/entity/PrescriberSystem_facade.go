@@ -17,13 +17,24 @@ type PrescriberSystemFacade struct {
 	prescriberSystem *PrescriberSystem
 }
 
-func NewPrescriberSystemFacade() *PrescriberSystemFacade {
+func NewPrescriberSystemFacade(configFile *os.File) *PrescriberSystemFacade {
 	p := &PrescriberSystemFacade{
-		prescriberSystem: NewPrescriberSystem(NewPatientDatabase()),
+		prescriberSystem: NewPrescriberSystem(
+			NewPatientDatabase(),
+			fileToConfig(configFile),
+		),
 	}
 	p.prescriberSystem.Up()
 
 	return p
+}
+
+func fileToConfig(file *os.File) Config {
+	// TODO: to be implement
+	return Config{}
+}
+
+func (f *PrescriberSystemFacade) setSupportRules(file *os.File) {
 }
 
 func (f *PrescriberSystemFacade) ImportDatabaseByJSON(file *os.File) {
