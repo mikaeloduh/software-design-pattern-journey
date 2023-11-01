@@ -1,7 +1,8 @@
-package entity
+package service
 
 import (
 	"github.com/stretchr/testify/assert"
+	"prescribersystem/entity"
 	"sync"
 	"testing"
 	"time"
@@ -17,13 +18,13 @@ func TestPrescriberSystem(t *testing.T) {
 	}
 
 	t.Run("test new PatientDatabase", func(t *testing.T) {
-		db := NewPatientDatabase()
+		db := entity.NewPatientDatabase()
 
-		assert.IsType(t, &PatientDatabase{}, db)
+		assert.IsType(t, &entity.PatientDatabase{}, db)
 	})
 
 	t.Run("test new PrescriberSystem", func(t *testing.T) {
-		db := NewPatientDatabase()
+		db := entity.NewPatientDatabase()
 		sys := NewPrescriberSystem(db, config)
 
 		assert.IsType(t, &PrescriberSystem{}, sys)
@@ -36,7 +37,7 @@ func TestPrescriberSystem_Run(t *testing.T) {
 		Attractive:         true,
 		SleepApneaSyndrome: true,
 	}
-	db := NewPatientDatabase()
+	db := entity.NewPatientDatabase()
 	sys := NewPrescriberSystem(db, config)
 
 	sys.Up()
@@ -49,10 +50,10 @@ func TestPrescriberSystem_Run(t *testing.T) {
 			defer wg.Done()
 			p := sys.SchedulePrescriber(Demand{
 				ID:       1,
-				Patient:  *NewPatient("a0000001", "p1", Male, 87, 159, 100),
-				Symptoms: []Symptom{Snore},
+				Patient:  *entity.NewPatient("a0000001", "p1", entity.Male, 87, 159, 100),
+				Symptoms: []entity.Symptom{entity.Snore},
 			})
-			c := Case{
+			c := entity.Case{
 				CaseTime:     time.Now(),
 				Symptoms:     nil,
 				Prescription: *p,
@@ -72,10 +73,10 @@ func TestPrescriberSystem_Run(t *testing.T) {
 			defer wg.Done()
 			p := sys.SchedulePrescriber(Demand{
 				ID:       2,
-				Patient:  *NewPatient("a0000001", "p1", Male, 87, 159, 100),
-				Symptoms: []Symptom{Snore},
+				Patient:  *entity.NewPatient("a0000001", "p1", entity.Male, 87, 159, 100),
+				Symptoms: []entity.Symptom{entity.Snore},
 			})
-			c := Case{
+			c := entity.Case{
 				CaseTime:     time.Now(),
 				Symptoms:     nil,
 				Prescription: *p,

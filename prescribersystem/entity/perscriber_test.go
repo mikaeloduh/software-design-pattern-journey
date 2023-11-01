@@ -41,5 +41,5 @@ func TestPrescriber(t *testing.T) {
 
 }
 func FakeNewPrescriber() *Prescriber {
-	return &Prescriber{handler: ChainDiagnosticRule(&HerbRule{}, &InhibitorRule{}, &ShutUpRule{})}
+	return &Prescriber{rule: ChainDiagnosticRule(&HerbRule{}, &InhibitorRule{}, &ShutUpRule{})}
 }

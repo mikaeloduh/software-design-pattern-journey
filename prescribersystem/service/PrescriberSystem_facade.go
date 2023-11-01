@@ -1,8 +1,9 @@
-package entity
+package service
 
 import (
 	"encoding/json"
 	"os"
+	"prescribersystem/entity"
 	"time"
 )
 
@@ -20,7 +21,7 @@ type PrescriberSystemFacade struct {
 func NewPrescriberSystemFacade(configFile *os.File) *PrescriberSystemFacade {
 	p := &PrescriberSystemFacade{
 		prescriberSystem: NewPrescriberSystem(
-			NewPatientDatabase(),
+			entity.NewPatientDatabase(),
 			fileToConfig(configFile),
 		),
 	}
@@ -38,7 +39,7 @@ func (f *PrescriberSystemFacade) setSupportRules(file *os.File) {
 }
 
 func (f *PrescriberSystemFacade) ImportDatabaseByJSON(file *os.File) {
-	var patients []Patient
+	var patients []entity.Patient
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&patients)
 	for _, p := range patients {
@@ -46,7 +47,7 @@ func (f *PrescriberSystemFacade) ImportDatabaseByJSON(file *os.File) {
 	}
 }
 
-func (f *PrescriberSystemFacade) Diagnose(name string, symptoms []Symptom, option Option) {
+func (f *PrescriberSystemFacade) Diagnose(name string, symptoms []entity.Symptom, option Option) {
 	patient := f.prescriberSystem.db.FindPatientByName(name)
 	if patient == nil {
 		println("error: patient not found")
@@ -61,7 +62,7 @@ func (f *PrescriberSystemFacade) Diagnose(name string, symptoms []Symptom, optio
 		println("error: diagnosis failed, you need a new doctor")
 	}
 
-	patientsCase := Case{
+	patientsCase := entity.Case{
 		CaseTime:     time.Now(),
 		Symptoms:     symptoms,
 		Prescription: *prescription,

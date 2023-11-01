@@ -1,15 +1,18 @@
-package entity
+package service
 
-import "fmt"
+import (
+	"fmt"
+	"prescribersystem/entity"
+)
 
 // PrescriberSystem
 type PrescriberSystem struct {
-	db     *PatientDatabase
+	db     *entity.PatientDatabase
 	worker *PrescriberWorker
 	config Config
 }
 
-func NewPrescriberSystem(db *PatientDatabase, config Config) *PrescriberSystem {
+func NewPrescriberSystem(db *entity.PatientDatabase, config Config) *PrescriberSystem {
 	return &PrescriberSystem{
 		db:     db,
 		worker: NewPrescriberWorker(1, config),
@@ -25,7 +28,7 @@ func (s *PrescriberSystem) Down() {
 	s.worker.Stop()
 }
 
-func (s *PrescriberSystem) SchedulePrescriber(d Demand) *Prescription {
+func (s *PrescriberSystem) SchedulePrescriber(d Demand) *entity.Prescription {
 	fmt.Printf("Scheduling damand #%d...\n", d.ID)
 	w := s.getWorker()
 	w.reqCh <- d
@@ -38,53 +41,53 @@ func (s *PrescriberSystem) getWorker() *PrescriberWorker {
 	return s.worker
 }
 
-func (s *PrescriberSystem) SavePatientCaseToDB(c Case) {
+func (s *PrescriberSystem) SavePatientCaseToDB(c entity.Case) {
 	fmt.Println("saving to DB")
 }
 
-func (s *PrescriberSystem) SavePatientCaseToJSON(c Case) {
+func (s *PrescriberSystem) SavePatientCaseToJSON(c entity.Case) {
 	fmt.Println("saving to JSON")
 }
 
-func (s *PrescriberSystem) SavePatientCaseToCSV(c Case) {
+func (s *PrescriberSystem) SavePatientCaseToCSV(c entity.Case) {
 	fmt.Println("saving to CSV")
 }
 
 // Demand
 type Demand struct {
 	ID       int
-	Patient  Patient
-	Symptoms []Symptom
+	Patient  entity.Patient
+	Symptoms []entity.Symptom
 }
 
 // PrescriberWorker
 type PrescriberWorker struct {
 	ID         int
-	prescriber *Prescriber
+	prescriber *entity.Prescriber
 	reqCh      chan Demand
-	resCh      chan *Prescription
+	resCh      chan *entity.Prescription
 	doneCh     chan struct{}
 }
 
 func NewPrescriberWorker(ID int, config Config) *PrescriberWorker {
-	var rules []IDiagnosticRule
+	var rules []entity.IDiagnosticRule
 	if config.IsEnabled(COVID19) {
-		rules = append(rules, &HerbRule{})
+		rules = append(rules, &entity.HerbRule{})
 	}
 	if config.IsEnabled(Attractive) {
-		rules = append(rules, &InhibitorRule{})
+		rules = append(rules, &entity.InhibitorRule{})
 	}
 	if config.IsEnabled(SleepApneaSyndrome) {
-		rules = append(rules, &ShutUpRule{})
+		rules = append(rules, &entity.ShutUpRule{})
 	}
 
-	handler := ChainDiagnosticRule(rules...)
+	rule := entity.ChainDiagnosticRule(rules...)
 
 	return &PrescriberWorker{
 		ID:         ID,
-		prescriber: NewPrescriber(handler),
+		prescriber: entity.NewPrescriber(rule),
 		reqCh:      make(chan Demand),
-		resCh:      make(chan *Prescription),
+		resCh:      make(chan *entity.Prescription),
 		doneCh:     make(chan struct{}),
 	}
 }
