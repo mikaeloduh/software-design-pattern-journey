@@ -5,6 +5,13 @@ import (
 	"prescribersystem/entity"
 )
 
+// Demand
+type Demand struct {
+	ID       int
+	Patient  entity.Patient
+	Symptoms []entity.Symptom
+}
+
 // PrescriberSystem
 type PrescriberSystem struct {
 	db     *PatientDatabase
@@ -51,13 +58,6 @@ func (s *PrescriberSystem) SavePatientCaseToJSON(c entity.Case) {
 
 func (s *PrescriberSystem) SavePatientCaseToCSV(c entity.Case) {
 	fmt.Println("saving to CSV")
-}
-
-// Demand
-type Demand struct {
-	ID       int
-	Patient  entity.Patient
-	Symptoms []entity.Symptom
 }
 
 // PrescriberWorker
