@@ -20,22 +20,11 @@ type PrescriberSystemFacade struct {
 
 func NewPrescriberSystemFacade(configFile *os.File) *PrescriberSystemFacade {
 	p := &PrescriberSystemFacade{
-		prescriberSystem: NewPrescriberSystem(
-			entity.NewPatientDatabase(),
-			fileToConfig(configFile),
-		),
+		prescriberSystem: NewPrescriberSystem(entity.NewPatientDatabase(), fileToConfig(configFile)),
 	}
 	p.prescriberSystem.Up()
 
 	return p
-}
-
-func fileToConfig(file *os.File) Config {
-	// TODO: to be implement
-	return Config{}
-}
-
-func (f *PrescriberSystemFacade) setSupportRules(file *os.File) {
 }
 
 func (f *PrescriberSystemFacade) ImportDatabaseByJSON(file *os.File) {
@@ -75,4 +64,9 @@ func (f *PrescriberSystemFacade) Diagnose(name string, symptoms []entity.Symptom
 	} else if option == CSV {
 		f.prescriberSystem.SavePatientCaseToCSV(patientsCase)
 	}
+}
+
+func fileToConfig(file *os.File) Config {
+	// TODO: to be implement
+	return Config{}
 }

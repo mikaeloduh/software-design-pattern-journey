@@ -32,12 +32,12 @@ func TestPrescriberSystem(t *testing.T) {
 }
 
 func TestPrescriberSystem_Run(t *testing.T) {
+	db := entity.NewPatientDatabase()
 	config := Config{
 		COVID19:            true,
 		Attractive:         true,
 		SleepApneaSyndrome: true,
 	}
-	db := entity.NewPatientDatabase()
 	sys := NewPrescriberSystem(db, config)
 
 	sys.Up()
