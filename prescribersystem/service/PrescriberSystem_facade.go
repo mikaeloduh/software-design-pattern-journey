@@ -1,17 +1,12 @@
 package service
 
 import (
-	"encoding/json"
 	"os"
-	"prescribersystem/entity"
 	"time"
-)
 
-type Option string
+	"encoding/json"
 
-const (
-	JSON Option = "JSON"
-	CSV  Option = "CSV"
+	"prescribersystem/entity"
 )
 
 type PrescriberSystemFacade struct {

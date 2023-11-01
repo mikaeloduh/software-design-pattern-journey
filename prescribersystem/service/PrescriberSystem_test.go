@@ -1,11 +1,13 @@
 package service
 
 import (
-	"github.com/stretchr/testify/assert"
-	"prescribersystem/entity"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"prescribersystem/entity"
 )
 
 func TestPrescriberSystem(t *testing.T) {
