@@ -20,9 +20,20 @@ type PrescriberSystem struct {
 }
 
 func NewPrescriberSystem(db *PatientDatabase, config Config) *PrescriberSystem {
+	var rules []entity.IDiagnosticRule
+	if config.IsEnabled(COVID19) {
+		rules = append(rules, &entity.HerbRule{})
+	}
+	if config.IsEnabled(Attractive) {
+		rules = append(rules, &entity.InhibitorRule{})
+	}
+	if config.IsEnabled(SleepApneaSyndrome) {
+		rules = append(rules, &entity.ShutUpRule{})
+	}
+
 	return &PrescriberSystem{
 		db:     db,
-		worker: NewPrescriberWorker(1, config),
+		worker: NewPrescriberWorker(1, entity.ChainDiagnosticRule(rules...)),
 		config: config,
 	}
 }
@@ -69,20 +80,7 @@ type PrescriberWorker struct {
 	doneCh     chan struct{}
 }
 
-func NewPrescriberWorker(ID int, config Config) *PrescriberWorker {
-	var rules []entity.IDiagnosticRule
-	if config.IsEnabled(COVID19) {
-		rules = append(rules, &entity.HerbRule{})
-	}
-	if config.IsEnabled(Attractive) {
-		rules = append(rules, &entity.InhibitorRule{})
-	}
-	if config.IsEnabled(SleepApneaSyndrome) {
-		rules = append(rules, &entity.ShutUpRule{})
-	}
-
-	rule := entity.ChainDiagnosticRule(rules...)
-
+func NewPrescriberWorker(ID int, rule entity.IDiagnosticRule) *PrescriberWorker {
 	return &PrescriberWorker{
 		ID:         ID,
 		prescriber: entity.NewPrescriber(rule),
