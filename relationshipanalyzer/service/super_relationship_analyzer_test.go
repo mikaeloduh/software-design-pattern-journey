@@ -20,7 +20,7 @@ func TestSuperRelationshipAnalyzer_IsMutualFriend(t *testing.T) {
 		want bool
 	}{
 		{
-			name: "test A, B, C is mutual fired",
+			name: "test A is B, C's mutual fired",
 			args: args{
 				target: "A",
 				name2:  "B",
@@ -29,7 +29,7 @@ func TestSuperRelationshipAnalyzer_IsMutualFriend(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "test A, B, F is not mutual fired",
+			name: "test A is not B, F's mutual fired",
 			args: args{
 				target: "A",
 				name2:  "B",
@@ -40,7 +40,7 @@ func TestSuperRelationshipAnalyzer_IsMutualFriend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &SuperRelationshipAnalyzer{NameGraph: testGraph()}
+			a := &SuperRelationshipAnalyzer{RelationshipGraph: testGraph()}
 
 			got := a.IsMutualFriend(tt.args.target, tt.args.name2, tt.args.name3)
 
@@ -87,7 +87,7 @@ func TestSuperRelationshipAnalyzer_isFriend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &SuperRelationshipAnalyzer{NameGraph: testGraph()}
+			a := &SuperRelationshipAnalyzer{RelationshipGraph: testGraph()}
 
 			got := a.isFriend(tt.args.name1, tt.args.name2)
 
