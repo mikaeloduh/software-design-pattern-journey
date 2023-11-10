@@ -15,10 +15,10 @@ func (a *RelationshipAnalyzerAdaptor) Parse(script string) {
 func (a *RelationshipAnalyzerAdaptor) GetMutualFriends(name1, name2 string) []string {
 	mutualFriends := make([]string, 0)
 
-	_ = filter(a.names, func(s string) bool { return s != name1 && s != name2 })
+	searchCandidate := filter(a.names, func(s string) bool { return s != name1 && s != name2 })
 
-	for _, tar := range a.names {
-		if tar != name1 && tar != name2 && a.superRelationshipAnalyzer.IsMutualFriend(tar, name1, name2) {
+	for _, tar := range searchCandidate {
+		if a.superRelationshipAnalyzer.IsMutualFriend(tar, name1, name2) {
 			mutualFriends = append(mutualFriends, tar)
 		}
 	}
