@@ -36,8 +36,9 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &RelationshipAnalyzerAdaptor{
 				superRelationshipAnalyzer: FakeSuperRelationshipAnalyzer(),
-				RelationshipGraph:         testGraph(),
 			}
+
+			a.Parse("")
 			got := a.GetMutualFriends(tt.args.name1, tt.args.name2)
 
 			fmt.Printf("%s and %s's mutual friends: %v\n", tt.args.name1, tt.args.name2, got)
@@ -46,5 +47,5 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 }
 
 func FakeSuperRelationshipAnalyzer() SuperRelationshipAnalyzer {
-	return SuperRelationshipAnalyzer{RelationshipGraph: testGraph()}
+	return SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
 }

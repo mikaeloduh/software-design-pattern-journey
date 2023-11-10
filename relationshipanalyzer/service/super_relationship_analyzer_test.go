@@ -40,7 +40,7 @@ func TestSuperRelationshipAnalyzer_IsMutualFriend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &SuperRelationshipAnalyzer{RelationshipGraph: testGraph()}
+			a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
 
 			got := a.IsMutualFriend(tt.args.target, tt.args.name2, tt.args.name3)
 
@@ -84,10 +84,18 @@ func TestSuperRelationshipAnalyzer_isFriend(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "test A and E is not friend",
+			args: args{
+				name1: "A",
+				name2: "E",
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &SuperRelationshipAnalyzer{RelationshipGraph: testGraph()}
+			a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
 
 			got := a.isFriend(tt.args.name1, tt.args.name2)
 
