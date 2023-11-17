@@ -1,7 +1,7 @@
 package service
 
 import (
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -21,7 +21,7 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 				name1: "B",
 				name2: "A",
 			},
-			want: make([]string, 0),
+			want: []string{"D"},
 		},
 		{
 			name: "test get all of B and C's mutual friends",
@@ -29,7 +29,7 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 				name1: "C",
 				name2: "B",
 			},
-			want: make([]string, 0),
+			want: []string{"A", "E"},
 		},
 	}
 	for _, tt := range tests {
@@ -38,7 +38,7 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 
 			got := a.GetMutualFriends(tt.args.name1, tt.args.name2)
 
-			fmt.Printf("%s and %s's mutual friends: %v\n", tt.args.name1, tt.args.name2, got)
+			assert.ElementsMatch(t, tt.want, got)
 		})
 	}
 
@@ -49,7 +49,7 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 
 			got := a.GetMutualFriends(tt.args.name1, tt.args.name2)
 
-			fmt.Printf("%s and %s's mutual friends: %v\n", tt.args.name1, tt.args.name2, got)
+			assert.ElementsMatch(t, tt.want, got)
 		})
 	}
 }
@@ -57,6 +57,6 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 func FakeNewRelationshipAnalyzerAdaptor() *RelationshipAnalyzerAdaptor {
 	return &RelationshipAnalyzerAdaptor{
 		superRelationshipAnalyzer: FakeNewSuperRelationshipAnalyzer(),
-		names:                     []string{"A", "B", "C", "D", "E", "F", "G", "J", "K", "M", "P", "L", "Z"},
+		friends:                   []string{"A", "B", "C", "D", "E", "F", "G", "J", "K", "M", "P", "L", "Z"},
 	}
 }

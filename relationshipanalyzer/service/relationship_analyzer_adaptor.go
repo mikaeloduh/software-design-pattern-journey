@@ -7,8 +7,8 @@ import (
 
 type RelationshipAnalyzerAdaptor struct {
 	superRelationshipAnalyzer *SuperRelationshipAnalyzer
-	names                     []string
 	relationshipGraph         RelationshipGraph
+	friends                   []string
 }
 
 func NewRelationshipAnalyzerAdaptor() *RelationshipAnalyzerAdaptor {
@@ -58,9 +58,8 @@ func (a *RelationshipAnalyzerAdaptor) Parse(script string) {
 	}
 	// Convert the set of elements to a list
 	for element := range elements {
-		a.names = append(a.names, element)
+		a.friends = append(a.friends, element)
 	}
-	fmt.Println(a.names)
 
 	superInput := ""
 	// Print relationships in the desired format
@@ -76,7 +75,7 @@ func (a *RelationshipAnalyzerAdaptor) Parse(script string) {
 func (a *RelationshipAnalyzerAdaptor) GetMutualFriends(name1, name2 string) []string {
 	mutualFriends := make([]string, 0)
 
-	searchCandidate := filter(a.names, func(s string) bool { return s != name1 && s != name2 })
+	searchCandidate := filter(a.getFriends(), func(s string) bool { return s != name1 && s != name2 })
 
 	for _, tar := range searchCandidate {
 		if a.superRelationshipAnalyzer.IsMutualFriend(tar, name1, name2) {
@@ -88,7 +87,13 @@ func (a *RelationshipAnalyzerAdaptor) GetMutualFriends(name1, name2 string) []st
 }
 
 func (a *RelationshipAnalyzerAdaptor) HasConnection(name1, name2 string) bool {
+	// TODO: challenge requirement
 	return a.relationshipGraph.HasConnection(name1, name2)
+}
+
+func (a *RelationshipAnalyzerAdaptor) getFriends() []string {
+	// TODO: challenge requirement
+	return a.friends
 }
 
 func filter(ss []string, test func(string) bool) (ret []string) {
