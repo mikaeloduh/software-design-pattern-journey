@@ -46,6 +46,6 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 	}
 }
 
-func FakeSuperRelationshipAnalyzer() SuperRelationshipAnalyzer {
-	return SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+func FakeSuperRelationshipAnalyzer() *SuperRelationshipAnalyzer {
+	return &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
 }

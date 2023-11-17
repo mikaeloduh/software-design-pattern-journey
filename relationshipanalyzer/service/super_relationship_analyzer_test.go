@@ -40,7 +40,8 @@ func TestSuperRelationshipAnalyzer_IsMutualFriend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+			//a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+			a := FakeNewSuperRelationshipAnalyzer()
 
 			got := a.IsMutualFriend(tt.args.target, tt.args.name2, tt.args.name3)
 
@@ -95,13 +96,36 @@ func TestSuperRelationshipAnalyzer_isFriend(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+			//a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+			a := FakeNewSuperRelationshipAnalyzer()
 
 			got := a.isFriend(tt.args.name1, tt.args.name2)
 
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+func FakeNewSuperRelationshipAnalyzer() *SuperRelationshipAnalyzer {
+	a := &SuperRelationshipAnalyzer{}
+	a.Init(`
+A -- B
+A -- C
+A -- D
+B -- D
+B -- E
+C -- E
+C -- G
+C -- K
+C -- M
+D -- K
+D -- P
+E -- J
+E -- K
+E -- L
+F -- Z
+`)
+	return a
 }
 
 func testGraph() graph.Graph[string, string] {
@@ -130,6 +154,7 @@ func testGraph() graph.Graph[string, string] {
 	_ = g.AddEdge("C", "G")
 	_ = g.AddEdge("C", "K")
 	_ = g.AddEdge("C", "M")
+	_ = g.AddEdge("D", "K")
 	_ = g.AddEdge("D", "P")
 	_ = g.AddEdge("E", "J")
 	_ = g.AddEdge("E", "K")

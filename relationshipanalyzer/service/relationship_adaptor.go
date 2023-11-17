@@ -1,15 +1,65 @@
 package service
 
-import "github.com/dominikbraun/graph"
+import (
+	"fmt"
+	"strings"
+)
 
 type RelationshipAnalyzerAdaptor struct {
-	superRelationshipAnalyzer SuperRelationshipAnalyzer
+	superRelationshipAnalyzer *SuperRelationshipAnalyzer
 	names                     []string
+	nameGraph                 RelationshipGraph
+}
+
+func NewRelationshipAnalyzerAdaptor() *RelationshipAnalyzerAdaptor {
+	return &RelationshipAnalyzerAdaptor{
+		superRelationshipAnalyzer: NewSuperRelationshipAnalyzer(),
+	}
 }
 
 func (a *RelationshipAnalyzerAdaptor) Parse(script string) {
-	//a.superRelationshipAnalyzer.Init()
-	a.names = []string{"A", "B", "C", "D", "E", "F", "G", "J", "K", "M", "P", "L", "Z"}
+	// Create a map to store relationships
+	relationships := make(map[string][]string)
+
+	// Create a set to keep track of processed relationships
+	processed := make(map[string]bool)
+
+	// Split input into lines
+	lines := strings.Split(script, "\n")
+
+	// Process each line
+	for _, line := range lines {
+		// Split line into components
+		parts := strings.Split(line, ":")
+		if len(parts) != 2 {
+			continue
+		}
+
+		// Trim spaces
+		node := strings.TrimSpace(parts[0])
+		neighbors := strings.Fields(parts[1])
+
+		// Add relationships to the map and check for duplicates
+		for _, neighbor := range neighbors {
+			relationship := fmt.Sprintf("%s -- %s", node, neighbor)
+			reverseRelationship := fmt.Sprintf("%s -- %s", neighbor, node)
+
+			if !processed[relationship] && !processed[reverseRelationship] {
+				relationships[node] = append(relationships[node], neighbor)
+				processed[relationship] = true
+			}
+		}
+	}
+
+	superInput := ""
+	// Print relationships in the desired format
+	for node, neighbors := range relationships {
+		for _, neighbor := range neighbors {
+			superInput += fmt.Sprintf("%s -- %s\n", node, neighbor)
+		}
+	}
+
+	a.superRelationshipAnalyzer.Init(superInput)
 }
 
 func (a *RelationshipAnalyzerAdaptor) GetMutualFriends(name1, name2 string) []string {
@@ -26,21 +76,8 @@ func (a *RelationshipAnalyzerAdaptor) GetMutualFriends(name1, name2 string) []st
 	return mutualFriends
 }
 
-func (a *RelationshipAnalyzerAdaptor) GetMutualFriendsV0(name1, name2 string) []string {
-	mutualFriends := make([]string, 0)
-
-	_ = graph.DFS[string, string](a.superRelationshipAnalyzer.SuperRelationship, name1, func(value string) bool {
-		if a.superRelationshipAnalyzer.IsMutualFriend(value, name1, name2) && value != name1 && value != name2 {
-			mutualFriends = append(mutualFriends, value)
-		}
-		return false
-	})
-
-	return mutualFriends
-}
-
 func (a *RelationshipAnalyzerAdaptor) HasConnection(name1, name2 string) bool {
-	return false
+	return a.nameGraph.HasConnection(name1, name2)
 }
 
 func filter(ss []string, test func(string) bool) (ret []string) {
