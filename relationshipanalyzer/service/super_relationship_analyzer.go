@@ -6,7 +6,7 @@ import (
 )
 
 type SuperRelationshipAnalyzer struct {
-	SuperRelationship graph.Graph[string, string]
+	superRelationshipGraph graph.Graph[string, string]
 }
 
 func NewSuperRelationshipAnalyzer() *SuperRelationshipAnalyzer {
@@ -15,7 +15,7 @@ func NewSuperRelationshipAnalyzer() *SuperRelationshipAnalyzer {
 
 func (a *SuperRelationshipAnalyzer) Init(script string) {
 	// Create a new graph
-	a.SuperRelationship = graph.New(graph.StringHash)
+	a.superRelationshipGraph = graph.New(graph.StringHash)
 
 	// Split input into lines
 	lines := strings.Split(script, "\n")
@@ -33,9 +33,9 @@ func (a *SuperRelationshipAnalyzer) Init(script string) {
 		destination := strings.TrimSpace(parts[1])
 
 		// Add vertices and edges to the graph
-		_ = a.SuperRelationship.AddVertex(source)
-		_ = a.SuperRelationship.AddVertex(destination)
-		_ = a.SuperRelationship.AddEdge(source, destination)
+		_ = a.superRelationshipGraph.AddVertex(source)
+		_ = a.superRelationshipGraph.AddVertex(destination)
+		_ = a.superRelationshipGraph.AddEdge(source, destination)
 	}
 }
 
@@ -47,7 +47,7 @@ func (a *SuperRelationshipAnalyzer) IsMutualFriend(target, name2, name3 string) 
 func (a *SuperRelationshipAnalyzer) isFriend(name1, name2 string) bool {
 	isFound := false
 
-	_ = graph.BFSWithDepth[string, string](a.SuperRelationship, name1, func(value string, depth int) bool {
+	_ = graph.BFSWithDepth[string, string](a.superRelationshipGraph, name1, func(value string, depth int) bool {
 		if value == name2 {
 			isFound = true
 			return true

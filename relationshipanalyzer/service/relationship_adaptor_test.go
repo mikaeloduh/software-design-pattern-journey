@@ -33,12 +33,20 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &RelationshipAnalyzerAdaptor{
-				superRelationshipAnalyzer: FakeSuperRelationshipAnalyzer(),
-			}
+		t.Run("unit "+tt.name, func(t *testing.T) {
+			a := FakeNewRelationshipAnalyzerAdaptor()
 
-			a.Parse("")
+			got := a.GetMutualFriends(tt.args.name1, tt.args.name2)
+
+			fmt.Printf("%s and %s's mutual friends: %v\n", tt.args.name1, tt.args.name2, got)
+		})
+	}
+
+	for _, tt := range tests {
+		t.Run("integration "+tt.name, func(t *testing.T) {
+			a := NewRelationshipAnalyzerAdaptor()
+			a.Parse(testScript)
+
 			got := a.GetMutualFriends(tt.args.name1, tt.args.name2)
 
 			fmt.Printf("%s and %s's mutual friends: %v\n", tt.args.name1, tt.args.name2, got)
@@ -46,6 +54,9 @@ func TestRelationshipAnalyzerAdaptor_GetMutualFriends(t *testing.T) {
 	}
 }
 
-func FakeSuperRelationshipAnalyzer() *SuperRelationshipAnalyzer {
-	return &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+func FakeNewRelationshipAnalyzerAdaptor() *RelationshipAnalyzerAdaptor {
+	return &RelationshipAnalyzerAdaptor{
+		superRelationshipAnalyzer: FakeNewSuperRelationshipAnalyzer(),
+		names:                     []string{"A", "B", "C", "D", "E", "F", "G", "J", "K", "M", "P", "L", "Z"},
+	}
 }

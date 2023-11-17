@@ -3,7 +3,6 @@ package service
 import (
 	"testing"
 
-	"github.com/dominikbraun/graph"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,9 +38,19 @@ func TestSuperRelationshipAnalyzer_IsMutualFriend(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			//a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+		t.Run("unit "+tt.name, func(t *testing.T) {
 			a := FakeNewSuperRelationshipAnalyzer()
+
+			got := a.IsMutualFriend(tt.args.target, tt.args.name2, tt.args.name3)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+
+	for _, tt := range tests {
+		t.Run("integration "+tt.name, func(t *testing.T) {
+			a := NewSuperRelationshipAnalyzer()
+			a.Init(testSuperScript)
 
 			got := a.IsMutualFriend(tt.args.target, tt.args.name2, tt.args.name3)
 
@@ -95,9 +104,19 @@ func TestSuperRelationshipAnalyzer_isFriend(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			//a := &SuperRelationshipAnalyzer{SuperRelationship: testGraph()}
+		t.Run("unit "+tt.name, func(t *testing.T) {
 			a := FakeNewSuperRelationshipAnalyzer()
+
+			got := a.isFriend(tt.args.name1, tt.args.name2)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+
+	for _, tt := range tests {
+		t.Run("integration "+tt.name, func(t *testing.T) {
+			a := NewSuperRelationshipAnalyzer()
+			a.Init(testSuperScript)
 
 			got := a.isFriend(tt.args.name1, tt.args.name2)
 
@@ -107,59 +126,5 @@ func TestSuperRelationshipAnalyzer_isFriend(t *testing.T) {
 }
 
 func FakeNewSuperRelationshipAnalyzer() *SuperRelationshipAnalyzer {
-	a := &SuperRelationshipAnalyzer{}
-	a.Init(`
-A -- B
-A -- C
-A -- D
-B -- D
-B -- E
-C -- E
-C -- G
-C -- K
-C -- M
-D -- K
-D -- P
-E -- J
-E -- K
-E -- L
-F -- Z
-`)
-	return a
-}
-
-func testGraph() graph.Graph[string, string] {
-	g := graph.New(graph.StringHash)
-
-	_ = g.AddVertex("A")
-	_ = g.AddVertex("B")
-	_ = g.AddVertex("C")
-	_ = g.AddVertex("D")
-	_ = g.AddVertex("E")
-	_ = g.AddVertex("F")
-	_ = g.AddVertex("G")
-	_ = g.AddVertex("K")
-	_ = g.AddVertex("L")
-	_ = g.AddVertex("M")
-	_ = g.AddVertex("P")
-	_ = g.AddVertex("J")
-	_ = g.AddVertex("Z")
-
-	_ = g.AddEdge("A", "B")
-	_ = g.AddEdge("A", "C")
-	_ = g.AddEdge("A", "D")
-	_ = g.AddEdge("B", "D")
-	_ = g.AddEdge("B", "E")
-	_ = g.AddEdge("C", "E")
-	_ = g.AddEdge("C", "G")
-	_ = g.AddEdge("C", "K")
-	_ = g.AddEdge("C", "M")
-	_ = g.AddEdge("D", "K")
-	_ = g.AddEdge("D", "P")
-	_ = g.AddEdge("E", "J")
-	_ = g.AddEdge("E", "K")
-	_ = g.AddEdge("E", "L")
-	_ = g.AddEdge("F", "Z")
-
-	return g
+	return &SuperRelationshipAnalyzer{superRelationshipGraph: testGraph()}
 }
