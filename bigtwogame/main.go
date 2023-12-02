@@ -21,11 +21,11 @@ func main() {
 	//deck := entity.NewUnoDeck()
 	//
 	//players := []entity.UnoPlayer{
-	//	&entity.HumanUnoPlayer{Name: "UnoPlayer 1"},
-	//	&entity.HumanUnoPlayer{Name: "UnoPlayer 2"},
-	//	&entity.HumanUnoPlayer{Name: "UnoPlayer 3"},
-	//	//&template.HumanUnoPlayer{Name: "UnoPlayer 4"},
-	//	&entity.ComputerPlayer{Name: "Computer 1"},
+	//	&entity.HumanUnoPlayer{name: "UnoPlayer 1"},
+	//	&entity.HumanUnoPlayer{name: "UnoPlayer 2"},
+	//	&entity.HumanUnoPlayer{name: "UnoPlayer 3"},
+	//	//&template.HumanUnoPlayer{name: "UnoPlayer 4"},
+	//	&entity.ComputerPlayer{name: "Computer 1"},
 	//	// Add more players here...
 	//}
 	//

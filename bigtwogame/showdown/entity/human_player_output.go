@@ -53,5 +53,5 @@ func (p HumanPlayerOutput) RoundStartOutput(i int) {
 }
 
 func (p HumanPlayerOutput) RenameOutput(name string) {
-	fmt.Printf("%s, please enter your Name: ", name)
+	fmt.Printf("%s, please enter your name: ", name)
 }

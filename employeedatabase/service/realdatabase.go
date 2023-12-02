@@ -3,71 +3,104 @@ package service
 import (
 	"bufio"
 	"fmt"
-	"io"
+	"os"
 	"strconv"
 	"strings"
 )
 
 type RealDatabase struct {
-	File   string
-	reader io.Reader
+	filename string
+	index    map[int64]int64
 }
 
-func NewRealDatabase() *RealDatabase {
-	input := `id name age subordinateIds
-1 waterball 25 
-2 fixiabis 15 1,3
-3 fong 7 1
-4 cc 18 1,2,3
-5 peterchen 3 1,4
-6 handsomeboy 22 1`
-
-	reader := strings.NewReader(input)
-
-	return &RealDatabase{reader: reader}
+func NewRealDatabase(filename string) *RealDatabase {
+	return &RealDatabase{filename: filename}
 }
 
-func (d *RealDatabase) GetEmployeeById(target int) (*RealEmployee, error) {
-	// Create a function to load person data on-demand
-	scanner := bufio.NewScanner(d.reader)
+func (d *RealDatabase) Init() error {
+	index, err := d.buildIndex()
+	if err != nil {
+		return fmt.Errorf("error building index: %s", err)
+	}
 
-	// Skip the header line
-	if !scanner.Scan() {
-		return nil, fmt.Errorf("failed to read header")
+	fmt.Println("INDEX:", index)
+
+	d.index = index
+
+	return nil
+}
+
+func (d *RealDatabase) GetEmployeeById(targetId int) (*RealEmployee, error) {
+	lineNumber := int64(targetId)
+	line, err := d.readSpecificLine(lineNumber)
+	if err != nil {
+		return nil, fmt.Errorf("readSpecificLine err: %s", err)
 	}
 
 	// Process each line until finding the specified person ID
-	for lineNumber := 1; scanner.Scan(); lineNumber++ {
-		line := scanner.Text()
-		fields := strings.Fields(line)
+	fields := strings.Fields(line)
 
-		// Parse id
-		id, _ := strconv.Atoi(fields[0])
+	// Parse fields
+	id, _ := strconv.Atoi(fields[0])
+	age, _ := strconv.Atoi(fields[2])
+	name := fields[1]
 
-		// Check if the current line corresponds to the specified person ID
-		if id == target {
-			// Parse age
-			age, _ := strconv.Atoi(fields[2])
-
-			// Parse subordinate IDs if available
-			var subordinateIDs []int
-			if len(fields) > 3 {
-				subordinateIDStrings := strings.Split(fields[3], ",")
-				for _, sid := range subordinateIDStrings {
-					sidInt, _ := strconv.Atoi(sid)
-					subordinateIDs = append(subordinateIDs, sidInt)
-				}
-			}
-
-			return &RealEmployee{
-				Id:             id,
-				Name:           fields[1],
-				Age:            age,
-				SubordinateIds: subordinateIDs,
-			}, nil
+	// Parse subordinate IDs if available
+	var subordinateIDs []int
+	if len(fields) > 3 {
+		subordinateIDStrings := strings.Split(fields[3], ",")
+		for _, sid := range subordinateIDStrings {
+			sidInt, _ := strconv.Atoi(sid)
+			subordinateIDs = append(subordinateIDs, sidInt)
 		}
 	}
 
-	// If the specified person ID is not found
-	return nil, fmt.Errorf("person with ID %d not found", target)
+	return NewRealEmployee(id, name, age, subordinateIDs), nil
+}
+
+func (d *RealDatabase) buildIndex() (map[int64]int64, error) {
+	file, err := os.Open(d.filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	index := make(map[int64]int64)
+	var offset int64
+	var lineNumber int64
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		index[lineNumber] = offset
+		offset += int64(len(scanner.Bytes()) + 1) // Add 1 for the newline character
+		lineNumber += 1
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return index, nil
+}
+
+func (d *RealDatabase) readSpecificLine(lineNumber int64) (string, error) {
+	offset, found := d.index[lineNumber]
+	if !found {
+		return "", fmt.Errorf("line number %d not found", lineNumber)
+	}
+
+	file, err := os.Open(d.filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	file.Seek(offset, 0)
+
+	scanner := bufio.NewScanner(file)
+	if scanner.Scan() {
+		return scanner.Text(), nil
+	}
+
+	return "", fmt.Errorf("error reading line number %d", lineNumber)
 }
