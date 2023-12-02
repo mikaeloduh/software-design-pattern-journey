@@ -28,4 +28,13 @@ func TestRealDatabase_GetEmployeeById(t *testing.T) {
 		assert.Equal(t, 5, got.id)
 		assert.Equal(t, "peterchen", got.name)
 	})
+
+	t.Run("test given id should return correct employee info and subordinateIds", func(t *testing.T) {
+
+		got, err := db.GetEmployeeById(2)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 2, got.id)
+		assert.ElementsMatch(t, []int{1, 3}, got.SubordinateIds())
+	})
 }
