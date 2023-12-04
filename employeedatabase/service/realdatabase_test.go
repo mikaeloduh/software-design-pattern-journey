@@ -16,8 +16,8 @@ func TestRealDatabase_GetEmployeeById(t *testing.T) {
 		got, err := db.GetEmployeeById(1)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 1, got.id)
-		assert.Equal(t, "waterball", got.name)
+		assert.Equal(t, 1, got.Id())
+		assert.Equal(t, "waterball", got.Name())
 	})
 
 	t.Run("test given id should return correct employee info (cont)", func(t *testing.T) {
@@ -25,8 +25,8 @@ func TestRealDatabase_GetEmployeeById(t *testing.T) {
 		got, err := db.GetEmployeeById(5)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 5, got.id)
-		assert.Equal(t, "peterchen", got.name)
+		assert.Equal(t, 5, got.Id())
+		assert.Equal(t, "peterchen", got.Name())
 	})
 
 	t.Run("test given id should return correct employee info and subordinateIds", func(t *testing.T) {
@@ -34,7 +34,7 @@ func TestRealDatabase_GetEmployeeById(t *testing.T) {
 		got, err := db.GetEmployeeById(2)
 
 		assert.NoError(t, err)
-		assert.Equal(t, 2, got.id)
-		assert.ElementsMatch(t, []int{1, 3}, got.SubordinateIds())
+		assert.Equal(t, 2, got.Id())
+		assert.ElementsMatch(t, []int{1, 3}, got.(IRealEmployee).SubordinateIds())
 	})
 }

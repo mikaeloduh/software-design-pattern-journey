@@ -1,11 +1,17 @@
 package service
 
+type IRealEmployee interface {
+	IEmployee
+	SetSubordinates(subordinates []IEmployee)
+	SubordinateIds() []int
+}
+
 type RealEmployee struct {
 	id             int
 	name           string
 	age            int
+	subordinates   []IEmployee
 	subordinateIds []int
-	subordinates   []Employee
 }
 
 func NewRealEmployee(id int, name string, age int, subordinateIds []int) *RealEmployee {
@@ -24,14 +30,14 @@ func (e *RealEmployee) Age() int {
 	return e.age
 }
 
-func (e *RealEmployee) SubordinateIds() []int {
-	return e.subordinateIds
-}
-
-func (e *RealEmployee) Subordinates() []Employee {
+func (e *RealEmployee) Subordinates() []IEmployee {
 	return e.subordinates
 }
 
-func (e *RealEmployee) SetSubordinates(subordinates []Employee) {
+func (e *RealEmployee) SetSubordinates(subordinates []IEmployee) {
 	e.subordinates = subordinates
+}
+
+func (e *RealEmployee) SubordinateIds() []int {
+	return e.subordinateIds
 }

@@ -30,7 +30,7 @@ func (d *RealDatabase) Init() error {
 	return nil
 }
 
-func (d *RealDatabase) GetEmployeeById(targetId int) (*RealEmployee, error) {
+func (d *RealDatabase) GetEmployeeById(targetId int) (IEmployee, error) {
 	lineNumber := int64(targetId)
 	line, err := d.readSpecificLine(lineNumber)
 	if err != nil {

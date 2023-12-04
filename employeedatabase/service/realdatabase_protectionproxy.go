@@ -6,28 +6,21 @@ import (
 )
 
 type RealDatabaseProtectionProxy struct {
-	realDatabase *RealDatabase
+	nextDatabaseProxy IDatabase
 }
 
 func NewRealDatabaseProtectionProxy() *RealDatabaseProtectionProxy {
 	return &RealDatabaseProtectionProxy{
-		realDatabase: NewRealDatabase("data.txt"),
+		nextDatabaseProxy: NewRealDatabaseVirtualProxy(),
 	}
 }
 
-func (d *RealDatabaseProtectionProxy) Init() {
-	err := d.realDatabase.Init()
-	if err != nil {
-		return
-	}
-}
-
-func (d *RealDatabaseProtectionProxy) GetEmployeeById(id int) (Employee, error) {
+func (d *RealDatabaseProtectionProxy) GetEmployeeById(id int) (IEmployee, error) {
 	if os.Getenv("PASSWORD") != "1qaz2wsx" {
 		return nil, fmt.Errorf("invalid passowrd")
 	}
 
-	realEmployee, _ := d.realDatabase.GetEmployeeById(id)
+	employee, _ := d.nextDatabaseProxy.GetEmployeeById(id)
 
-	return NewRealEmployeeProxy(realEmployee, d.realDatabase), nil
+	return employee, nil
 }

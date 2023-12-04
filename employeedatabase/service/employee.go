@@ -1,8 +1,8 @@
 package service
 
-type Employee interface {
+type IEmployee interface {
 	Id() int
 	Name() string
 	Age() int
-	Subordinates() []Employee
+	Subordinates() []IEmployee
 }

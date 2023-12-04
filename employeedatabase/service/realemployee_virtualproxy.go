@@ -1,14 +1,14 @@
 package service
 
 type RealEmployeeVirtualProxy struct {
-	realEmployee *RealEmployee
-	realDatabase *RealDatabase
+	realEmployee IRealEmployee
+	database     IDatabase
 }
 
-func NewRealEmployeeProxy(realEmployee *RealEmployee, realDatabase *RealDatabase) *RealEmployeeVirtualProxy {
+func NewRealEmployeeVirtualProxy(realEmployee IRealEmployee, database IDatabase) *RealEmployeeVirtualProxy {
 	return &RealEmployeeVirtualProxy{
 		realEmployee: realEmployee,
-		realDatabase: realDatabase,
+		database:     database,
 	}
 }
 
@@ -24,11 +24,11 @@ func (p *RealEmployeeVirtualProxy) Age() int {
 	return p.realEmployee.Age()
 }
 
-func (p *RealEmployeeVirtualProxy) Subordinates() []Employee {
+func (p *RealEmployeeVirtualProxy) Subordinates() []IEmployee {
 	if p.realEmployee.Subordinates() == nil {
-		subordinates := make([]Employee, 0)
+		subordinates := make([]IEmployee, 0)
 		for _, v := range p.realEmployee.SubordinateIds() {
-			subordinate, _ := p.realDatabase.GetEmployeeById(v)
+			subordinate, _ := p.database.GetEmployeeById(v)
 			subordinates = append(subordinates, subordinate)
 		}
 

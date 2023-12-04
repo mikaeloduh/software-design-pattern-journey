@@ -1,5 +1,5 @@
 package service
 
-type Database interface {
-	GetEmployeeById(id int) (Employee, error)
+type IDatabase interface {
+	GetEmployeeById(id int) (IEmployee, error)
 }
