@@ -16,11 +16,15 @@ func NewRealDatabaseProtectionProxy(nextDatabaseProxy IDatabase) *RealDatabasePr
 }
 
 func (d *RealDatabaseProtectionProxy) GetEmployeeById(id int) (IEmployee, error) {
-	if os.Getenv("PASSWORD") != "1qaz2wsx" {
+	if checkPassword() == false {
 		return nil, fmt.Errorf("invalid passowrd")
 	}
 
 	employee, _ := d.nextDatabaseProxy.GetEmployeeById(id)
 
 	return employee, nil
+}
+
+func checkPassword() bool {
+	return os.Getenv("PASSWORD") == "1qaz2wsx"
 }
