@@ -9,9 +9,9 @@ type RealDatabaseProtectionProxy struct {
 	nextDatabaseProxy IDatabase
 }
 
-func NewRealDatabaseProtectionProxy() *RealDatabaseProtectionProxy {
+func NewRealDatabaseProtectionProxy(nextDatabaseProxy IDatabase) *RealDatabaseProtectionProxy {
 	return &RealDatabaseProtectionProxy{
-		nextDatabaseProxy: NewRealDatabaseVirtualProxy(),
+		nextDatabaseProxy: nextDatabaseProxy,
 	}
 }
 

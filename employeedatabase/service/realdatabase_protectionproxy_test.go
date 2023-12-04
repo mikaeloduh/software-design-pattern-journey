@@ -7,13 +7,13 @@ import (
 )
 
 func TestRealDatabaseProtectionProxy_GetEmployeeById(t *testing.T) {
-	db := NewRealDatabaseProtectionProxy()
+	db := FakeNewRealDatabaseProtectionProxy()
 
 	t.Run("test GetEmployeeById password correct", func(t *testing.T) {
 		_ = os.Setenv("PASSWORD", "1qaz2wsx")
 
-		got, err := db.GetEmployeeById(1)
-		_ = got
+		_, err := db.GetEmployeeById(1)
+
 		assert.NoError(t, err)
 	})
 
@@ -24,4 +24,8 @@ func TestRealDatabaseProtectionProxy_GetEmployeeById(t *testing.T) {
 
 		assert.Error(t, err)
 	})
+}
+
+func FakeNewRealDatabaseProtectionProxy() *RealDatabaseProtectionProxy {
+	return NewRealDatabaseProtectionProxy(&RealDatabase{})
 }
