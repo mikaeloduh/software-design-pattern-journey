@@ -41,17 +41,17 @@ func (u *NonHero) OnRoundStart() {
 	u.State.OnRoundStart()
 }
 
-func (u *NonHero) TakeTurn(targets []IUnit) {
+func (u *NonHero) TakeTurn(candidateTargets []IUnit) {
 	// TODO: AI Select a skill
 	if err := u.selectSkill(u.ai.RandAction(len(u.Skills))); err != nil {
 		return
 	}
 	u.ai.IncrSeed()
 	// TODO: AI Select the targets
-	u.selectTarget(targets...)
+	_ = u.selectTarget(nil)
 	u.ai.IncrSeed()
 	// Consume CurrentMP and take action
-	u.doSkill()
+	_ = u.doSkill(nil)
 }
 
 // Privates
@@ -79,8 +79,8 @@ func (u *NonHero) selectTarget(targets ...IUnit) error {
 	return u.getSelectedSkill().BeforeDo(targets...)
 }
 
-func (u *NonHero) doSkill() {
-	u.getSelectedSkill().Do(nil)
+func (u *NonHero) doSkill(targets ...IUnit) error {
+	return u.getSelectedSkill().Do(targets...)
 }
 
 func (u *NonHero) TakeDamage(damage int) {
