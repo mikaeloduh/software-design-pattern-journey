@@ -77,8 +77,9 @@ func (a *WaterBall) SelectTarget(targets ...IUnit) error {
 }
 
 func (a *WaterBall) Do() {
-	for _, unit := range a.targets {
-		unit.SetHp(unit.GetHp() - a.Damage)
+	damage := a.unit.GetState().OnAttack(a.Damage)
+	for _, target := range a.targets {
+		target.TakeDamage(damage)
 	}
 
 	a.unit.ConsumeMp(a.MPCost)
@@ -116,8 +117,9 @@ func (a *SelfExplosion) SelectTarget(targets ...IUnit) error {
 }
 
 func (a *SelfExplosion) Do() {
+	damage := a.unit.GetState().OnAttack(a.Damage)
 	for _, target := range a.targets {
-		target.TakeDamage(a.Damage)
+		target.TakeDamage(damage)
 	}
 
 	a.unit.SetHp(0)
@@ -308,7 +310,7 @@ func (a *OnePunch) SelectTarget(targets ...IUnit) error {
 }
 
 func (a *OnePunch) Do() {
-	a.handler.Do(a.targets[0])
+	a.handler.Do(a.targets[0], a.unit)
 }
 
 func (a *OnePunch) Update(_ IObservable) {

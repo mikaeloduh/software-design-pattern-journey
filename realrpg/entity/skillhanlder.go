@@ -4,7 +4,7 @@ import "reflect"
 
 // ISkillHandler is the CoR interface
 type ISkillHandler interface {
-	Do(target IUnit)
+	Do(target IUnit, unit IUnit)
 }
 
 // CoR handlers for OnePunch
@@ -12,11 +12,12 @@ type Hp500Handler struct {
 	next ISkillHandler
 }
 
-func (h Hp500Handler) Do(target IUnit) {
+func (h Hp500Handler) Do(target IUnit, unit IUnit) {
 	if target.GetHp() >= 500 {
-		target.TakeDamage(300)
+		damage := unit.GetState().OnAttack(300)
+		target.TakeDamage(damage)
 	} else if h.next != nil {
-		h.next.Do(target)
+		h.next.Do(target, unit)
 	}
 }
 
@@ -24,11 +25,12 @@ type PetrochemicalStateHandler struct {
 	next ISkillHandler
 }
 
-func (h PetrochemicalStateHandler) Do(target IUnit) {
+func (h PetrochemicalStateHandler) Do(target IUnit, unit IUnit) {
 	if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&PetrochemicalState{}) {
-		target.TakeDamage(80)
+		damage := unit.GetState().OnAttack(80)
+		target.TakeDamage(damage)
 	} else if h.next != nil {
-		h.next.Do(target)
+		h.next.Do(target, unit)
 	}
 }
 
@@ -36,11 +38,12 @@ type PoisonedStateHandler struct {
 	next ISkillHandler
 }
 
-func (h PoisonedStateHandler) Do(target IUnit) {
+func (h PoisonedStateHandler) Do(target IUnit, unit IUnit) {
 	if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&PoisonedState{}) {
-		target.TakeDamage(80)
+		damage := unit.GetState().OnAttack(80)
+		target.TakeDamage(damage)
 	} else if h.next != nil {
-		h.next.Do(target)
+		h.next.Do(target, unit)
 	}
 }
 
@@ -48,12 +51,13 @@ type CheerUpStateHandler struct {
 	next ISkillHandler
 }
 
-func (h CheerUpStateHandler) Do(target IUnit) {
+func (h CheerUpStateHandler) Do(target IUnit, unit IUnit) {
 	if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&CheerUpState{}) {
-		target.TakeDamage(100)
+		damage := unit.GetState().OnAttack(100)
+		target.TakeDamage(damage)
 		target.SetState(NewNormalState(target))
 	} else if h.next != nil {
-		h.next.Do(target)
+		h.next.Do(target, unit)
 	}
 }
 
@@ -61,10 +65,11 @@ type NormalStateHandler struct {
 	next ISkillHandler
 }
 
-func (h NormalStateHandler) Do(target IUnit) {
+func (h NormalStateHandler) Do(target IUnit, unit IUnit) {
 	if reflect.TypeOf(target.GetState()) == reflect.TypeOf(&NormalState{}) {
-		target.TakeDamage(100)
+		damage := unit.GetState().OnAttack(100)
+		target.TakeDamage(damage)
 	} else if h.next != nil {
-		h.next.Do(target)
+		h.next.Do(target, unit)
 	}
 }
