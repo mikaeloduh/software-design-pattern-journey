@@ -76,11 +76,11 @@ func (u *NonHero) getSelectedSkill() ISkill {
 }
 
 func (u *NonHero) selectTarget(targets ...IUnit) error {
-	return u.getSelectedSkill().SelectTarget(targets...)
+	return u.getSelectedSkill().BeforeDo(targets...)
 }
 
 func (u *NonHero) doSkill() {
-	u.getSelectedSkill().Do()
+	u.getSelectedSkill().Do(nil)
 }
 
 func (u *NonHero) TakeDamage(damage int) {

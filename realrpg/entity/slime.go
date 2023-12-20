@@ -49,8 +49,8 @@ func (u *Slime) OnRoundStart() {
 func (u *Slime) TakeTurn(targets []IUnit) {
 	basicAttack := u.Skills[0]
 	// TODO: AI Select the targets
-	basicAttack.SelectTarget(targets...)
-	basicAttack.Do()
+	basicAttack.BeforeDo(targets...)
+	basicAttack.Do(nil)
 	u.ai.IncrSeed()
 }
 

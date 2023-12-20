@@ -17,9 +17,9 @@ func TestHero_skill(t *testing.T) {
 		unit2 := NewHero("p2")
 		unit2HP := unit2.CurrentHP
 
-		unit1.selectSkill(0)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(0)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2HP-unit1.STR, unit2.CurrentHP)
 	})
@@ -31,9 +31,9 @@ func TestHero_skill(t *testing.T) {
 		unit2 := NewHero("p2")
 		unit2HP := unit2.CurrentHP
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2HP-w.Damage, unit2.CurrentHP)
 	})
@@ -46,9 +46,9 @@ func TestHero_skill(t *testing.T) {
 		unit2HP := unit2.CurrentHP
 		unit1MP := unit1.CurrentMP
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2HP-w.Damage, unit2.CurrentHP)
 		assert.Equal(t, unit1MP-w.MPCost, unit1.CurrentMP)
@@ -68,19 +68,17 @@ func TestHero_skill(t *testing.T) {
 	})
 
 	t.Run("test Hero SelfExplosion should attack all unit in field and kill himself", func(t *testing.T) {
-		unit1 := NewHero("p1")
-		unit2 := NewHero("p2")
-		unit3 := NewHero("p3")
+		unit1 := NewHero("the boomer")
+		unit2 := NewHero("target 1")
+		unit3 := NewHero("target 2")
 		unit2HP := unit2.GetHp()
 		unit3HP := unit3.GetHp()
 
 		selfExplosion := NewSelfExplosion(unit1)
 		unit1.AddSkill(selfExplosion)
-		unit1.selectSkill(1)
-		unit1.doSkill()
-
-		selfExplosion.SelectTarget(unit2, unit3)
-		selfExplosion.Do()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2, unit3)
+		_ = unit1.doSkill(unit2, unit3)
 
 		assert.Equal(t, unit2HP-selfExplosion.Damage, unit2.GetHp())
 		assert.Equal(t, unit3HP-selfExplosion.Damage, unit3.CurrentHP)
@@ -94,9 +92,9 @@ func TestHero_skill(t *testing.T) {
 		unit1.SetHp(500)
 		unit1HP := unit1.CurrentHP
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit1)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit1)
+		_ = unit1.doSkill(unit1)
 
 		assert.Equal(t, unit1HP-selfHealing.Damage, unit1.CurrentHP)
 	})
@@ -106,9 +104,9 @@ func TestHero_skill(t *testing.T) {
 		unit1.AddSkill(NewCheerUp(unit1))
 		unit2 := NewHero("p2")
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.IsType(t, &CheerUpState{}, unit2.GetState())
 	})
@@ -121,8 +119,8 @@ func TestHero_skill(t *testing.T) {
 		troop1 := NewTroop(unit1)
 		assert.Equal(t, 1, troop1.Len())
 
-		unit1.selectSkill(1)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.doSkill()
 
 		assert.Equal(t, 2, troop1.Len())
 	})
@@ -140,8 +138,8 @@ func TestHero_skill(t *testing.T) {
 
 		battle := NewBattle(troop1, troop2)
 
-		unit1.selectSkill(1)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.doSkill()
 
 		battle.OnRoundStart()
 
@@ -157,8 +155,8 @@ func TestHero_skill(t *testing.T) {
 		unit1.SetHp(200)
 		troop1 := NewTroop(unit1)
 
-		unit1.selectSkill(1)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.doSkill()
 
 		slime := (*troop1)[1]
 		slime.TakeDamage(100)
@@ -175,9 +173,9 @@ func TestHero_skill(t *testing.T) {
 		unit2 := NewHero("p2")
 		unit2MP := unit2.GetMp()
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		unit2.TakeDamage(1000)
 
@@ -197,14 +195,14 @@ func TestHero_skill(t *testing.T) {
 		troop1 := NewTroop(unit1)
 		_ = NewTroop(unit2)
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 		slime := (*troop1)[1]
 
-		unit1.selectSkill(2)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(2)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		// when slime die
 		slime.TakeDamage(9999)
@@ -232,17 +230,17 @@ func TestHero_skill(t *testing.T) {
 		unitQQ := NewHero("a-poor-guy")
 		unitQQMp := unitQQ.GetMp()
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unitQQ)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unitQQ)
+		_ = unit1.doSkill(unitQQ)
 
-		unit2.selectSkill(1)
-		unit2.selectTarget(unitQQ)
-		unit2.doSkill()
+		_ = unit2.selectSkill(1)
+		_ = unit2.selectTarget(unitQQ)
+		_ = unit2.doSkill(unitQQ)
 
-		unit3.selectSkill(1)
-		unit3.selectTarget(unitQQ)
-		unit3.doSkill()
+		_ = unit3.selectSkill(1)
+		_ = unit3.selectTarget(unitQQ)
+		_ = unit3.doSkill(unitQQ)
 
 		// when cursed unit die
 		unitQQ.TakeDamage(9999)
@@ -266,9 +264,9 @@ func TestHero_skill(t *testing.T) {
 		unit2 := NewHero("p2")
 		unit2Hp := unit2.GetHp()
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2Hp-300, unit2.GetHp())
 	})
@@ -282,9 +280,9 @@ func TestHero_skill(t *testing.T) {
 		unit2.SetState(NewPetrochemicalState(unit2))
 		unit2Hp := unit2.GetHp()
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2Hp-80, unit2.GetHp())
 	})
@@ -298,9 +296,9 @@ func TestHero_skill(t *testing.T) {
 		unit2.SetState(NewCheerUpState(unit2))
 		unit2Hp := unit2.GetHp()
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2Hp-100, unit2.GetHp())
 		assert.IsType(t, &NormalState{}, unit2.GetState())
@@ -314,9 +312,9 @@ func TestHero_skill(t *testing.T) {
 		unit2.SetHp(499)
 		unit2Hp := unit2.GetHp()
 
-		unit1.selectSkill(1)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(1)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.Equal(t, unit2Hp-100, unit2.GetHp())
 	})

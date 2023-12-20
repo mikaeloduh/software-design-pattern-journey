@@ -20,9 +20,9 @@ func TestHero_State(t *testing.T) {
 		unit2HP := unit2.CurrentHP
 		unit1.SetState(NewCheerUpState(unit1))
 
-		unit1.selectSkill(0)
-		unit1.selectTarget(unit2)
-		unit1.doSkill()
+		_ = unit1.selectSkill(0)
+		_ = unit1.selectTarget(unit2)
+		_ = unit1.doSkill(unit2)
 
 		assert.IsType(t, &CheerUpState{}, unit1.State)
 		assert.Equal(t, unit2HP-unit1.STR-50, unit2.CurrentHP)

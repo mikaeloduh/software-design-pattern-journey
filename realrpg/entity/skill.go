@@ -9,14 +9,13 @@ import (
 type ISkill interface {
 	IObserver
 	IsMpEnough() bool
-	SelectTarget(targets ...IUnit) error
-	Do()
+	BeforeDo(targets ...IUnit) error
+	Do(targets ...IUnit) error
 }
 
 // BasicAttack is a built-in skill
 type BasicAttack struct {
-	unit    IUnit
-	targets []IUnit
+	unit IUnit
 }
 
 func NewBasicAttack(unit IUnit) *BasicAttack {
@@ -27,19 +26,25 @@ func (a *BasicAttack) IsMpEnough() bool {
 	return true
 }
 
-func (a *BasicAttack) SelectTarget(targets ...IUnit) error {
+func (a *BasicAttack) BeforeDo(targets ...IUnit) error {
 	if len(targets) != 1 {
 		return fmt.Errorf("invalid number of args: need 1")
 	}
-	a.targets = targets
+
 	return nil
 }
 
-func (a *BasicAttack) Do() {
+func (a *BasicAttack) Do(targets ...IUnit) error {
+	if err := a.BeforeDo(targets...); err != nil {
+		return err
+	}
+
 	damage := a.unit.GetState().OnAttack(a.unit.GetSTR())
-	for _, target := range a.targets {
+	for _, target := range targets {
 		target.TakeDamage(damage)
 	}
+
+	return nil
 }
 
 func (a *BasicAttack) Update(_ IObservable) {
@@ -47,10 +52,9 @@ func (a *BasicAttack) Update(_ IObservable) {
 
 // WaterBall
 type WaterBall struct {
-	Damage  int
-	MPCost  int
-	unit    IUnit
-	targets []IUnit
+	Damage int
+	MPCost int
+	unit   IUnit
 }
 
 func NewWaterBall(unit IUnit) *WaterBall {
@@ -65,24 +69,31 @@ func (a *WaterBall) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *WaterBall) SelectTarget(targets ...IUnit) error {
+func (a *WaterBall) BeforeDo(targets ...IUnit) error {
 	if len(targets) != 1 {
 		return fmt.Errorf("invalid number of args: need 1")
 	}
-	a.targets = targets
+
 	return nil
 }
 
-func (a *WaterBall) Do() {
+func (a *WaterBall) Do(targets ...IUnit) error {
+	if err := a.BeforeDo(targets...); err != nil {
+		return err
+	}
+
 	damage := a.unit.GetState().OnAttack(a.Damage)
-	for _, target := range a.targets {
+	for _, target := range targets {
 		target.TakeDamage(damage)
 	}
 
 	a.unit.ConsumeMp(a.MPCost)
+
+	return nil
 }
 
 func (a *WaterBall) Update(_ IObservable) {
@@ -90,10 +101,9 @@ func (a *WaterBall) Update(_ IObservable) {
 
 // SelfExplosion
 type SelfExplosion struct {
-	MPCost  int
-	Damage  int
-	unit    IUnit
-	targets []IUnit
+	MPCost int
+	Damage int
+	unit   IUnit
 }
 
 func NewSelfExplosion(unit IUnit) *SelfExplosion {
@@ -108,21 +118,23 @@ func (a *SelfExplosion) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *SelfExplosion) SelectTarget(targets ...IUnit) error {
-	a.targets = targets
+func (a *SelfExplosion) BeforeDo(targets ...IUnit) error {
 	return nil
 }
 
-func (a *SelfExplosion) Do() {
+func (a *SelfExplosion) Do(targets ...IUnit) error {
 	damage := a.unit.GetState().OnAttack(a.Damage)
-	for _, target := range a.targets {
+	for _, target := range targets {
 		target.TakeDamage(damage)
 	}
 
-	a.unit.SetHp(0)
+	a.unit.TakeDamage(99999)
+
+	return nil
 }
 
 func (a *SelfExplosion) Update(_ IObservable) {
@@ -130,10 +142,9 @@ func (a *SelfExplosion) Update(_ IObservable) {
 
 // CheerUp
 type CheerUp struct {
-	Damage  int
-	MPCost  int
-	unit    IUnit
-	targets []IUnit
+	Damage int
+	MPCost int
+	unit   IUnit
 }
 
 func NewCheerUp(unit IUnit) *CheerUp {
@@ -148,21 +159,28 @@ func (a *CheerUp) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *CheerUp) SelectTarget(targets ...IUnit) error {
+func (a *CheerUp) BeforeDo(targets ...IUnit) error {
 	if len(targets) > 3 {
 		return fmt.Errorf("invalid number of args: need 3 or less")
 	}
-	a.targets = targets
+
 	return nil
 }
 
-func (a *CheerUp) Do() {
-	for _, target := range a.targets {
+func (a *CheerUp) Do(targets ...IUnit) error {
+	if err := a.BeforeDo(targets...); err != nil {
+		return err
+	}
+
+	for _, target := range targets {
 		target.SetState(NewCheerUpState(target))
 	}
+
+	return nil
 }
 
 func (a *CheerUp) Update(_ IObservable) {
@@ -187,32 +205,34 @@ func (a *SelfHealing) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *SelfHealing) SelectTarget(_ ...IUnit) error {
+func (a *SelfHealing) BeforeDo(...IUnit) error {
 	return nil
 }
 
-func (a *SelfHealing) Do() {
+func (a *SelfHealing) Do(...IUnit) error {
 	a.unit.TakeDamage(a.Damage)
+
+	return nil
 }
 
-func (a *SelfHealing) Update(_ IObservable) {
-}
+func (a *SelfHealing) Update(_ IObservable) {}
 
 // Summon
 type Summon struct {
 	MPCost int
-	unit   IUnit
 	Writer io.Writer
+	unit   IUnit
 }
 
 func NewSummon(unit IUnit) *Summon {
 	return &Summon{
 		MPCost: 150,
-		unit:   unit,
 		Writer: os.Stdout,
+		unit:   unit,
 	}
 }
 
@@ -220,18 +240,20 @@ func (a *Summon) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *Summon) SelectTarget(_ ...IUnit) error {
+func (a *Summon) BeforeDo(...IUnit) error {
 	return nil
 }
 
-func (a *Summon) Do() {
+func (a *Summon) Do(...IUnit) error {
 	slime := NewSlime(nil, a.Writer)
+	slime.Register(a)
 	a.unit.GetTroop().AddUnit(slime)
 
-	slime.Register(a)
+	return nil
 }
 
 func (a *Summon) Update(_ IObservable) {
@@ -240,10 +262,9 @@ func (a *Summon) Update(_ IObservable) {
 
 // Curse
 type Curse struct {
-	Damage  int
-	MPCost  int
-	unit    IUnit
-	targets []IUnit
+	Damage int
+	MPCost int
+	unit   IUnit
 }
 
 func NewCurse(unit IUnit) *Curse {
@@ -258,23 +279,30 @@ func (a *Curse) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *Curse) SelectTarget(targets ...IUnit) error {
+func (a *Curse) BeforeDo(targets ...IUnit) error {
 	if len(targets) != 1 {
 		return fmt.Errorf("invalid number of args: need 1")
 	}
-	a.targets = targets
+
 	return nil
 }
 
-func (a *Curse) Do() {
-	a.targets[0].Register(a)
+func (a *Curse) Do(targets ...IUnit) error {
+	if err := a.BeforeDo(targets...); err != nil {
+		return err
+	}
+
+	targets[0].Register(a)
+
+	return nil
 }
 
-func (a *Curse) Update(_ IObservable) {
-	a.unit.TakeDamage(-a.targets[0].GetMp())
+func (a *Curse) Update(target IObservable) {
+	a.unit.TakeDamage(-target.(IUnit).GetMp())
 }
 
 // OnePunch
@@ -282,7 +310,6 @@ type OnePunch struct {
 	Damage  int
 	MPCost  int
 	unit    IUnit
-	targets []IUnit
 	handler ISkillHandler
 }
 
@@ -298,20 +325,26 @@ func (a *OnePunch) IsMpEnough() bool {
 	if a.unit.GetMp() < a.MPCost {
 		return false
 	}
+
 	return true
 }
 
-func (a *OnePunch) SelectTarget(targets ...IUnit) error {
+func (a *OnePunch) BeforeDo(targets ...IUnit) error {
 	if len(targets) != 1 {
 		return fmt.Errorf("invalid number of args: need 1")
 	}
-	a.targets = targets
+
 	return nil
 }
 
-func (a *OnePunch) Do() {
-	a.handler.Do(a.targets[0], a.unit)
+func (a *OnePunch) Do(targets ...IUnit) error {
+	if err := a.BeforeDo(targets...); err != nil {
+		return err
+	}
+
+	a.handler.Do(targets[0], a.unit)
+
+	return nil
 }
 
-func (a *OnePunch) Update(_ IObservable) {
-}
+func (a *OnePunch) Update(IObservable) {}

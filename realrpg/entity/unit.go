@@ -59,7 +59,7 @@ func (u *Hero) OnRoundStart() {
 	u.State.OnRoundStart()
 }
 
-func (u *Hero) TakeTurn(targets []IUnit) {
+func (u *Hero) TakeTurn(candidateTargets []IUnit) {
 	// Select skill
 	// TODO: prompt select skill message
 	if err := u.selectSkill(0); err != nil {
@@ -67,9 +67,9 @@ func (u *Hero) TakeTurn(targets []IUnit) {
 	}
 	// Select targets
 	// TODO: prompt select target message
-	u.selectTarget(nil)
+	_ = u.selectTarget(nil)
 	// Consume CurrentMP and take action
-	u.doSkill()
+	_ = u.doSkill(nil)
 }
 
 func (u *Hero) selectSkill(i int) (err error) {
@@ -93,11 +93,11 @@ func (u *Hero) getSelectedSkill() ISkill {
 }
 
 func (u *Hero) selectTarget(targets ...IUnit) error {
-	return u.getSelectedSkill().SelectTarget(targets...)
+	return u.getSelectedSkill().BeforeDo(targets...)
 }
 
-func (u *Hero) doSkill() {
-	u.getSelectedSkill().Do()
+func (u *Hero) doSkill(targets ...IUnit) error {
+	return u.getSelectedSkill().Do(targets...)
 }
 
 func (u *Hero) TakeDamage(damage int) {
