@@ -62,7 +62,7 @@ func TestLogger_Log(t *testing.T) {
 		writer.Reset()
 	})
 
-	t.Run("test CompositeExporter", func(t *testing.T) {
+	t.Run("test CompositeExporter should output to it's children", func(t *testing.T) {
 		var writer1 bytes.Buffer
 		var writer2 bytes.Buffer
 
