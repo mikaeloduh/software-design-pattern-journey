@@ -9,25 +9,32 @@ type Level int
 
 func (l Level) String() string {
 	return map[Level]string{
-		TRACE: "TRACE",
-		INFO:  "INFO",
-		DEBUG: "DEBUG",
-		WARN:  "WARN",
-		ERROR: "ERROR",
+		UNDEFINED: "UNDEFINED",
+		TRACE:     "TRACE",
+		INFO:      "INFO",
+		DEBUG:     "DEBUG",
+		WARN:      "WARN",
+		ERROR:     "ERROR",
 	}[l]
 }
 
 const (
-	TRACE Level = 0
-	INFO  Level = 1
-	DEBUG Level = 2
-	WARN  Level = 3
-	ERROR Level = 4
+	UNDEFINED Level = 0
+	TRACE     Level = 1
+	INFO      Level = 2
+	DEBUG     Level = 3
+	WARN      Level = 4
+	ERROR     Level = 5
 )
 
-type ILogger interface {
-	Log(level Level, text string) Message
-}
+type (
+	ILogger interface {
+		Log(level Level, text string)
+		GetExporter() IExporter
+		GetLayout() ILayout
+		GetLevelThreshold() Level
+	}
+)
 
 // Logger
 type Logger struct {
@@ -39,9 +46,41 @@ type Logger struct {
 }
 
 func NewLogger(parent ILogger, name string, levelThreshold Level, exporter IExporter, layout ILayout) *Logger {
+
+	if parent != nil {
+		var levelThresholdValue Level
+		if levelThreshold != UNDEFINED {
+			levelThresholdValue = levelThreshold
+		} else {
+			levelThresholdValue = parent.GetLevelThreshold()
+		}
+
+		var exporterInstance IExporter
+		if exporter != nil {
+			exporterInstance = exporter
+		} else {
+			exporterInstance = parent.GetExporter()
+		}
+
+		var layoutInstance ILayout
+		if layout != nil {
+			layoutInstance = layout
+		} else {
+			layoutInstance = parent.GetLayout()
+		}
+
+		return &Logger{
+			Parent:         parent,
+			Name:           name,
+			LevelThreshold: levelThresholdValue,
+			Exporter:       exporterInstance,
+			Layout:         layoutInstance,
+		}
+	}
+
 	return &Logger{
-		Parent:         parent,
-		Name:           name,
+		Parent:         nil,
+		Name:           "root",
 		LevelThreshold: levelThreshold,
 		Exporter:       exporter,
 		Layout:         layout,
@@ -76,4 +115,16 @@ func (l *Logger) Warn(s string) {
 
 func (l *Logger) Error(s string) {
 	l.Log(ERROR, s)
+}
+
+func (l *Logger) GetLevelThreshold() Level {
+	return l.LevelThreshold
+}
+
+func (l *Logger) GetExporter() IExporter {
+	return l.Exporter
+}
+
+func (l *Logger) GetLayout() ILayout {
+	return l.Layout
 }
