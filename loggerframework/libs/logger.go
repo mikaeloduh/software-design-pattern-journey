@@ -13,6 +13,7 @@ func (l Level) String() string {
 		INFO:  "INFO",
 		DEBUG: "DEBUG",
 		WARN:  "WARN",
+		ERROR: "ERROR",
 	}[l]
 }
 
@@ -48,11 +49,31 @@ func NewLogger(parent ILogger, name string, levelThreshold Level, exporter IExpo
 }
 
 func (l *Logger) Log(level Level, text string) {
+	if level < l.LevelThreshold {
+		return
+	}
+
 	layout := l.Layout.Print(l.Name, Message{Level: level, Content: text})
 
 	l.Exporter.Write(layout)
 }
 
+func (l *Logger) Trace(s string) {
+	l.Log(TRACE, s)
+}
+
+func (l *Logger) Info(s string) {
+	l.Log(INFO, s)
+}
+
 func (l *Logger) Debug(s string) {
 	l.Log(DEBUG, s)
+}
+
+func (l *Logger) Warn(s string) {
+	l.Log(WARN, s)
+}
+
+func (l *Logger) Error(s string) {
+	l.Log(ERROR, s)
 }
