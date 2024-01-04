@@ -61,6 +61,26 @@ func TestLogger_Log(t *testing.T) {
 		assert.Regexp(t, `\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \|-DEBUG app.game - child message`, s)
 		writer.Reset()
 	})
+
+	t.Run("test CompositeExporter", func(t *testing.T) {
+		var writer1 bytes.Buffer
+		var writer2 bytes.Buffer
+
+		consoleExporter1 := FakeNewConsoleExporter(&writer1)
+		consoleExporter2 := FakeNewConsoleExporter(&writer2)
+		compositeExporter := NewCompositeExporter(consoleExporter1, consoleExporter2)
+
+		standardLayout := NewStandardLayout()
+		root := NewLogger(nil, "root", DEBUG, compositeExporter, standardLayout)
+
+		root.Log(DEBUG, "hello world")
+
+		assert.Regexp(t, `\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \|-DEBUG root - hello world`, writer1.String())
+		writer1.Reset()
+
+		assert.Regexp(t, `\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \|-DEBUG root - hello world`, writer2.String())
+		writer2.Reset()
+	})
 }
 
 func FakeNewConsoleExporter(w io.Writer) *ConsoleExporter {
