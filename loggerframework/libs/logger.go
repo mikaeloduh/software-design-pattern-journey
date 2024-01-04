@@ -7,6 +7,15 @@ type Message struct {
 
 type Level int
 
+func (l Level) String() string {
+	return map[Level]string{
+		TRACE: "TRACE",
+		INFO:  "INFO",
+		DEBUG: "DEBUG",
+		WARN:  "WARN",
+	}[l]
+}
+
 const (
 	TRACE Level = 0
 	INFO  Level = 1
@@ -39,7 +48,11 @@ func NewLogger(parent ILogger, name string, levelThreshold Level, exporter IExpo
 }
 
 func (l *Logger) Log(level Level, text string) {
-	layout := l.Layout.Print(Message{Level: level, Content: text})
+	layout := l.Layout.Print(l.Name, Message{Level: level, Content: text})
 
 	l.Exporter.Write(layout)
+}
+
+func (l *Logger) Debug(s string) {
+	l.Log(DEBUG, s)
 }

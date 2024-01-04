@@ -8,7 +8,7 @@ import (
 )
 
 func TestLogger_Log(t *testing.T) {
-	t.Run("test happy hello world", func(t *testing.T) {
+	t.Run("test standard layout", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		consoleExporter := FakeNewConsoleExporter(&writer)
@@ -17,7 +17,7 @@ func TestLogger_Log(t *testing.T) {
 
 		root.Log(DEBUG, "hello world")
 
-		assert.Equal(t, "hello world", writer.String())
+		assert.Regexp(t, `\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} \|-DEBUG root - hello world`, writer.String())
 		writer.Reset()
 	})
 }
