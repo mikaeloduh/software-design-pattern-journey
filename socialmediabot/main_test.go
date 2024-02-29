@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"io"
+	"socialmediabot/entity"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,22 +11,23 @@ import (
 
 func TestMain_Waterball(t *testing.T) {
 
-	t.Run("test member chat in chatroom", func(t *testing.T) {
+	t.Run("test member chat in chatroom, should print id + message", func(t *testing.T) {
 		var writer bytes.Buffer
+
 		waterball := FakeNewWaterball(&writer)
-		mid := "1"
-		member := NewMember(mid)
+		memberId := "1"
+		member := entity.NewMember(memberId)
 
 		testMessage := "hello"
-		waterball.ChatRoom.Send(*member, Message{testMessage, []Tag{}})
+		waterball.ChatRoom.Send(*member, entity.Message{Content: testMessage})
 
-		assert.Equal(t, mid+": "+testMessage, writer.String())
+		assert.Equal(t, memberId+": "+testMessage, writer.String())
 	})
 }
 
-func FakeNewWaterball(w io.Writer) *Waterball {
-	return &Waterball{
+func FakeNewWaterball(w io.Writer) *entity.Waterball {
+	return &entity.Waterball{
 		Writer:   w,
-		ChatRoom: ChatRoom{Writer: w},
+		ChatRoom: entity.ChatRoom{Writer: w},
 	}
 }
