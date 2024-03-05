@@ -1,3 +1,3 @@
 package entity
 
-type Tag string
+type Tag IMember
