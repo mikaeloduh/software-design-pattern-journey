@@ -11,11 +11,12 @@ import (
 
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
-		fsm := NewFiniteStateMachine(NormalTestState{})
+		expectedState := NormalTestState{}
+		fsm := NewFiniteStateMachine(expectedState)
 
 		currentState := fsm.GetState()
 
-		assert.IsType(t, NormalTestState{}, currentState)
+		assert.IsType(t, expectedState, currentState)
 	})
 
 	t.Run("test when an event occur meets the guardian criteria, it should trigger the transition", func(t *testing.T) {
@@ -35,19 +36,35 @@ func TestFSM(t *testing.T) {
 	})
 
 	t.Run("test when an event occur does not meet the guardian criteria, it should not trigger the transition", func(t *testing.T) {
-		fsm := NewFiniteStateMachine[ITestState](&NormalTestState{})
+		initState := &NormalTestState{}
+		fsm := NewFiniteStateMachine[ITestState](initState)
 
 		event := Event("test-event")
 		guard := func() bool { return false }
 		action := func() {}
-		expectedState := AnotherTestState{}
-		transition := NewTransition[ITestState](&NormalTestState{}, &expectedState, event, guard, action)
+		transition := NewTransition[ITestState](initState, &AnotherTestState{}, event, guard, action)
 		fsm.AddTransition(transition)
 
 		fsm.Trigger(event)
 
 		currentState := fsm.GetState()
-		assert.IsType(t, &NormalTestState{}, currentState)
+		assert.IsType(t, initState, currentState)
+	})
+
+	t.Run("test when an event does not meet any transition, it should not change the state", func(t *testing.T) {
+		initState := &NormalTestState{}
+		fsm := NewFiniteStateMachine[ITestState](initState)
+
+		event := Event("test-event")
+		guard := func() bool { return true }
+		action := func() {}
+		transition := NewTransition[ITestState](initState, &AnotherTestState{}, event, guard, action)
+		fsm.AddTransition(transition)
+
+		fsm.Trigger(Event("another-event"))
+
+		currentState := fsm.GetState()
+		assert.IsType(t, initState, currentState)
 	})
 
 	t.Run("test subject public method behavior should variate depends on it's state", func(t *testing.T) {
@@ -81,7 +98,6 @@ func TestFSM(t *testing.T) {
 }
 
 // test helper
-// interface state
 type ITestState interface {
 	PublicMethod()
 }
