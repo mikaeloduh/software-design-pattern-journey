@@ -1,27 +1,31 @@
 package libs
 
 import (
-	"github.com/stretchr/testify/assert"
+	"bytes"
+	"fmt"
+	"io"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
-		fsm := NewFiniteStateMachine(NormalState{})
+		fsm := NewFiniteStateMachine(NormalTestState{})
 
 		currentState := fsm.GetState()
 
-		assert.IsType(t, NormalState{}, currentState)
+		assert.IsType(t, NormalTestState{}, currentState)
 	})
 
 	t.Run("test when an event occur meets the guardian criteria, it should trigger the transition", func(t *testing.T) {
-		fsm := NewFiniteStateMachine(NormalState{})
+		fsm := NewFiniteStateMachine[ITestState](&NormalTestState{})
 
 		event := Event("test-event")
 		guard := func() bool { return true }
 		action := func() {}
-		expectedState := AnotherState{}
-		transition := NewTransition(NormalState{}, expectedState, event, guard, action)
+		expectedState := &AnotherTestState{}
+		transition := NewTransition[ITestState](&NormalTestState{}, expectedState, event, guard, action)
 		fsm.AddTransition(transition)
 
 		fsm.Trigger(event)
@@ -29,11 +33,80 @@ func TestFSM(t *testing.T) {
 		currentState := fsm.GetState()
 		assert.IsType(t, expectedState, currentState)
 	})
+
+	t.Run("test when an event occur does not meet the guardian criteria, it should not trigger the transition", func(t *testing.T) {
+		fsm := NewFiniteStateMachine[ITestState](&NormalTestState{})
+
+		event := Event("test-event")
+		guard := func() bool { return false }
+		action := func() {}
+		expectedState := AnotherTestState{}
+		transition := NewTransition[ITestState](&NormalTestState{}, &expectedState, event, guard, action)
+		fsm.AddTransition(transition)
+
+		fsm.Trigger(event)
+
+		currentState := fsm.GetState()
+		assert.IsType(t, &NormalTestState{}, currentState)
+	})
+
+	t.Run("test subject public method behavior should variate depends on it's state", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		initState := &NormalTestState{writer: &writer}
+		fsm := NewFiniteStateMachine[ITestState](initState)
+
+		event := Event("test-event")
+		guard := func() bool { return true }
+		action := func() {}
+		expectedState := &AnotherTestState{writer: &writer}
+		transition := NewTransition[ITestState](initState, expectedState, event, guard, action)
+		fsm.AddTransition(transition)
+
+		statefulSubject := FakeStatefulSubject{fsm: fsm, writer: &writer}
+		statefulSubject.PublicMethod()
+
+		// assert when calling the subject public method, the corresponding state public method should be called
+		// (in this case, the normal state public method should be called)
+		assert.Equal(t, "normal state public method called", writer.String())
+
+		// reset the writer
+		writer.Reset()
+
+		// (another state public method should be called)
+		fsm.Trigger(event)
+		statefulSubject.PublicMethod()
+		assert.Equal(t, "another state public method called", writer.String())
+	})
 }
 
 // test helper
-type NormalState struct {
+// interface state
+type ITestState interface {
+	PublicMethod()
 }
 
-type AnotherState struct {
+type NormalTestState struct {
+	writer io.Writer
+}
+
+func (s *NormalTestState) PublicMethod() {
+	_, _ = fmt.Fprint(s.writer, "normal state public method called")
+}
+
+type AnotherTestState struct {
+	writer io.Writer
+}
+
+func (s *AnotherTestState) PublicMethod() {
+	_, _ = fmt.Fprint(s.writer, "another state public method called")
+}
+
+type FakeStatefulSubject struct {
+	fsm    *FiniteStateMachine[ITestState]
+	writer io.Writer
+}
+
+func (s *FakeStatefulSubject) PublicMethod() {
+	s.fsm.GetState().PublicMethod()
 }

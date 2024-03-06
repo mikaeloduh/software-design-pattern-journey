@@ -1,5 +1,7 @@
 package libs
 
+import "socialmediabot/utils"
+
 // IState
 type IState interface {
 }
@@ -11,36 +13,36 @@ type Guard func() bool
 type Action func()
 
 // Transition
-type Transition struct {
-	from   IState
-	to     IState
+type Transition[T IState] struct {
+	from   T
+	to     T
 	event  Event
 	guard  Guard
 	action Action
 }
 
-func NewTransition(from IState, to IState, event Event, guard Guard, action Action) *Transition {
-	return &Transition{from: from, to: to, event: event, guard: guard, action: action}
+func NewTransition[T IState](from T, to T, event Event, guard Guard, action Action) *Transition[T] {
+	return &Transition[T]{from: from, to: to, event: event, guard: guard, action: action}
 }
 
 // FiniteStateMachine
-type FiniteStateMachine struct {
-	initState    IState
-	currentState IState
-	transitions  []Transition
+type FiniteStateMachine[T IState] struct {
+	initState    T
+	currentState T
+	transitions  []Transition[T]
 }
 
-func (m *FiniteStateMachine) GetState() IState {
+func (m *FiniteStateMachine[T]) GetState() T {
 	return m.currentState
 }
 
-func (m *FiniteStateMachine) AddTransition(transition *Transition) {
+func (m *FiniteStateMachine[T]) AddTransition(transition *Transition[T]) {
 	m.transitions = append(m.transitions, *transition)
 }
 
-func (m *FiniteStateMachine) Trigger(event Event) {
+func (m *FiniteStateMachine[T]) Trigger(event Event) {
 	for _, transition := range m.transitions {
-		if transition.from == m.currentState && transition.event == event && transition.guard() {
+		if utils.ObjectsAreEqual(transition.from, m.currentState) && transition.event == event && transition.guard() {
 			m.currentState = transition.to
 			transition.action()
 			break
@@ -48,6 +50,6 @@ func (m *FiniteStateMachine) Trigger(event Event) {
 	}
 }
 
-func NewFiniteStateMachine(initState IState) *FiniteStateMachine {
-	return &FiniteStateMachine{initState: initState, currentState: initState}
+func NewFiniteStateMachine[T IState](initState T) *FiniteStateMachine[T] {
+	return &FiniteStateMachine[T]{initState: initState, currentState: initState}
 }
