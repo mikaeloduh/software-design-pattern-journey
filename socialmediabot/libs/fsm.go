@@ -4,9 +4,6 @@ package libs
 type IState interface {
 }
 
-type NormalState struct {
-}
-
 type Event string
 
 type Guard func() bool
@@ -35,6 +32,20 @@ type FiniteStateMachine struct {
 
 func (m *FiniteStateMachine) GetState() IState {
 	return m.currentState
+}
+
+func (m *FiniteStateMachine) AddTransition(transition *Transition) {
+	m.transitions = append(m.transitions, *transition)
+}
+
+func (m *FiniteStateMachine) Trigger(event Event) {
+	for _, transition := range m.transitions {
+		if transition.from == m.currentState && transition.event == event && transition.guard() {
+			m.currentState = transition.to
+			transition.action()
+			break
+		}
+	}
 }
 
 func NewFiniteStateMachine(initState IState) *FiniteStateMachine {
