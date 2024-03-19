@@ -11,22 +11,20 @@ type IChatRoomObserver interface {
 
 type ChatRoom struct {
 	Writer     io.Writer
-	TagService func(tag Tag)
+	TagService func(TagEvent)
 	observers  []IChatRoomObserver
 }
 
-func (c *ChatRoom) Send(mb IMember, mg Message) {
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s", mb.Id(), mg.Content))
-	c.Tagging(mg)
-	c.Notify(NewMessageEvent{sender: mb, message: mg})
-}
+func (c *ChatRoom) Send(sender IMember, m Message) {
+	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s", sender.Id(), m.Content))
 
-func (c *ChatRoom) Tagging(mg Message) {
-	if len(mg.Tags) != 0 {
-		for _, tag := range mg.Tags {
-			c.TagService(tag)
+	if len(m.Tags) != 0 {
+		for _, tag := range m.Tags {
+			c.TagService(TagEvent{TaggedBy: sender, TaggedTo: tag, Message: m})
 		}
 	}
+
+	c.Notify(NewMessageEvent{Sender: sender, Message: m})
 }
 
 func (c *ChatRoom) Notify(event NewMessageEvent) {

@@ -2,7 +2,7 @@ package entity
 
 // IMember
 type IMember interface {
-	Update()
+	Tag(event TagEvent)
 	Id() string
 }
 
@@ -16,7 +16,7 @@ func NewMember(id string) *Member {
 	return &Member{id: id}
 }
 
-func (b *Member) Update() {
+func (b *Member) Tag(event TagEvent) {
 	b.updater.Do()
 }
 

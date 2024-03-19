@@ -1,3 +1,6 @@
 package entity
 
-type Tag IMember
+type Taggable interface {
+	Tag(event TagEvent)
+	Id() string
+}

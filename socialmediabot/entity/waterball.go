@@ -15,10 +15,10 @@ func (w *Waterball) Login(member IMember) {
 	w.sessions = append(w.sessions, member)
 }
 
-func (w *Waterball) TagService(tag Tag) {
+func (w *Waterball) TagService(event TagEvent) {
 	for _, member := range w.sessions {
-		if member.Id() == tag.Id() {
-			tag.Update()
+		if member.Id() == event.TaggedTo.Id() {
+			member.Tag(event)
 		}
 	}
 }

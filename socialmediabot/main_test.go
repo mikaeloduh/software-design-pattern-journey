@@ -35,7 +35,7 @@ func TestMain_Waterball(t *testing.T) {
 		waterball.Login(member1)
 		waterball.Login(member2)
 
-		waterball.ChatRoom.Send(member1, entity.Message{Content: "hello", Tags: []entity.Tag{member2}})
+		waterball.ChatRoom.Send(member1, entity.Message{Content: "hello", Tags: []entity.Taggable{member2}})
 
 		assert.True(t, updater.IsCalled())
 	})
@@ -50,7 +50,7 @@ func TestMain_Waterball(t *testing.T) {
 		member2.SetUpdater(updater)
 		waterball.Login(member1)
 
-		waterball.ChatRoom.Send(member1, entity.Message{Content: "hello", Tags: []entity.Tag{member2}})
+		waterball.ChatRoom.Send(member1, entity.Message{Content: "hello", Tags: []entity.Taggable{member2}})
 
 		assert.False(t, updater.IsCalled())
 
