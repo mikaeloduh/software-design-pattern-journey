@@ -24,7 +24,7 @@ func TestMain_Waterball(t *testing.T) {
 		assert.Equal(t, memberId+": "+testMessage, writer.String())
 	})
 
-	t.Run("Tagging a member in a chat message should trigger their notification", func(t *testing.T) {
+	t.Run("Tagging a member in a chat message should trigger their notification if is logged-in", func(t *testing.T) {
 		var writer bytes.Buffer
 
 		waterball := FakeNewWaterball(&writer)
@@ -32,18 +32,39 @@ func TestMain_Waterball(t *testing.T) {
 		member2 := entity.NewMember("2")
 		updater := &SpyUpdater{}
 		member2.SetUpdater(updater)
+		waterball.Login(member1)
+		waterball.Login(member2)
 
 		waterball.ChatRoom.Send(member1, entity.Message{Content: "hello", Tags: []entity.Tag{member2}})
 
 		assert.True(t, updater.IsCalled())
 	})
+
+	t.Run("Tagging a member in a chat message should not trigger their notification if is not logged-in", func(t *testing.T) {
+		var writer bytes.Buffer
+
+		waterball := FakeNewWaterball(&writer)
+		member1 := entity.NewMember("1")
+		member2 := entity.NewMember("2")
+		updater := &SpyUpdater{}
+		member2.SetUpdater(updater)
+		waterball.Login(member1)
+
+		waterball.ChatRoom.Send(member1, entity.Message{Content: "hello", Tags: []entity.Tag{member2}})
+
+		assert.False(t, updater.IsCalled())
+
+	})
 }
 
 func FakeNewWaterball(w io.Writer) *entity.Waterball {
-	return &entity.Waterball{
+	waterball := &entity.Waterball{
 		Writer:   w,
 		ChatRoom: entity.ChatRoom{Writer: w},
 	}
+	waterball.ChatRoom.TagService = waterball.TagService
+
+	return waterball
 }
 
 type SpyUpdater struct {
