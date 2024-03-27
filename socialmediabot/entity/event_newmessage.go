@@ -5,10 +5,10 @@ type NewMessageEvent struct {
 	Message Message
 }
 
-func (n *NewMessageEvent) GetEventName() string {
+func (n NewMessageEvent) GetEventName() string {
 	return "NewMessageEvent"
 }
 
-func (n *NewMessageEvent) GetEventData() (IMember, Message) {
+func (n NewMessageEvent) GetEventData() (IMember, Message) {
 	return n.Sender, n.Message
 }

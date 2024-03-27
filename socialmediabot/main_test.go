@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"socialmediabot/entity"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,7 +22,7 @@ func TestMain_Waterball(t *testing.T) {
 		testMessage := "hello"
 		waterball.ChatRoom.Send(member, entity.Message{Content: testMessage})
 
-		assert.Equal(t, memberId+": "+testMessage, writer.String())
+		assert.Equal(t, memberId+": "+testMessage, getLastLine(writer.String()))
 	})
 
 	t.Run("Tagging a member in a chat message should trigger their notification if is logged-in", func(t *testing.T) {
@@ -77,4 +78,13 @@ func (b *SpyUpdater) Do() {
 
 func (b *SpyUpdater) IsCalled() bool {
 	return b.isCalled
+}
+
+// test helper
+func getLastLine(output string) string {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	if len(lines) == 0 {
+		return ""
+	}
+	return lines[len(lines)-1]
 }

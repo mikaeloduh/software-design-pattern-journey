@@ -26,21 +26,26 @@ func NewTransition[T IState](from T, to T, event Event, guard Guard, action Acti
 }
 
 // FiniteStateMachine
-type FiniteStateMachine[T IState] struct {
+type FiniteStateMachine[U any, T IState] struct {
+	subject      U
 	initState    T
 	currentState T
 	transitions  []Transition[T]
 }
 
-func (m *FiniteStateMachine[T]) GetState() T {
+func (m *FiniteStateMachine[U, T]) GetSubject() U {
+	return m.subject
+}
+
+func (m *FiniteStateMachine[U, T]) GetState() T {
 	return m.currentState
 }
 
-func (m *FiniteStateMachine[T]) AddTransition(transition *Transition[T]) {
+func (m *FiniteStateMachine[U, T]) AddTransition(transition *Transition[T]) {
 	m.transitions = append(m.transitions, *transition)
 }
 
-func (m *FiniteStateMachine[T]) Trigger(event Event) {
+func (m *FiniteStateMachine[U, T]) Trigger(event Event) {
 	for _, transition := range m.transitions {
 		if utils.ObjectsAreEqual(transition.from, m.currentState) && transition.event == event && transition.guard() {
 			m.currentState = transition.to
@@ -50,6 +55,10 @@ func (m *FiniteStateMachine[T]) Trigger(event Event) {
 	}
 }
 
-func NewFiniteStateMachine[T IState](initState T) *FiniteStateMachine[T] {
-	return &FiniteStateMachine[T]{initState: initState, currentState: initState}
+func NewFiniteStateMachine[U any, T IState](subject U, initState T) *FiniteStateMachine[U, T] {
+	return &FiniteStateMachine[U, T]{
+		subject:      subject,
+		initState:    initState,
+		currentState: initState,
+	}
 }

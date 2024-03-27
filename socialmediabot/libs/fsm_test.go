@@ -11,8 +11,8 @@ import (
 
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
-		expectedState := NormalTestState{}
-		fsm := NewFiniteStateMachine(expectedState)
+		expectedState := &NormalTestState{}
+		fsm := NewFiniteStateMachine[any, ITestState](nil, expectedState)
 
 		currentState := fsm.GetState()
 
@@ -20,7 +20,7 @@ func TestFSM(t *testing.T) {
 	})
 
 	t.Run("test when an event occur meets the guardian criteria, it should trigger the transition", func(t *testing.T) {
-		fsm := NewFiniteStateMachine[ITestState](&NormalTestState{})
+		fsm := NewFiniteStateMachine[any, ITestState](nil, &NormalTestState{})
 
 		event := Event("test-event")
 		guard := func() bool { return true }
@@ -37,7 +37,7 @@ func TestFSM(t *testing.T) {
 
 	t.Run("test when an event occur does not meet the guardian criteria, it should not trigger the transition", func(t *testing.T) {
 		initState := &NormalTestState{}
-		fsm := NewFiniteStateMachine[ITestState](initState)
+		fsm := NewFiniteStateMachine[any, ITestState](nil, initState)
 
 		event := Event("test-event")
 		guard := func() bool { return false }
@@ -53,7 +53,7 @@ func TestFSM(t *testing.T) {
 
 	t.Run("test when an event does not meet any transition, it should not change the state", func(t *testing.T) {
 		initState := &NormalTestState{}
-		fsm := NewFiniteStateMachine[ITestState](initState)
+		fsm := NewFiniteStateMachine[any, ITestState](nil, initState)
 
 		event := Event("test-event")
 		guard := func() bool { return true }
@@ -71,7 +71,7 @@ func TestFSM(t *testing.T) {
 		var writer bytes.Buffer
 
 		initState := &NormalTestState{writer: &writer}
-		fsm := NewFiniteStateMachine[ITestState](initState)
+		fsm := NewFiniteStateMachine[any, ITestState](nil, initState)
 
 		event := Event("test-event")
 		guard := func() bool { return true }
@@ -119,7 +119,7 @@ func (s *AnotherTestState) PublicMethod() {
 }
 
 type FakeStatefulSubject struct {
-	fsm    *FiniteStateMachine[ITestState]
+	fsm    *FiniteStateMachine[any, ITestState]
 	writer io.Writer
 }
 

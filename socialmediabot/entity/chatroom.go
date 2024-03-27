@@ -16,7 +16,7 @@ type ChatRoom struct {
 }
 
 func (c *ChatRoom) Send(sender IMember, m Message) {
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s", sender.Id(), m.Content))
+	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\n", sender.Id(), m.Content))
 
 	if len(m.Tags) != 0 {
 		for _, tag := range m.Tags {
@@ -31,4 +31,8 @@ func (c *ChatRoom) Notify(event NewMessageEvent) {
 	for _, observer := range c.observers {
 		observer.Update(event)
 	}
+}
+
+func (c *ChatRoom) Register(observer IChatRoomObserver) {
+	c.observers = append(c.observers, observer)
 }
