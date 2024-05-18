@@ -2,16 +2,6 @@ package libs
 
 import "socialmediabot/utils"
 
-// IState
-type IState interface {
-}
-
-type Event string
-
-type Guard func() bool
-
-type Action func()
-
 // Transition
 type Transition[T IState] struct {
 	from   T
@@ -27,10 +17,18 @@ func NewTransition[T IState](from T, to T, event Event, guard Guard, action Acti
 
 // FiniteStateMachine
 type FiniteStateMachine[U any, T IState] struct {
-	subject      U
-	initState    T
-	currentState T
-	transitions  []Transition[T]
+	subject         U
+	states          []T
+	currentStateIdx int
+	transitions     []Transition[T]
+}
+
+func NewFiniteStateMachine[U any, T IState](subject U, initState T) *FiniteStateMachine[U, T] {
+	return &FiniteStateMachine[U, T]{
+		subject:         subject,
+		states:          []T{initState},
+		currentStateIdx: 0,
+	}
 }
 
 func (m *FiniteStateMachine[U, T]) GetSubject() U {
@@ -38,7 +36,20 @@ func (m *FiniteStateMachine[U, T]) GetSubject() U {
 }
 
 func (m *FiniteStateMachine[U, T]) GetState() T {
-	return m.currentState
+	return m.states[m.currentStateIdx]
+}
+
+func (m *FiniteStateMachine[U, T]) SetState(state T) {
+	for i, s := range m.states {
+		if utils.ObjectsAreEqual(s, state) {
+			m.currentStateIdx = i
+			break
+		}
+	}
+}
+
+func (m *FiniteStateMachine[U, T]) AddState(state T) {
+	m.states = append(m.states, state)
 }
 
 func (m *FiniteStateMachine[U, T]) AddTransition(transition *Transition[T]) {
@@ -47,18 +58,10 @@ func (m *FiniteStateMachine[U, T]) AddTransition(transition *Transition[T]) {
 
 func (m *FiniteStateMachine[U, T]) Trigger(event Event) {
 	for _, transition := range m.transitions {
-		if utils.ObjectsAreEqual(transition.from, m.currentState) && transition.event == event && transition.guard() {
-			m.currentState = transition.to
+		if transition.event == event && utils.ObjectsAreEqual(transition.from, m.GetState()) && transition.guard() {
+			m.SetState(transition.to)
 			transition.action()
 			break
 		}
-	}
-}
-
-func NewFiniteStateMachine[U any, T IState](subject U, initState T) *FiniteStateMachine[U, T] {
-	return &FiniteStateMachine[U, T]{
-		subject:      subject,
-		initState:    initState,
-		currentState: initState,
 	}
 }

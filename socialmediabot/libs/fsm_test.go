@@ -26,6 +26,7 @@ func TestFSM(t *testing.T) {
 		guard := func() bool { return true }
 		action := func() {}
 		expectedState := &AnotherTestState{}
+		fsm.AddState(expectedState)
 		transition := NewTransition[ITestState](&NormalTestState{}, expectedState, event, guard, action)
 		fsm.AddTransition(transition)
 
@@ -42,7 +43,9 @@ func TestFSM(t *testing.T) {
 		event := Event("test-event")
 		guard := func() bool { return false }
 		action := func() {}
-		transition := NewTransition[ITestState](initState, &AnotherTestState{}, event, guard, action)
+		expectedState := &AnotherTestState{}
+		fsm.AddState(expectedState)
+		transition := NewTransition[ITestState](initState, expectedState, event, guard, action)
 		fsm.AddTransition(transition)
 
 		fsm.Trigger(event)
@@ -58,7 +61,9 @@ func TestFSM(t *testing.T) {
 		event := Event("test-event")
 		guard := func() bool { return true }
 		action := func() {}
-		transition := NewTransition[ITestState](initState, &AnotherTestState{}, event, guard, action)
+		expectedState := &AnotherTestState{}
+		fsm.AddState(expectedState)
+		transition := NewTransition[ITestState](initState, expectedState, event, guard, action)
 		fsm.AddTransition(transition)
 
 		fsm.Trigger(Event("another-event"))
@@ -77,9 +82,8 @@ func TestFSM(t *testing.T) {
 		guard := func() bool { return true }
 		action := func() {}
 		expectedState := &AnotherTestState{writer: &writer}
-		transition := NewTransition[ITestState](initState, expectedState, event, guard, action)
-		fsm.AddTransition(transition)
-
+		fsm.AddState(expectedState)
+		fsm.AddTransition(NewTransition[ITestState](initState, expectedState, event, guard, action))
 		statefulSubject := FakeStatefulSubject{fsm: fsm, writer: &writer}
 		statefulSubject.PublicMethod()
 
