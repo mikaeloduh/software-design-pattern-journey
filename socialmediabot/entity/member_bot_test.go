@@ -14,7 +14,7 @@ func TestBot(t *testing.T) {
 		var writer bytes.Buffer
 
 		waterball := FakeNewWaterball(&writer)
-		bot := NewBot(waterball)
+		bot := NewBot(&waterball)
 		waterball.Login(bot)
 		waterball.ChatRoom.Register(bot)
 

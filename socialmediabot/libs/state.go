@@ -1,8 +1,9 @@
 package libs
 
-type SuperState[U any, T IFSM[T]] struct {
+type SuperState[U any] struct {
+	Subject U
 }
 
-func (s *SuperState[U, T]) GetState() T {
-	panic("to be implement")
+func (s *SuperState[U]) GetState() IFSM {
+	panic("Unimplemented method")
 }

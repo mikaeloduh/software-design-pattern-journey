@@ -2,33 +2,47 @@ package entity
 
 import "socialmediabot/libs"
 
+// IBotState
 type IBotState interface {
 	OnNewMessage(event NewMessageEvent)
 }
 
+type UnimplementedBotState struct{}
+
+func (UnimplementedBotState) OnNewMessage(event NewMessageEvent) {
+	panic("implement me")
+}
+
+// NormalState
 type NormalState struct {
-	fsm       *libs.FiniteStateMachine[*Bot, IBotState]
-	waterball Waterball
+	waterball *Waterball
+	UnimplementedBotState
+	libs.SuperState[*Bot]
+}
+
+func (s *NormalState) GetState() libs.IFSM {
+	return s
 }
 
 func (s *NormalState) OnNewMessage(event NewMessageEvent) {
-	s.waterball.ChatRoom.Send(s.fsm.GetSubject(), Message{Content: "good to hear"})
+	s.waterball.ChatRoom.Send(s.Subject, Message{Content: "good to hear"})
 }
 
+// Bot
 type Bot struct {
 	id      string
 	updater IUpdater
-	fsm     *libs.FiniteStateMachine[*Bot, IBotState]
+	fsm     *libs.FiniteStateMachine[*Bot]
 }
 
-func NewBot(waterball Waterball) *Bot {
-	bot := &Bot{id: "bot_001"}
-	initState := &NormalState{waterball: waterball}
-	fsm := libs.NewFiniteStateMachine[*Bot, IBotState](bot, initState)
-	bot.fsm = fsm
-	initState.fsm = fsm
+func NewBot(waterball *Waterball) *Bot {
+	bot := Bot{id: "bot_001"}
+	bot.fsm = libs.NewFiniteStateMachine[*Bot](&bot, &NormalState{
+		waterball:  waterball,
+		SuperState: libs.SuperState[*Bot]{Subject: &bot},
+	})
 
-	return bot
+	return &bot
 }
 
 func (b *Bot) Tag(event TagEvent) {
@@ -43,8 +57,10 @@ func (b *Bot) Update(event NewMessageEvent) {
 func (b *Bot) updateHandler(event IEvent) {
 	switch value := event.(type) {
 	case NewMessageEvent:
-		state := b.fsm.GetState()
-		state.OnNewMessage(value)
+		if value.Sender == b {
+			return
+		}
+		b.fsm.GetState().(IBotState).OnNewMessage(value)
 
 	default:
 		panic("unknown event")

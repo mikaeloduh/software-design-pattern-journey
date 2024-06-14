@@ -1,8 +1,8 @@
 package libs
 
 // IFSM
-type IFSM[T any] interface {
-	GetState() T
+type IFSM interface {
+	GetState() IFSM
 }
 
 type IState any
