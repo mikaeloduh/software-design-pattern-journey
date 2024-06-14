@@ -1,12 +1,11 @@
 package libs
 
-// SuperFSM
-type SuperFSM interface {
+// IFSM
+type IFSM[T any] interface {
+	GetState() T
 }
 
-// IState
-type IState interface {
-}
+type IState any
 
 type Event string
 

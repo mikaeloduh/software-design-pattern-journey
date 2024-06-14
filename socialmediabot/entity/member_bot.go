@@ -2,12 +2,12 @@ package entity
 
 import "socialmediabot/libs"
 
-type BotState interface {
+type IBotState interface {
 	OnNewMessage(event NewMessageEvent)
 }
 
 type NormalState struct {
-	fsm       *libs.FiniteStateMachine[*Bot, BotState]
+	fsm       *libs.FiniteStateMachine[*Bot, IBotState]
 	waterball Waterball
 }
 
@@ -18,13 +18,13 @@ func (s *NormalState) OnNewMessage(event NewMessageEvent) {
 type Bot struct {
 	id      string
 	updater IUpdater
-	fsm     *libs.FiniteStateMachine[*Bot, BotState]
+	fsm     *libs.FiniteStateMachine[*Bot, IBotState]
 }
 
 func NewBot(waterball Waterball) *Bot {
 	bot := &Bot{id: "bot_001"}
 	initState := &NormalState{waterball: waterball}
-	fsm := libs.NewFiniteStateMachine[*Bot, BotState](bot, initState)
+	fsm := libs.NewFiniteStateMachine[*Bot, IBotState](bot, initState)
 	bot.fsm = fsm
 	initState.fsm = fsm
 

@@ -2,28 +2,17 @@ package libs
 
 import "socialmediabot/utils"
 
-// Transition
-type Transition[T IState] struct {
-	from   T
-	to     T
-	event  Event
-	guard  Guard
-	action Action
-}
+// IFSM
 
-func NewTransition[T IState](from T, to T, event Event, guard Guard, action Action) *Transition[T] {
-	return &Transition[T]{from: from, to: to, event: event, guard: guard, action: action}
-}
-
-// FiniteStateMachine
-type FiniteStateMachine[U any, T IState] struct {
+// FiniteStateMachine is a finite state machine, U is the subject type, T is the state type
+type FiniteStateMachine[U any, T IFSM[T]] struct {
 	subject         U
 	states          []T
 	currentStateIdx int
 	transitions     []Transition[T]
 }
 
-func NewFiniteStateMachine[U any, T IState](subject U, initState T) *FiniteStateMachine[U, T] {
+func NewFiniteStateMachine[U any, T IFSM[T]](subject U, initState T) *FiniteStateMachine[U, T] {
 	return &FiniteStateMachine[U, T]{
 		subject:         subject,
 		states:          []T{initState},
@@ -36,7 +25,7 @@ func (m *FiniteStateMachine[U, T]) GetSubject() U {
 }
 
 func (m *FiniteStateMachine[U, T]) GetState() T {
-	return m.states[m.currentStateIdx]
+	return m.states[m.currentStateIdx].GetState()
 }
 
 func (m *FiniteStateMachine[U, T]) SetState(state T) {
@@ -64,4 +53,12 @@ func (m *FiniteStateMachine[U, T]) Trigger(event Event) {
 			break
 		}
 	}
+}
+
+// Default FSM
+type DefaultImplementationFSM struct {
+}
+
+func (f *DefaultImplementationFSM) GetState() {
+
 }
