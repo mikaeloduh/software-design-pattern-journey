@@ -1,9 +1,12 @@
 package libs
 
-type SuperState[U any] struct {
-	Subject U
+// IState
+type IState interface {
+	GetState() IState
 }
 
-func (s *SuperState[U]) GetState() IFSM {
-	panic("Unimplemented method")
-}
+type Event string
+
+type Guard func() bool
+
+type Action func()

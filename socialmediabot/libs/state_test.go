@@ -27,7 +27,7 @@ type DefaultTestState struct {
 	UnimplementedTestState
 }
 
-func (s *DefaultTestState) GetState() IFSM {
+func (s *DefaultTestState) GetState() IState {
 	return s
 }
 
@@ -42,7 +42,7 @@ type AnotherTestState struct {
 	UnimplementedTestState
 }
 
-func (s *AnotherTestState) GetState() IFSM {
+func (s *AnotherTestState) GetState() IState {
 	return s
 }
 
@@ -150,7 +150,7 @@ type DefaultConversationState struct {
 	UnimplementedTestState
 }
 
-func (s *DefaultConversationState) GetState() IFSM {
+func (s *DefaultConversationState) GetState() IState {
 	return s
 }
 
@@ -165,7 +165,7 @@ type InteractiveState struct {
 	UnimplementedTestState
 }
 
-func (s *InteractiveState) GetState() IFSM {
+func (s *InteractiveState) GetState() IState {
 	return s
 }
 
@@ -176,7 +176,7 @@ func (s *InteractiveState) PublicMethod() {
 // NormalTestFSM
 type NormalTestFSM struct {
 	writer io.Writer
-	FiniteStateMachine[any]
+	SuperFSM[any]
 	UnimplementedTestState
 }
 
@@ -187,14 +187,14 @@ func (s *NormalTestFSM) PublicMethod() {
 // RootTestFSM
 type RootTestFSM struct {
 	writer io.Writer
-	FiniteStateMachine[any]
+	SuperFSM[any]
 	UnimplementedTestState
 }
 
 // RecordFSM
 type RecordFSM struct {
 	writer io.Writer
-	FiniteStateMachine[any]
+	SuperFSM[any]
 	UnimplementedTestState
 }
 
@@ -207,13 +207,13 @@ func TestFSM_Composite(t *testing.T) {
 		interactiveState := &InteractiveState{writer: &writer}
 
 		normalStateFSM := &NormalTestFSM{
-			FiniteStateMachine: *NewFiniteStateMachine[any](nil, defaultConversationState),
+			SuperFSM: *NewFiniteStateMachine[any](nil, defaultConversationState),
 		}
 		normalStateFSM.AddState(interactiveState)
 
 		recordStateFSM := &RecordFSM{}
 		rootFSM := RootTestFSM{
-			FiniteStateMachine: *NewFiniteStateMachine[any](nil, normalStateFSM),
+			SuperFSM: *NewFiniteStateMachine[any](nil, normalStateFSM),
 		}
 		rootFSM.AddState(recordStateFSM)
 
@@ -227,7 +227,7 @@ func TestFSM_Composite(t *testing.T) {
 
 // FakeStatefulSubject
 type FakeStatefulSubject struct {
-	fsm    *FiniteStateMachine[any]
+	fsm    *SuperFSM[any]
 	writer io.Writer
 }
 

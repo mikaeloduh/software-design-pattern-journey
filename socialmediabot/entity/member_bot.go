@@ -20,7 +20,7 @@ type NormalState struct {
 	libs.SuperState[*Bot]
 }
 
-func (s *NormalState) GetState() libs.IFSM {
+func (s *NormalState) GetState() libs.IState {
 	return s
 }
 
@@ -32,7 +32,7 @@ func (s *NormalState) OnNewMessage(event NewMessageEvent) {
 type Bot struct {
 	id      string
 	updater IUpdater
-	fsm     *libs.FiniteStateMachine[*Bot]
+	fsm     *libs.SuperFSM[*Bot]
 }
 
 func NewBot(waterball *Waterball) *Bot {

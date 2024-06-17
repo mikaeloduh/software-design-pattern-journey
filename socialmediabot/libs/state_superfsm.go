@@ -2,33 +2,33 @@ package libs
 
 import "socialmediabot/utils"
 
-// IFSM
+// IState
 
-// FiniteStateMachine is a finite state machine, U is the subject type, T is the state type
-type FiniteStateMachine[U any] struct {
+// SuperFSM is a finite state machine, U is the subject type, T is the state type
+type SuperFSM[U any] struct {
 	subject         U
-	states          []IFSM
+	states          []IState
 	currentStateIdx int
 	transitions     []Transition
 }
 
-func NewFiniteStateMachine[U any](subject U, initState IFSM) *FiniteStateMachine[U] {
-	return &FiniteStateMachine[U]{
+func NewFiniteStateMachine[U any](subject U, initState IState) *SuperFSM[U] {
+	return &SuperFSM[U]{
 		subject:         subject,
-		states:          []IFSM{initState},
+		states:          []IState{initState},
 		currentStateIdx: 0,
 	}
 }
 
-func (m *FiniteStateMachine[U]) GetSubject() U {
+func (m *SuperFSM[U]) GetSubject() U {
 	return m.subject
 }
 
-func (m *FiniteStateMachine[U]) GetState() IFSM {
+func (m *SuperFSM[U]) GetState() IState {
 	return m.states[m.currentStateIdx].GetState()
 }
 
-func (m *FiniteStateMachine[U]) SetState(state IFSM) {
+func (m *SuperFSM[U]) SetState(state IState) {
 	for i, s := range m.states {
 		if utils.ObjectsAreEqual(s, state) {
 			m.currentStateIdx = i
@@ -37,15 +37,15 @@ func (m *FiniteStateMachine[U]) SetState(state IFSM) {
 	}
 }
 
-func (m *FiniteStateMachine[U]) AddState(state IFSM) {
+func (m *SuperFSM[U]) AddState(state IState) {
 	m.states = append(m.states, state)
 }
 
-func (m *FiniteStateMachine[U]) AddTransition(transition *Transition) {
+func (m *SuperFSM[U]) AddTransition(transition *Transition) {
 	m.transitions = append(m.transitions, *transition)
 }
 
-func (m *FiniteStateMachine[U]) Trigger(event Event) {
+func (m *SuperFSM[U]) Trigger(event Event) {
 	for _, transition := range m.transitions {
 		if transition.event == event && utils.ObjectsAreEqual(transition.from, m.GetState()) && transition.guard() {
 			m.SetState(transition.to)
