@@ -65,8 +65,8 @@ func TestFSM(t *testing.T) {
 		fsm := NewFiniteStateMachine[any](nil, &DefaultTestState{})
 
 		event := Event("test-event")
-		guard := func() bool { return true }
-		action := func() {}
+		guard := Guard(func() bool { return true })
+		action := Action(func() {})
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
 		transition := NewTransition(&DefaultTestState{}, expectedState, event, guard, action)
@@ -83,8 +83,8 @@ func TestFSM(t *testing.T) {
 		fsm := NewFiniteStateMachine[any](nil, initState)
 
 		event := Event("test-event")
-		guard := func() bool { return false }
-		action := func() {}
+		guard := Guard(func() bool { return false })
+		action := Action(func() {})
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
 		transition := NewTransition(initState, expectedState, event, guard, action)
@@ -101,8 +101,8 @@ func TestFSM(t *testing.T) {
 		fsm := NewFiniteStateMachine[any](nil, initState)
 
 		event := Event("test-event")
-		guard := func() bool { return true }
-		action := func() {}
+		guard := Guard(func() bool { return true })
+		action := Action(func() {})
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
 		transition := NewTransition(initState, expectedState, event, guard, action)
@@ -121,8 +121,8 @@ func TestFSM(t *testing.T) {
 		fsm := NewFiniteStateMachine[any](nil, initState)
 
 		event := Event("test-event")
-		guard := func() bool { return true }
-		action := func() {}
+		guard := Guard(func() bool { return true })
+		action := Action(func() {})
 		expectedState := &AnotherTestState{writer: &writer}
 		fsm.AddState(expectedState)
 		fsm.AddTransition(NewTransition(initState, expectedState, event, guard, action))
