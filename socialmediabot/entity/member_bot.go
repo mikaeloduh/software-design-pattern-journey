@@ -16,8 +16,8 @@ func (UnimplementedBotState) OnNewMessage(event NewMessageEvent) {
 // NormalState
 type NormalState struct {
 	waterball *Waterball
-	UnimplementedBotState
 	libs.SuperState[*Bot]
+	UnimplementedBotState
 }
 
 func (s *NormalState) GetState() libs.IState {
@@ -28,19 +28,31 @@ func (s *NormalState) OnNewMessage(event NewMessageEvent) {
 	s.waterball.ChatRoom.Send(s.Subject, Message{Content: "good to hear"})
 }
 
+type BotFSM struct {
+	*libs.SuperFSM[*Bot]
+	UnimplementedBotState
+}
+
+func (f *BotFSM) OnNewMessage(event NewMessageEvent) {
+	f.GetState().(IBotState).OnNewMessage(event)
+}
+
 // Bot
 type Bot struct {
 	id      string
 	updater IUpdater
-	fsm     *libs.SuperFSM[*Bot]
+	fsm     BotFSM
 }
 
 func NewBot(waterball *Waterball) *Bot {
 	bot := Bot{id: "bot_001"}
-	bot.fsm = libs.NewFiniteStateMachine[*Bot](&bot, &NormalState{
+	initState := NormalState{
 		waterball:  waterball,
 		SuperState: libs.SuperState[*Bot]{Subject: &bot},
-	})
+	}
+	bot.fsm = BotFSM{
+		SuperFSM: libs.NewSuperFSM[*Bot](&bot, &initState),
+	}
 
 	return &bot
 }
@@ -60,7 +72,7 @@ func (b *Bot) updateHandler(event IEvent) {
 		if value.Sender == b {
 			return
 		}
-		b.fsm.GetState().(IBotState).OnNewMessage(value)
+		b.fsm.OnNewMessage(value)
 
 	default:
 		panic("unknown event")

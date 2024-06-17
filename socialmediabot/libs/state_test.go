@@ -54,7 +54,7 @@ func (s *AnotherTestState) PublicMethod() {
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
 		expectedState := &DefaultTestState{}
-		fsm := NewFiniteStateMachine[any](nil, expectedState)
+		fsm := NewSuperFSM[any](nil, expectedState)
 
 		currentState := fsm.GetState()
 
@@ -62,7 +62,7 @@ func TestFSM(t *testing.T) {
 	})
 
 	t.Run("test when an event occur meets the guardian criteria, it should trigger the transition", func(t *testing.T) {
-		fsm := NewFiniteStateMachine[any](nil, &DefaultTestState{})
+		fsm := NewSuperFSM[any](nil, &DefaultTestState{})
 
 		event := Event("test-event")
 		guard := Guard(func() bool { return true })
@@ -80,7 +80,7 @@ func TestFSM(t *testing.T) {
 
 	t.Run("test when an event occur does not meet the guardian criteria, it should not trigger the transition", func(t *testing.T) {
 		initState := &DefaultTestState{}
-		fsm := NewFiniteStateMachine[any](nil, initState)
+		fsm := NewSuperFSM[any](nil, initState)
 
 		event := Event("test-event")
 		guard := Guard(func() bool { return false })
@@ -98,7 +98,7 @@ func TestFSM(t *testing.T) {
 
 	t.Run("test when an event does not meet any transition, it should not change the state", func(t *testing.T) {
 		initState := &DefaultTestState{}
-		fsm := NewFiniteStateMachine[any](nil, initState)
+		fsm := NewSuperFSM[any](nil, initState)
 
 		event := Event("test-event")
 		guard := Guard(func() bool { return true })
@@ -118,7 +118,7 @@ func TestFSM(t *testing.T) {
 		var writer bytes.Buffer
 
 		initState := &DefaultTestState{writer: &writer}
-		fsm := NewFiniteStateMachine[any](nil, initState)
+		fsm := NewSuperFSM[any](nil, initState)
 
 		event := Event("test-event")
 		guard := Guard(func() bool { return true })
@@ -203,13 +203,13 @@ func TestFSM_Composite(t *testing.T) {
 	interactiveState := &InteractiveState{writer: &writer}
 
 	normalStateFSM := &NormalTestFSM{
-		SuperFSM: *NewFiniteStateMachine[any](nil, defaultConversationState),
+		SuperFSM: *NewSuperFSM[any](nil, defaultConversationState),
 	}
 	normalStateFSM.AddState(interactiveState)
 
 	recordStateFSM := &RecordFSM{}
 	rootFSM := RootTestFSM{
-		SuperFSM: *NewFiniteStateMachine[any](nil, normalStateFSM),
+		SuperFSM: *NewSuperFSM[any](nil, normalStateFSM),
 	}
 	rootFSM.AddState(recordStateFSM)
 
