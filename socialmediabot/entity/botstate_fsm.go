@@ -3,7 +3,7 @@ package entity
 import "socialmediabot/libs"
 
 type BotFSM struct {
-	*libs.SuperFSM[*Bot]
+	libs.SuperFSM[*Bot]
 	UnimplementedBotState
 }
 

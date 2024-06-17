@@ -16,7 +16,7 @@ func NewBot(waterball *Waterball) *Bot {
 		SuperState: libs.SuperState[*Bot]{Subject: &bot},
 	}
 	bot.fsm = BotFSM{
-		SuperFSM: libs.NewSuperFSM[*Bot](&bot, &initState),
+		SuperFSM: *libs.NewSuperFSM[*Bot](&bot, &initState),
 	}
 
 	return &bot
