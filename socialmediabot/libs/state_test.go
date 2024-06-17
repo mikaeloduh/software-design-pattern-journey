@@ -155,7 +155,7 @@ func (s *DefaultConversationState) GetState() IState {
 }
 
 func (s *DefaultConversationState) PublicMethod() {
-	_, _ = fmt.Fprint(s.writer, " DefaultConversationState public method called")
+	_, _ = fmt.Fprint(s.writer, "DefaultConversationState public method called")
 }
 
 // InteractiveState
@@ -175,51 +175,64 @@ func (s *InteractiveState) PublicMethod() {
 
 // NormalTestFSM
 type NormalTestFSM struct {
-	writer io.Writer
 	SuperFSM[any]
 	UnimplementedTestState
 }
 
 func (s *NormalTestFSM) PublicMethod() {
-	_, _ = fmt.Fprint(s.writer, "NormalTestFSM public method called")
+	s.GetState().(ITestState).PublicMethod()
 }
 
 // RootTestFSM
 type RootTestFSM struct {
-	writer io.Writer
 	SuperFSM[any]
 	UnimplementedTestState
 }
 
 // RecordFSM
 type RecordFSM struct {
-	writer io.Writer
 	SuperFSM[any]
 	UnimplementedTestState
 }
 
 // Test Composite FSM
 func TestFSM_Composite(t *testing.T) {
+	var writer bytes.Buffer
+
+	defaultConversationState := &DefaultConversationState{writer: &writer}
+	interactiveState := &InteractiveState{writer: &writer}
+
+	normalStateFSM := &NormalTestFSM{
+		SuperFSM: *NewFiniteStateMachine[any](nil, defaultConversationState),
+	}
+	normalStateFSM.AddState(interactiveState)
+
+	recordStateFSM := &RecordFSM{}
+	rootFSM := RootTestFSM{
+		SuperFSM: *NewFiniteStateMachine[any](nil, normalStateFSM),
+	}
+	rootFSM.AddState(recordStateFSM)
+
 	t.Run("test NormalTestFSM contains DefaultConversationState and InteractiveState", func(t *testing.T) {
-		var writer bytes.Buffer
-
-		defaultConversationState := &DefaultConversationState{writer: &writer}
-		interactiveState := &InteractiveState{writer: &writer}
-
-		normalStateFSM := &NormalTestFSM{
-			SuperFSM: *NewFiniteStateMachine[any](nil, defaultConversationState),
-		}
-		normalStateFSM.AddState(interactiveState)
-
-		recordStateFSM := &RecordFSM{}
-		rootFSM := RootTestFSM{
-			SuperFSM: *NewFiniteStateMachine[any](nil, normalStateFSM),
-		}
-		rootFSM.AddState(recordStateFSM)
 
 		currentState := rootFSM.GetState()
 
 		assert.Same(t, defaultConversationState, currentState)
+	})
+
+	t.Run("calling public method from FSM is equivalent to calling the same method of the current state", func(t *testing.T) {
+		normalStateFSM.PublicMethod()
+
+		assert.Equal(t, "DefaultConversationState public method called", writer.String())
+	})
+
+	t.Run("the behavior of public method should variant depends on it's current state", func(t *testing.T) {
+		writer.Reset()
+
+		normalStateFSM.SetState(interactiveState)
+		normalStateFSM.PublicMethod()
+
+		assert.Equal(t, "InteractiveState public method called", writer.String())
 	})
 }
 
