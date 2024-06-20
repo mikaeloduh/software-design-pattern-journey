@@ -4,12 +4,12 @@ package entity
 type Bot struct {
 	id      string
 	updater IUpdater
-	fsm     *BotFSM
+	fsm     *RootFSM
 }
 
 func NewBot(waterball *Waterball) *Bot {
 	bot := Bot{id: "bot_001"}
-	bot.fsm = NewBotFSM(&bot, NewNormalStateFSM(waterball, &bot, NewDefaultConversationState(waterball, &bot)))
+	bot.fsm = NewRootFSM(&bot, NewNormalStateFSM(waterball, &bot, NewDefaultConversationState(waterball, &bot)))
 
 	return &bot
 }
