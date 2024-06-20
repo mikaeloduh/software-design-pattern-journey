@@ -1,23 +1,15 @@
 package entity
 
-import "socialmediabot/libs"
-
 // Bot
 type Bot struct {
 	id      string
 	updater IUpdater
-	fsm     BotFSM
+	fsm     *BotFSM
 }
 
 func NewBot(waterball *Waterball) *Bot {
 	bot := Bot{id: "bot_001"}
-	initState := NormalState{
-		waterball:  waterball,
-		SuperState: libs.SuperState[*Bot]{Subject: &bot},
-	}
-	bot.fsm = BotFSM{
-		SuperFSM: *libs.NewSuperFSM[*Bot](&bot, &initState),
-	}
+	bot.fsm = NewBotFSM(&bot, NewNormalStateFSM(waterball, &bot, NewDefaultConversationState(waterball, &bot)))
 
 	return &bot
 }

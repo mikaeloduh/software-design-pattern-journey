@@ -17,9 +17,9 @@ func TestBot(t *testing.T) {
 		bot := NewBot(&waterball)
 		waterball.Login(bot)
 		waterball.ChatRoom.Register(bot)
-
 		member := NewMember("1")
 		waterball.Login(member)
+
 		waterball.ChatRoom.Send(member, Message{Content: "hello"})
 
 		botId := "bot_001"
