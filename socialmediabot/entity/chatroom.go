@@ -5,12 +5,9 @@ import (
 	"io"
 )
 
-type IChatRoomObserver interface {
-	Update(event NewMessageEvent)
-}
-
 type ChatRoom struct {
 	Writer     io.Writer
+	Waterball  *Waterball
 	TagService func(TagEvent)
 	observers  []IChatRoomObserver
 }
@@ -20,7 +17,11 @@ func (c *ChatRoom) Send(sender IMember, m Message) {
 
 	if len(m.Tags) != 0 {
 		for _, tag := range m.Tags {
-			c.TagService(TagEvent{TaggedBy: sender, TaggedTo: tag, Message: m})
+			c.Waterball.TagService(TagEvent{
+				TaggedBy: sender,
+				TaggedTo: tag,
+				Message:  m,
+			})
 		}
 	}
 

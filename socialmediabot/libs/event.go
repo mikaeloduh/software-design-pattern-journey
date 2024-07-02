@@ -1,3 +1,5 @@
 package libs
 
-type Event string
+type IEvent interface {
+	GetData() IEvent
+}

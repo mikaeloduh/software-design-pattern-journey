@@ -59,13 +59,7 @@ func TestMain_Waterball(t *testing.T) {
 }
 
 func FakeNewWaterball(w io.Writer) *entity.Waterball {
-	waterball := &entity.Waterball{
-		Writer:   w,
-		ChatRoom: entity.ChatRoom{Writer: w},
-	}
-	waterball.ChatRoom.TagService = waterball.TagService
-
-	return waterball
+	return entity.NewWaterball(w)
 }
 
 type SpyUpdater struct {

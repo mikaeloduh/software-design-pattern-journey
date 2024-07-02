@@ -1,3 +1,7 @@
 package libs
 
-type Guard func() bool
+type IGuard interface {
+	Exec(event IEvent) bool
+}
+
+//type IGuard func(args ...any) bool

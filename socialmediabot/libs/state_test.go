@@ -50,6 +50,35 @@ func (s *AnotherTestState) PublicMethod() {
 	_, _ = fmt.Fprint(s.writer, "AnotherTestState public method called")
 }
 
+type TestEvent struct {
+}
+
+func (t TestEvent) GetData() IEvent {
+	//TODO implement me
+	panic("implement me")
+}
+
+type AnotherEvent struct{}
+
+func (AnotherEvent) GetData() IEvent {
+	//TODO implement me
+	panic("implement me")
+}
+
+type TestPositiveGuard struct {
+}
+
+func (t TestPositiveGuard) Exec(event IEvent) bool {
+	return true
+}
+
+type TestNegativeGuard struct {
+}
+
+func (t TestNegativeGuard) Exec(event IEvent) bool {
+	return false
+}
+
 // Test states in FSM
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
@@ -64,8 +93,8 @@ func TestFSM(t *testing.T) {
 	t.Run("test when an event occur meets the guardian criteria, it should trigger the transition", func(t *testing.T) {
 		fsm := NewSuperFSM[any](nil, &DefaultTestState{})
 
-		event := Event("test-event")
-		guard := Guard(func() bool { return true })
+		event := TestEvent{}
+		guard := TestPositiveGuard{}
 		action := Action(func() {})
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
@@ -82,8 +111,8 @@ func TestFSM(t *testing.T) {
 		initState := &DefaultTestState{}
 		fsm := NewSuperFSM[any](nil, initState)
 
-		event := Event("test-event")
-		guard := Guard(func() bool { return false })
+		event := TestEvent{}
+		guard := TestNegativeGuard{}
 		action := Action(func() {})
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
@@ -100,15 +129,16 @@ func TestFSM(t *testing.T) {
 		initState := &DefaultTestState{}
 		fsm := NewSuperFSM[any](nil, initState)
 
-		event := Event("test-event")
-		guard := Guard(func() bool { return true })
+		event := TestEvent{}
+		guard := TestPositiveGuard{}
 		action := Action(func() {})
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
 		transition := NewTransition(initState, expectedState, event, guard, action)
 		fsm.AddTransition(transition)
 
-		fsm.Trigger(Event("another-event"))
+		anotherEvent := AnotherEvent{}
+		fsm.Trigger(anotherEvent)
 
 		currentState := fsm.GetState()
 		assert.IsType(t, initState, currentState)
@@ -120,8 +150,8 @@ func TestFSM(t *testing.T) {
 		initState := &DefaultTestState{writer: &writer}
 		fsm := NewSuperFSM[any](nil, initState)
 
-		event := Event("test-event")
-		guard := Guard(func() bool { return true })
+		event := TestEvent{}
+		guard := TestPositiveGuard{}
 		action := Action(func() {})
 		expectedState := &AnotherTestState{writer: &writer}
 		fsm.AddState(expectedState)

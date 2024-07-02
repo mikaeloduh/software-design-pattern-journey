@@ -10,32 +10,46 @@ import (
 )
 
 func TestBot(t *testing.T) {
-	t.Run("given bot is in Default Conversation state, receiving a new message in chat should trigger a bot response", func(t *testing.T) {
-		var writer bytes.Buffer
+	var writer bytes.Buffer
 
-		waterball := FakeNewWaterball(&writer)
-		bot := NewBot(&waterball)
-		waterball.Login(bot)
-		waterball.ChatRoom.Register(bot)
-		member := NewMember("1")
-		waterball.Login(member)
+	waterball := FakeNewWaterball(&writer)
+	bot := NewBot(waterball)
+	waterball.Register(bot)
+	waterball.Login(bot)
+	waterball.ChatRoom.Register(bot)
+	member := NewMember("member_001")
+	waterball.Login(member)
 
+	t.Run("given bot is in DefaultConversationState, receiving a new message in chat should trigger a bot response", func(t *testing.T) {
 		waterball.ChatRoom.Send(member, Message{Content: "hello"})
 
-		botId := "bot_001"
-		expectedMessage := "good to hear"
-		assert.Equal(t, botId+": "+expectedMessage, getLastLine(writer.String()))
+		assert.IsType(t, &DefaultConversationState{}, bot.fsm.GetState())
+		assert.Equal(t, "bot_001: good to hear", getLastLine(writer.String()))
+	})
+
+	t.Run("trigger InteractingState when meet the transition rule", func(t *testing.T) {
+		waterball.Login(NewMember("member_002"))
+		waterball.Login(NewMember("member_003"))
+		waterball.Login(NewMember("member_004"))
+		waterball.Login(NewMember("member_005"))
+		waterball.Login(NewMember("member_006"))
+		waterball.Login(NewMember("member_007"))
+		waterball.Login(NewMember("member_008"))
+		waterball.Login(NewMember("member_009")) // 10th login member
+
+		assert.Equal(t, 10, len(waterball.sessions))
+		assert.IsType(t, &InteractingState{}, bot.fsm.GetState())
+	})
+
+	t.Run("given bot is in InteractingState, send new message in ChatRoom should trigger interacting-mode response", func(t *testing.T) {
+		waterball.ChatRoom.Send(member, Message{Content: "hello"})
+
+		assert.Equal(t, "bot_001: I like your idea!", getLastLine(writer.String()))
 	})
 }
 
-func FakeNewWaterball(w io.Writer) Waterball {
-	waterball := Waterball{
-		Writer:   w,
-		ChatRoom: ChatRoom{Writer: w},
-	}
-	waterball.ChatRoom.TagService = waterball.TagService
-
-	return waterball
+func FakeNewWaterball(w io.Writer) *Waterball {
+	return NewWaterball(w)
 }
 
 // test helper

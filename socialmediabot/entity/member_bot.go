@@ -1,5 +1,7 @@
 package entity
 
+import "socialmediabot/libs"
+
 // Bot
 type Bot struct {
 	id      string
@@ -7,34 +9,66 @@ type Bot struct {
 	fsm     *RootFSM
 }
 
-func NewBot(waterball *Waterball) *Bot {
-	bot := Bot{id: "bot_001"}
-	bot.fsm = NewRootFSM(&bot, NewNormalStateFSM(waterball, &bot, NewDefaultConversationState(waterball, &bot)))
+type BotGuard struct {
+}
 
-	return &bot
+func (g BotGuard) Exec(event libs.IEvent) bool {
+	return event.GetData().(NewLoginEvent).OnlineCount >= 10
+}
+
+func NewBot(waterball *Waterball) *Bot {
+	bot := &Bot{id: "bot_001"}
+
+	defaultConversationState := NewDefaultConversationState(waterball, bot)
+	interactingState := NewInteractingState(waterball, bot)
+
+	normalStateFSM := NewNormalStateFSM(waterball, bot, defaultConversationState)
+	normalStateFSM.AddState(interactingState)
+	normalStateFSM.AddTransition(libs.NewTransition(
+		&DefaultConversationState{},
+		&InteractingState{},
+		NewLoginEvent{},
+		BotGuard{},
+		libs.Action(func() {}),
+	))
+
+	rootFSM := NewRootFSM(bot, normalStateFSM)
+	bot.fsm = rootFSM
+
+	return bot
 }
 
 func (b *Bot) Tag(event TagEvent) {
-	//TODO implement me
-	panic("implement me")
+	//if event.TaggedTo == b {
+	switch event.Message.Content {
+	case "record":
+
+	}
+	//}
 }
 
-func (b *Bot) Update(event NewMessageEvent) {
-	b.updateHandler(event)
+func (b *Bot) UpdateChatRoom(event NewMessageEvent) {
+	b.fsm.OnNewMessage(event)
 }
 
-func (b *Bot) updateHandler(event IEvent) {
+func (b *Bot) Update(event libs.IEvent) {
 	switch value := event.(type) {
 	case NewMessageEvent:
 		if value.Sender == b {
 			return
 		}
-		b.fsm.OnNewMessage(value)
-
-	default:
-		panic("unknown event")
+		b.OnNewMessage(value)
 	}
 
+	b.fsm.Trigger(event)
+}
+
+func (b *Bot) NewMessageUpdate(event NewMessageEvent) {
+	b.fsm.Trigger(event)
+}
+
+func (b *Bot) OnNewMessage(event NewMessageEvent) {
+	b.fsm.OnNewMessage(event)
 }
 
 func (b *Bot) Id() string {
