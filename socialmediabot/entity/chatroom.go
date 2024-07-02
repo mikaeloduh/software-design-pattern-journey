@@ -15,14 +15,12 @@ type ChatRoom struct {
 func (c *ChatRoom) Send(sender IMember, m Message) {
 	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\n", sender.Id(), m.Content))
 
-	if len(m.Tags) != 0 {
-		for _, tag := range m.Tags {
-			c.Waterball.TagService(TagEvent{
-				TaggedBy: sender,
-				TaggedTo: tag,
-				Message:  m,
-			})
-		}
+	for _, tag := range m.Tags {
+		c.Waterball.TagOnlineMember(TagEvent{
+			TaggedBy: sender,
+			TaggedTo: tag,
+			Message:  m,
+		})
 	}
 
 	c.Notify(NewMessageEvent{Sender: sender, Message: m})

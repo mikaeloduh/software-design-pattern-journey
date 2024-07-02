@@ -4,9 +4,9 @@ import "socialmediabot/libs"
 
 // Bot
 type Bot struct {
-	id      string
-	updater IUpdater
-	fsm     *RootFSM
+	id string
+	//updater IUpdater
+	fsm *RootFSM
 }
 
 type BotGuard struct {
@@ -39,16 +39,10 @@ func NewBot(waterball *Waterball) *Bot {
 }
 
 func (b *Bot) Tag(event TagEvent) {
-	//if event.TaggedTo == b {
 	switch event.Message.Content {
 	case "record":
 
 	}
-	//}
-}
-
-func (b *Bot) UpdateChatRoom(event NewMessageEvent) {
-	b.fsm.OnNewMessage(event)
 }
 
 func (b *Bot) Update(event libs.IEvent) {
@@ -60,10 +54,6 @@ func (b *Bot) Update(event libs.IEvent) {
 		b.OnNewMessage(value)
 	}
 
-	b.fsm.Trigger(event)
-}
-
-func (b *Bot) NewMessageUpdate(event NewMessageEvent) {
 	b.fsm.Trigger(event)
 }
 

@@ -35,10 +35,10 @@ func (w *Waterball) Register(member IWaterballObserver) {
 	w.observers = append(w.observers, member)
 }
 
-func (w *Waterball) TagService(event TagEvent) {
-	session, exists := w.sessions[event.TaggedTo.Id()]
+func (w *Waterball) TagOnlineMember(event TagEvent) {
+	member, exists := w.sessions[event.TaggedTo.Id()]
 	if exists {
-		session.Tag(event)
+		member.Tag(event)
 	}
 }
 

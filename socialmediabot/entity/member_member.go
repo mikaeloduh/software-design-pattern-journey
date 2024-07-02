@@ -2,8 +2,7 @@ package entity
 
 // Member
 type Member struct {
-	id      string
-	updater IUpdater
+	id string
 }
 
 func NewMember(id string) *Member {
@@ -11,18 +10,9 @@ func NewMember(id string) *Member {
 }
 
 func (b *Member) Tag(event TagEvent) {
-	b.updater.Do()
+	panic("unimplemented")
 }
 
 func (b *Member) Id() string {
 	return b.id
-}
-
-func (b *Member) SetUpdater(f IUpdater) {
-	b.updater = f
-}
-
-// IUpdater
-type IUpdater interface {
-	Do()
 }
