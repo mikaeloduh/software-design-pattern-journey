@@ -62,7 +62,6 @@ func TestBot(t *testing.T) {
 	t.Run("test state transition from RecordState to NormalState", func(t *testing.T) {
 		waterball.ChatRoom.Send(member, Message{Content: "stop-recording", Tags: []Taggable{bot}})
 
-		//assert.IsType(t, &InteractingState{}, bot.fsm.GetState())
 		assert.IsType(t, &DefaultConversationState{}, bot.fsm.GetState())
 	})
 }

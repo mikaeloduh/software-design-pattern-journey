@@ -4,38 +4,9 @@ import "socialmediabot/libs"
 
 // Bot
 type Bot struct {
-	id string
-	//updater IUpdater
+	id  string
 	fsm *RootFSM
 }
-
-type LoginGuard struct {
-}
-
-func (g LoginGuard) Exec(event libs.IEvent) bool {
-	return event.GetData().(NewLoginEvent).OnlineCount >= 10
-}
-
-func LoginEventGuard(event libs.IEvent) bool {
-	return event.GetData().(NewLoginEvent).OnlineCount >= 10
-}
-
-type RecordGuard struct {
-}
-
-func (g RecordGuard) Exec(event libs.IEvent) bool {
-	return event.GetData().(NewMessageEvent).Message.Content == "record"
-}
-
-func RecordCommandGuard(event libs.IEvent) bool {
-	return event.GetData().(TagEvent).Message.Content == "record"
-}
-
-func StopRecordCommandGuard(event libs.IEvent) bool {
-	return event.GetData().(TagEvent).Message.Content == "stop-recording"
-}
-
-func NoAction() {}
 
 func NewBot(waterball *Waterball) *Bot {
 	bot := &Bot{id: "bot_001"}
