@@ -2,6 +2,6 @@ package entity
 
 import "socialmediabot/libs"
 
-type IChatRoomObserver interface {
+type INewMessageObserver interface {
 	Update(event libs.IEvent)
 }

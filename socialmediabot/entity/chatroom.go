@@ -9,7 +9,7 @@ type ChatRoom struct {
 	Writer     io.Writer
 	Waterball  *Waterball
 	TagService func(TagEvent)
-	observers  []IChatRoomObserver
+	observers  []INewMessageObserver
 }
 
 func (c *ChatRoom) Send(sender IMember, m Message) {
@@ -32,6 +32,6 @@ func (c *ChatRoom) Notify(event NewMessageEvent) {
 	}
 }
 
-func (c *ChatRoom) Register(observer IChatRoomObserver) {
+func (c *ChatRoom) Register(observer INewMessageObserver) {
 	c.observers = append(c.observers, observer)
 }

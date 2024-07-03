@@ -6,10 +6,6 @@ import (
 	"socialmediabot/libs"
 )
 
-type IWaterballObserver interface {
-	Update(event libs.IEvent)
-}
-
 type IChannel interface {
 }
 
@@ -17,22 +13,26 @@ type Waterball struct {
 	Writer    io.Writer
 	ChatRoom  ChatRoom
 	sessions  map[string]IMember
-	observers []IWaterballObserver
+	observers []INewLoginObserver
 }
 
 func (w *Waterball) Login(member IMember) {
 	w.sessions[member.Id()] = member
 
+	w.Notify(NewLoginEvent{
+		NewLoginMember: member,
+		OnlineCount:    len(w.sessions),
+	})
+}
+
+func (w *Waterball) Notify(event libs.IEvent) {
 	for _, o := range w.observers {
-		o.Update(NewLoginEvent{
-			NewLoginMember: member,
-			OnlineCount:    len(w.sessions),
-		})
+		o.Update(event)
 	}
 }
 
-func (w *Waterball) Register(member IWaterballObserver) {
-	w.observers = append(w.observers, member)
+func (w *Waterball) Register(observer INewLoginObserver) {
+	w.observers = append(w.observers, observer)
 }
 
 func (w *Waterball) TagOnlineMember(event TagEvent) {
