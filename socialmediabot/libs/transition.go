@@ -5,11 +5,11 @@ type Transition struct {
 	from   IState
 	to     IState
 	event  IEvent
-	guard  IGuard
+	guard  Guard
 	action Action
 }
 
-func NewTransition(from IState, to IState, event IEvent, guard IGuard, action Action) *Transition {
+func NewTransition(from IState, to IState, event IEvent, guard Guard, action Action) *Transition {
 	return &Transition{from: from, to: to, event: event, guard: guard, action: action}
 }
 

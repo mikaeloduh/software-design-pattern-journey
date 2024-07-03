@@ -27,7 +27,7 @@ func TestBot(t *testing.T) {
 		assert.Equal(t, "bot_001: good to hear", getLastLine(writer.String()))
 	})
 
-	t.Run("trigger InteractingState when meet the transition rule", func(t *testing.T) {
+	t.Run("when meet the transition rule, it will trigger from DefaultConversationState to InteractingState", func(t *testing.T) {
 		waterball.Login(NewMember("member_002"))
 		waterball.Login(NewMember("member_003"))
 		waterball.Login(NewMember("member_004"))
@@ -45,6 +45,12 @@ func TestBot(t *testing.T) {
 		waterball.ChatRoom.Send(member, Message{Content: "hello"})
 
 		assert.Equal(t, "bot_001: I like your idea!", getLastLine(writer.String()))
+	})
+
+	t.Run("test state transition from NormalState to RecordState", func(t *testing.T) {
+		waterball.ChatRoom.Send(member, Message{Content: "record", Tags: []Taggable{bot}})
+
+		assert.IsType(t, &WaitingState{}, bot.fsm.GetState())
 	})
 }
 

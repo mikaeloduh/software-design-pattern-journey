@@ -92,6 +92,14 @@ func (t TestNegativeGuard) Exec(_ IEvent) bool {
 	return false
 }
 
+func PositiveTestGuard(_ IEvent) bool {
+	return true
+}
+
+func NegativeTestGuard(_ IEvent) bool {
+	return false
+}
+
 // Test states in FSM
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
@@ -107,7 +115,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(&DefaultTestState{}, expectedState, testEvent, TestPositiveGuard{}, Action(func() {})))
+		fsm.AddTransition(NewTransition(&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, Action(func() {})))
 
 		fsm.Trigger(testEvent)
 
@@ -121,7 +129,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, TestNegativeGuard{}, Action(func() {})))
+		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, NegativeTestGuard, Action(func() {})))
 
 		fsm.Trigger(testEvent)
 
@@ -135,7 +143,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		anotherState := &AnotherTestState{}
 		fsm.AddState(anotherState)
-		fsm.AddTransition(NewTransition(initState, anotherState, testEvent, TestPositiveGuard{}, Action(func() {})))
+		fsm.AddTransition(NewTransition(initState, anotherState, testEvent, PositiveTestGuard, Action(func() {})))
 
 		anotherEvent := AnotherEvent{}
 		fsm.Trigger(anotherEvent)
@@ -152,7 +160,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{writer: &writer}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, TestPositiveGuard{}, Action(func() {})))
+		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, PositiveTestGuard, Action(func() {})))
 		statefulSubject := FakeStatefulSubject{fsm: &fsm, writer: &writer}
 		statefulSubject.PublicMethod()
 

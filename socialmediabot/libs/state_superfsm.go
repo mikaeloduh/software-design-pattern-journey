@@ -54,7 +54,7 @@ func (m *SuperFSM[U]) AddTransition(transition *Transition) {
 
 func (m *SuperFSM[U]) Trigger(event IEvent) {
 	for _, transition := range m.transitions {
-		if reflect.TypeOf(transition.event) == reflect.TypeOf(event) && reflect.TypeOf(transition.from) == reflect.TypeOf(m.currentState()) && transition.guard.Exec(event) {
+		if reflect.TypeOf(transition.event) == reflect.TypeOf(event) && reflect.TypeOf(transition.from) == reflect.TypeOf(m.currentState()) && transition.guard(event) {
 			m.SetState(transition.to)
 			transition.action()
 			break

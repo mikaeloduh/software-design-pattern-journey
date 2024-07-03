@@ -9,12 +9,29 @@ type Bot struct {
 	fsm *RootFSM
 }
 
-type BotGuard struct {
+type LoginGuard struct {
 }
 
-func (g BotGuard) Exec(event libs.IEvent) bool {
+func (g LoginGuard) Exec(event libs.IEvent) bool {
 	return event.GetData().(NewLoginEvent).OnlineCount >= 10
 }
+
+func LoginEventGuard(event libs.IEvent) bool {
+	return event.GetData().(NewLoginEvent).OnlineCount >= 10
+}
+
+type RecordGuard struct {
+}
+
+func (g RecordGuard) Exec(event libs.IEvent) bool {
+	return event.GetData().(NewMessageEvent).Message.Content == "record"
+}
+
+func RecordEventGuard(event libs.IEvent) bool {
+	return event.GetData().(TagEvent).Message.Content == "record"
+}
+
+func NoAction() {}
 
 func NewBot(waterball *Waterball) *Bot {
 	bot := &Bot{id: "bot_001"}
@@ -28,21 +45,32 @@ func NewBot(waterball *Waterball) *Bot {
 		&DefaultConversationState{},
 		&InteractingState{},
 		NewLoginEvent{},
-		BotGuard{},
-		libs.Action(func() {}),
+		LoginEventGuard,
+		NoAction,
 	))
 
+	waitingState := NewWaitingState(waterball, bot)
+	recordingState := NewRecordingState(waterball, bot)
+	recordStateFSM := NewRecordStateFSM(waterball, bot, waitingState)
+	recordStateFSM.AddState(recordingState)
+
 	rootFSM := NewRootFSM(bot, normalStateFSM)
+	rootFSM.AddState(recordStateFSM)
+	rootFSM.AddTransition(libs.NewTransition(
+		&NormalStateFSM{},
+		&RecordStateFSM{},
+		TagEvent{},
+		RecordEventGuard,
+		NoAction,
+	))
+
 	bot.fsm = rootFSM
 
 	return bot
 }
 
 func (b *Bot) Tag(event TagEvent) {
-	switch event.Message.Content {
-	case "record":
-
-	}
+	b.fsm.Trigger(event)
 }
 
 func (b *Bot) Update(event libs.IEvent) {
