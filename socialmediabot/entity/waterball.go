@@ -21,8 +21,17 @@ func (w *Waterball) Login(member IMember) {
 
 	w.Notify(NewLoginEvent{
 		NewLoginMember: member,
-		OnlineCount:    len(w.sessions),
+		OnlineCount:    w.OnlineCount(),
 	})
+}
+
+func (w *Waterball) Logout(memberId string) {
+	w.Notify(NewLogoutEvent{
+		NewLogoutMember: w.sessions[memberId],
+		OnlineCount:     w.OnlineCount(),
+	})
+
+	delete(w.sessions, memberId)
 }
 
 func (w *Waterball) Notify(event libs.IEvent) {
@@ -30,9 +39,12 @@ func (w *Waterball) Notify(event libs.IEvent) {
 		o.Update(event)
 	}
 }
-
 func (w *Waterball) Register(observer INewLoginObserver) {
 	w.observers = append(w.observers, observer)
+}
+
+func (w *Waterball) OnlineCount() int {
+	return len(w.sessions)
 }
 
 func (w *Waterball) TagOnlineMember(event TagEvent) {

@@ -16,6 +16,15 @@ func NewNormalStateFSM(waterball *Waterball, bot *Bot, initState libs.IState) *N
 	}}
 }
 
+func (s *NormalStateFSM) Enter() {
+	if s.waterball.OnlineCount() >= 10 {
+		s.SetState(&InteractingState{})
+	} else {
+		s.SetState(&DefaultConversationState{})
+	}
+
+}
+
 func (s *NormalStateFSM) OnNewMessage(event NewMessageEvent) {
 	s.GetState().(IBotState).OnNewMessage(event)
 }

@@ -6,12 +6,10 @@ type SuperState[U any] struct {
 
 func (s *SuperState[U]) Enter() {
 	//TODO implement me
-	panic("implement me")
 }
 
 func (s *SuperState[U]) Exit() {
 	//TODO implement me
-	panic("implement me")
 }
 
 func (s *SuperState[U]) GetState() IState {

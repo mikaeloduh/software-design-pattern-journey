@@ -23,12 +23,10 @@ func NewSuperFSM[U any](subject U, initState IState) *SuperFSM[U] {
 
 func (m *SuperFSM[U]) Enter() {
 	//TODO implement me
-	panic("implement me")
 }
 
 func (m *SuperFSM[U]) Exit() {
 	//TODO implement me
-	panic("implement me")
 }
 
 func (m *SuperFSM[U]) GetState() IState {
@@ -39,6 +37,7 @@ func (m *SuperFSM[U]) SetState(state IState) {
 	for i, s := range m.States {
 		if reflect.TypeOf(s) == reflect.TypeOf(state) {
 			m.currentStateIdx = i
+			m.currentState().Enter()
 			break
 		}
 	}

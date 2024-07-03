@@ -27,8 +27,12 @@ func (g RecordGuard) Exec(event libs.IEvent) bool {
 	return event.GetData().(NewMessageEvent).Message.Content == "record"
 }
 
-func RecordEventGuard(event libs.IEvent) bool {
+func RecordCommandGuard(event libs.IEvent) bool {
 	return event.GetData().(TagEvent).Message.Content == "record"
+}
+
+func StopRecordCommandGuard(event libs.IEvent) bool {
+	return event.GetData().(TagEvent).Message.Content == "stop-recording"
 }
 
 func NoAction() {}
@@ -60,7 +64,14 @@ func NewBot(waterball *Waterball) *Bot {
 		&NormalStateFSM{},
 		&RecordStateFSM{},
 		TagEvent{},
-		RecordEventGuard,
+		RecordCommandGuard,
+		NoAction,
+	))
+	rootFSM.AddTransition(libs.NewTransition(
+		&RecordStateFSM{},
+		&NormalStateFSM{},
+		TagEvent{},
+		StopRecordCommandGuard,
 		NoAction,
 	))
 

@@ -52,6 +52,19 @@ func TestBot(t *testing.T) {
 
 		assert.IsType(t, &WaitingState{}, bot.fsm.GetState())
 	})
+
+	t.Run("when a member logout and online members less than 10, nothing should happened", func(t *testing.T) {
+		waterball.Logout("member_009")
+
+		assert.IsType(t, &WaitingState{}, bot.fsm.GetState())
+	})
+
+	t.Run("test state transition from RecordState to NormalState", func(t *testing.T) {
+		waterball.ChatRoom.Send(member, Message{Content: "stop-recording", Tags: []Taggable{bot}})
+
+		//assert.IsType(t, &InteractingState{}, bot.fsm.GetState())
+		assert.IsType(t, &DefaultConversationState{}, bot.fsm.GetState())
+	})
 }
 
 func FakeNewWaterball(w io.Writer) *Waterball {
