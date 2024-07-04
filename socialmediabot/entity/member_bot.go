@@ -18,25 +18,9 @@ func NewBot(waterball *Waterball) *Bot {
 			NewInteractingState(waterball, bot),
 		},
 		[]libs.Transition{
-			libs.NewTransition(
-				&NullState{},
-				&DefaultConversationState{},
-				EnterNormalStateEvent{},
-				EnterDefaultConversationGuard,
-				NoAction,
-			), libs.NewTransition(
-				&NullState{},
-				&InteractingState{},
-				EnterNormalStateEvent{},
-				EnterInteractingGuard,
-				NoAction,
-			), libs.NewTransition(
-				&DefaultConversationState{},
-				&InteractingState{},
-				NewLoginEvent{},
-				LoginEventGuard,
-				NoAction,
-			),
+			libs.NewTransition(&NullState{}, &DefaultConversationState{}, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
+			libs.NewTransition(&NullState{}, &InteractingState{}, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
+			libs.NewTransition(&DefaultConversationState{}, &InteractingState{}, NewLoginEvent{}, LoginEventGuard, NoAction),
 		},
 	)
 
@@ -49,22 +33,13 @@ func NewBot(waterball *Waterball) *Bot {
 	)
 
 	rootFSM := NewRootFSM(bot,
-		[]libs.IState{normalStateFSM, recordStateFSM},
+		[]libs.IState{
+			normalStateFSM,
+			recordStateFSM,
+		},
 		[]libs.Transition{
-			libs.NewTransition(
-				&NormalStateFSM{},
-				&RecordStateFSM{},
-				TagEvent{},
-				RecordCommandGuard,
-				NoAction,
-			),
-			libs.NewTransition(
-				&RecordStateFSM{},
-				&NormalStateFSM{},
-				TagEvent{},
-				StopRecordCommandGuard,
-				NoAction,
-			),
+			libs.NewTransition(&NormalStateFSM{}, &RecordStateFSM{}, TagEvent{}, RecordCommandGuard, NoAction),
+			libs.NewTransition(&RecordStateFSM{}, &NormalStateFSM{}, TagEvent{}, StopRecordCommandGuard, NoAction),
 		},
 	)
 
