@@ -4,27 +4,43 @@ import "socialmediabot/libs"
 
 // NormalStateFSM
 type NormalStateFSM struct {
+	bot       *Bot
 	waterball *Waterball
-	libs.SuperFSM[*Bot]
+	libs.SuperFSM
 	UnimplementedBotState
 }
 
-func NewNormalStateFSM(waterball *Waterball, bot *Bot, initState libs.IState) *NormalStateFSM {
-	return &NormalStateFSM{waterball: waterball, SuperFSM: libs.SuperFSM[*Bot]{
-		Subject: bot,
-		States:  []libs.IState{initState},
-	}}
+func NewNormalStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, transitions []libs.Transition) *NormalStateFSM {
+	fsm := &NormalStateFSM{
+		bot:       bot,
+		waterball: waterball,
+		SuperFSM:  libs.NewSuperFSM(states[0]),
+	}
+	fsm.AddState(states...)
+	fsm.AddTransition(transitions...)
+
+	fsm.Trigger(EnterNormalStateEvent{OnlineCount: waterball.OnlineCount()})
+
+	return fsm
 }
 
 func (s *NormalStateFSM) Enter() {
-	if s.waterball.OnlineCount() >= 10 {
-		s.SetState(&InteractingState{})
-	} else {
-		s.SetState(&DefaultConversationState{})
-	}
+	s.Trigger(EnterNormalStateEvent{OnlineCount: s.waterball.OnlineCount()})
+}
 
+func (s *NormalStateFSM) Exit() {
+	s.SetState(&NullState{})
 }
 
 func (s *NormalStateFSM) OnNewMessage(event NewMessageEvent) {
 	s.GetState().(IBotState).OnNewMessage(event)
+}
+
+// EnterNormalStateEvent
+type EnterNormalStateEvent struct {
+	OnlineCount int
+}
+
+func (e EnterNormalStateEvent) GetData() libs.IEvent {
+	return e
 }

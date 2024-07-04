@@ -3,13 +3,18 @@ package entity
 import "socialmediabot/libs"
 
 type InteractingState struct {
+	bot       *Bot
 	waterball *Waterball
-	libs.SuperState[*Bot]
+	libs.SuperState
 	UnimplementedBotState
 }
 
 func NewInteractingState(waterball *Waterball, bot *Bot) *InteractingState {
-	return &InteractingState{waterball: waterball, SuperState: libs.SuperState[*Bot]{Subject: bot}}
+	return &InteractingState{
+		bot:        bot,
+		waterball:  waterball,
+		SuperState: libs.SuperState{},
+	}
 }
 
 func (s *InteractingState) GetState() libs.IState {
@@ -17,5 +22,5 @@ func (s *InteractingState) GetState() libs.IState {
 }
 
 func (s *InteractingState) OnNewMessage(event NewMessageEvent) {
-	s.waterball.ChatRoom.Send(s.Subject, Message{Content: "I like your idea!"})
+	s.waterball.ChatRoom.Send(s.bot, Message{Content: "I like your idea!"})
 }

@@ -11,40 +11,62 @@ type Bot struct {
 func NewBot(waterball *Waterball) *Bot {
 	bot := &Bot{id: "bot_001"}
 
-	defaultConversationState := NewDefaultConversationState(waterball, bot)
-	interactingState := NewInteractingState(waterball, bot)
+	normalStateFSM := NewNormalStateFSM(waterball, bot,
+		[]libs.IState{
+			&NullState{},
+			NewDefaultConversationState(waterball, bot),
+			NewInteractingState(waterball, bot),
+		},
+		[]libs.Transition{
+			libs.NewTransition(
+				&NullState{},
+				&DefaultConversationState{},
+				EnterNormalStateEvent{},
+				EnterDefaultConversationGuard,
+				NoAction,
+			), libs.NewTransition(
+				&NullState{},
+				&InteractingState{},
+				EnterNormalStateEvent{},
+				EnterInteractingGuard,
+				NoAction,
+			), libs.NewTransition(
+				&DefaultConversationState{},
+				&InteractingState{},
+				NewLoginEvent{},
+				LoginEventGuard,
+				NoAction,
+			),
+		},
+	)
 
-	normalStateFSM := NewNormalStateFSM(waterball, bot, defaultConversationState)
-	normalStateFSM.AddState(interactingState)
-	normalStateFSM.AddTransition(libs.NewTransition(
-		&DefaultConversationState{},
-		&InteractingState{},
-		NewLoginEvent{},
-		LoginEventGuard,
-		NoAction,
-	))
+	recordStateFSM := NewRecordStateFSM(waterball, bot,
+		[]libs.IState{
+			NewWaitingState(waterball, bot),
+			NewRecordingState(waterball, bot),
+		},
+		nil,
+	)
 
-	waitingState := NewWaitingState(waterball, bot)
-	recordingState := NewRecordingState(waterball, bot)
-	recordStateFSM := NewRecordStateFSM(waterball, bot, waitingState)
-	recordStateFSM.AddState(recordingState)
-
-	rootFSM := NewRootFSM(bot, normalStateFSM)
-	rootFSM.AddState(recordStateFSM)
-	rootFSM.AddTransition(libs.NewTransition(
-		&NormalStateFSM{},
-		&RecordStateFSM{},
-		TagEvent{},
-		RecordCommandGuard,
-		NoAction,
-	))
-	rootFSM.AddTransition(libs.NewTransition(
-		&RecordStateFSM{},
-		&NormalStateFSM{},
-		TagEvent{},
-		StopRecordCommandGuard,
-		NoAction,
-	))
+	rootFSM := NewRootFSM(bot,
+		[]libs.IState{normalStateFSM, recordStateFSM},
+		[]libs.Transition{
+			libs.NewTransition(
+				&NormalStateFSM{},
+				&RecordStateFSM{},
+				TagEvent{},
+				RecordCommandGuard,
+				NoAction,
+			),
+			libs.NewTransition(
+				&RecordStateFSM{},
+				&NormalStateFSM{},
+				TagEvent{},
+				StopRecordCommandGuard,
+				NoAction,
+			),
+		},
+	)
 
 	bot.fsm = rootFSM
 

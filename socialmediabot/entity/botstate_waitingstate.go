@@ -3,17 +3,17 @@ package entity
 import "socialmediabot/libs"
 
 type WaitingState struct {
+	bot       *Bot
 	waterball *Waterball
-	libs.SuperState[*Bot]
+	libs.SuperState
 	UnimplementedBotState
 }
 
 func NewWaitingState(waterball *Waterball, bot *Bot) *WaitingState {
 	return &WaitingState{
-		waterball: waterball,
-		SuperState: libs.SuperState[*Bot]{
-			Subject: bot,
-		},
+		bot:        bot,
+		waterball:  waterball,
+		SuperState: libs.SuperState{},
 	}
 }
 

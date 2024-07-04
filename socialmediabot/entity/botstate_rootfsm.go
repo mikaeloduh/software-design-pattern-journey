@@ -3,12 +3,21 @@ package entity
 import "socialmediabot/libs"
 
 type RootFSM struct {
-	libs.SuperFSM[*Bot]
+	bot *Bot
+	libs.SuperFSM
 	UnimplementedBotState
 }
 
-func NewRootFSM(bot *Bot, initState libs.IState) *RootFSM {
-	return &RootFSM{SuperFSM: *libs.NewSuperFSM[*Bot](bot, initState)}
+func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *RootFSM {
+	fsm := &RootFSM{
+		bot:      bot,
+		SuperFSM: libs.NewSuperFSM(states[0]),
+	}
+	fsm.AddState(states...)
+	fsm.AddTransition(transitions...)
+
+	return fsm
+
 }
 
 func (f *RootFSM) OnNewMessage(event NewMessageEvent) {

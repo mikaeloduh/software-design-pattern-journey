@@ -1,21 +1,20 @@
 package libs
 
-type SuperState[U any] struct {
-	Subject U
+type SuperState struct {
 }
 
-func (s *SuperState[U]) Enter() {
+func (s *SuperState) Enter() {
 	//TODO implement me
 }
 
-func (s *SuperState[U]) Exit() {
+func (s *SuperState) Exit() {
 	//TODO implement me
 }
 
-func (s *SuperState[U]) GetState() IState {
+func (s *SuperState) GetState() IState {
 	panic("Unimplemented method")
 }
 
-func (s *SuperState[U]) Trigger(event IEvent) {
+func (s *SuperState) Trigger(event IEvent) {
 	// Do nothing
 }

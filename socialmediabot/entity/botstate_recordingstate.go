@@ -3,17 +3,17 @@ package entity
 import "socialmediabot/libs"
 
 type RecordingState struct {
+	bot       *Bot
 	waterball *Waterball
-	libs.SuperState[*Bot]
+	libs.SuperState
 	UnimplementedBotState
 }
 
 func NewRecordingState(waterball *Waterball, bot *Bot) *RecordingState {
 	return &RecordingState{
-		waterball: waterball,
-		SuperState: libs.SuperState[*Bot]{
-			Subject: bot,
-		},
+		bot:        bot,
+		waterball:  waterball,
+		SuperState: libs.SuperState{},
 	}
 }
 
