@@ -11,25 +11,29 @@ type Bot struct {
 func NewBot(waterball *Waterball) *Bot {
 	bot := &Bot{id: "bot_001"}
 
+	defaultConversationState := NewDefaultConversationState(waterball, bot)
+	interactingState := NewInteractingState(waterball, bot)
 	normalStateFSM := NewNormalStateFSM(waterball, bot,
 		[]libs.IState{
-			NewDefaultConversationState(waterball, bot),
-			NewInteractingState(waterball, bot),
+			defaultConversationState,
+			interactingState,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&NullState{}, &DefaultConversationState{}, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
-			libs.NewTransition(&NullState{}, &InteractingState{}, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
-			libs.NewTransition(&DefaultConversationState{}, &InteractingState{}, NewLoginEvent{}, LoginEventGuard, NoAction),
+			libs.NewTransition(&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
+			libs.NewTransition(&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
+			libs.NewTransition(defaultConversationState, interactingState, NewLoginEvent{}, LoginEventGuard, NoAction),
 		},
 	)
 
+	waitingState := NewWaitingState(waterball, bot)
+	recordingState := NewRecordingState(waterball, bot)
 	recordStateFSM := NewRecordStateFSM(waterball, bot,
 		[]libs.IState{
-			NewWaitingState(waterball, bot),
-			NewRecordingState(waterball, bot),
+			waitingState,
+			recordingState,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&NullState{}, &WaitingState{}, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
 
@@ -39,9 +43,9 @@ func NewBot(waterball *Waterball) *Bot {
 			recordStateFSM,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&NullState{}, &NormalStateFSM{}, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(&NormalStateFSM{}, &RecordStateFSM{}, TagEvent{}, RecordCommandGuard, NoAction),
-			libs.NewTransition(&RecordStateFSM{}, &NormalStateFSM{}, TagEvent{}, StopRecordCommandGuard, NoAction),
+			libs.NewTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(normalStateFSM, recordStateFSM, TagEvent{}, RecordCommandGuard, NoAction),
+			libs.NewTransition(recordStateFSM, normalStateFSM, TagEvent{}, StopRecordCommandGuard, NoAction),
 		},
 	)
 	rootFSM.Enter()
