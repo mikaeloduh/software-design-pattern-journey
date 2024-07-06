@@ -14,12 +14,12 @@ func NewNormalStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, tra
 	fsm := &NormalStateFSM{
 		bot:       bot,
 		waterball: waterball,
-		SuperFSM:  libs.NewSuperFSM(states[0]),
+		SuperFSM:  libs.NewSuperFSM(&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
 
-	fsm.Trigger(EnterNormalStateEvent{OnlineCount: waterball.OnlineCount()})
+	fsm.Enter()
 
 	return fsm
 }

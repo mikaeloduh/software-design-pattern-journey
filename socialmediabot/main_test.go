@@ -3,11 +3,12 @@ package main
 import (
 	"bytes"
 	"io"
-	"socialmediabot/entity"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"socialmediabot/entity"
 )
 
 func TestMain_Waterball(t *testing.T) {

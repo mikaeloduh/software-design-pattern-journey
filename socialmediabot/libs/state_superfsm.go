@@ -19,12 +19,20 @@ func NewSuperFSM(initState IState) SuperFSM {
 	}
 }
 
-func (m *SuperFSM) Enter() {
+type EnterStateEvent struct {
+}
+
+func (e EnterStateEvent) GetData() IEvent {
 	//TODO implement me
+	panic("implement me")
+}
+
+func (m *SuperFSM) Enter() {
+	m.Trigger(EnterStateEvent{})
 }
 
 func (m *SuperFSM) Exit() {
-	//TODO implement me
+	m.currentState().Exit()
 }
 
 func (m *SuperFSM) GetState() IState {

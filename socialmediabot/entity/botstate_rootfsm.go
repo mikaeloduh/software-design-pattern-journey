@@ -1,6 +1,8 @@
 package entity
 
-import "socialmediabot/libs"
+import (
+	"socialmediabot/libs"
+)
 
 type RootFSM struct {
 	bot *Bot
@@ -11,13 +13,12 @@ type RootFSM struct {
 func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *RootFSM {
 	fsm := &RootFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM(states[0]),
+		SuperFSM: libs.NewSuperFSM(&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
 
 	return fsm
-
 }
 
 func (f *RootFSM) OnNewMessage(event NewMessageEvent) {

@@ -13,7 +13,7 @@ func NewRecordStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, tra
 	fsm := &RecordStateFSM{
 		bot:       bot,
 		waterball: waterball,
-		SuperFSM:  libs.NewSuperFSM(states[0]),
+		SuperFSM:  libs.NewSuperFSM(&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)

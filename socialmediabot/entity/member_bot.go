@@ -13,7 +13,6 @@ func NewBot(waterball *Waterball) *Bot {
 
 	normalStateFSM := NewNormalStateFSM(waterball, bot,
 		[]libs.IState{
-			&NullState{},
 			NewDefaultConversationState(waterball, bot),
 			NewInteractingState(waterball, bot),
 		},
@@ -29,7 +28,9 @@ func NewBot(waterball *Waterball) *Bot {
 			NewWaitingState(waterball, bot),
 			NewRecordingState(waterball, bot),
 		},
-		nil,
+		[]libs.Transition{
+			libs.NewTransition(&NullState{}, &WaitingState{}, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+		},
 	)
 
 	rootFSM := NewRootFSM(bot,
@@ -38,14 +39,20 @@ func NewBot(waterball *Waterball) *Bot {
 			recordStateFSM,
 		},
 		[]libs.Transition{
+			libs.NewTransition(&NullState{}, &NormalStateFSM{}, libs.EnterStateEvent{}, PositiveGuard, NoAction),
 			libs.NewTransition(&NormalStateFSM{}, &RecordStateFSM{}, TagEvent{}, RecordCommandGuard, NoAction),
 			libs.NewTransition(&RecordStateFSM{}, &NormalStateFSM{}, TagEvent{}, StopRecordCommandGuard, NoAction),
 		},
 	)
+	rootFSM.Enter()
 
 	bot.fsm = rootFSM
 
 	return bot
+}
+
+func PositiveGuard(event libs.IEvent) bool {
+	return true
 }
 
 func (b *Bot) Tag(event TagEvent) {
