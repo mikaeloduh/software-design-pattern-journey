@@ -19,8 +19,6 @@ func NewNormalStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, tra
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
 
-	fsm.Enter()
-
 	return fsm
 }
 

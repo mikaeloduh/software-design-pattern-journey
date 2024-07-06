@@ -67,8 +67,12 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001 comment in post 1: How do you guys think about it?", getLastLine(writer.String()))
 	})
 
-	t.Run("5: KnowledgeKingState", func(t *testing.T) {
+	t.Run("5: test KnowledgeKingState", func(t *testing.T) {
 		waterball.ChatRoom.Send(member001, entity.NewMessage("king", bot))
+
+		assert.Equal(t, "bot_001: I like your idea!", getLastSecondLine(writer.String()))
+		assert.IsType(t, &entity.QuestioningState{}, bot.GetState())
+		assert.Equal(t, "bot_001: KnowledgeKing is started!", getLastLine(writer.String()))
 	})
 }
 
@@ -79,4 +83,12 @@ func getLastLine(output string) string {
 		return ""
 	}
 	return lines[len(lines)-1]
+}
+
+func getLastSecondLine(output string) string {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	if len(lines) == 0 {
+		return ""
+	}
+	return lines[len(lines)-2]
 }

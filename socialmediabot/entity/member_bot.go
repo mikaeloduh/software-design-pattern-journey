@@ -37,14 +37,27 @@ func NewBot(waterball *Waterball) *Bot {
 		},
 	)
 
+	questioningState := NewQuestioningState(waterball, bot)
+	thanksForJoiningState := NewThanksForJoiningState(waterball, bot)
+	knowledgeKingStateFSM := NewKnowledgeKingStateFSM(waterball, bot,
+		[]libs.IState{
+			questioningState,
+			thanksForJoiningState,
+		},
+		[]libs.Transition{
+			libs.NewTransition(&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+		})
+
 	rootFSM := NewRootFSM(bot,
 		[]libs.IState{
 			normalStateFSM,
 			recordStateFSM,
+			knowledgeKingStateFSM,
 		},
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
 			libs.NewTransition(normalStateFSM, recordStateFSM, TagEvent{}, RecordCommandGuard, NoAction),
+			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, TagEvent{}, KingCommandGuard, NoAction),
 			libs.NewTransition(recordStateFSM, normalStateFSM, TagEvent{}, StopRecordCommandGuard, NoAction),
 		},
 	)
@@ -55,12 +68,16 @@ func NewBot(waterball *Waterball) *Bot {
 	return bot
 }
 
+func KingCommandGuard(event libs.IEvent) bool {
+	return event.GetData().(TagEvent).Message.Content == "king"
+}
+
 func PositiveGuard(event libs.IEvent) bool {
 	return true
 }
 
 func (b *Bot) Tag(event TagEvent) {
-	b.fsm.Trigger(event)
+	b.Update(event)
 }
 
 func (b *Bot) Update(event libs.IEvent) {
@@ -73,9 +90,13 @@ func (b *Bot) Update(event libs.IEvent) {
 
 	case NewPostEvent:
 		b.OnNewPost(value)
-	}
 
-	b.fsm.Trigger(event)
+	case TagEvent:
+		b.fsm.Trigger(value)
+
+	default:
+		b.fsm.Trigger(value)
+	}
 }
 
 func (b *Bot) OnNewMessage(event NewMessageEvent) {
