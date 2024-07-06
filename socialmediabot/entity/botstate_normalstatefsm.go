@@ -36,6 +36,10 @@ func (s *NormalStateFSM) OnNewMessage(event NewMessageEvent) {
 	s.GetState().(IBotState).OnNewMessage(event)
 }
 
+func (s *NormalStateFSM) OnNewPost(event NewPostEvent) {
+	s.GetState().(IBotState).OnNewPost(event)
+}
+
 // EnterNormalStateEvent
 type EnterNormalStateEvent struct {
 	OnlineCount int

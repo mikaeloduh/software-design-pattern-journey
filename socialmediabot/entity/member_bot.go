@@ -70,6 +70,9 @@ func (b *Bot) Update(event libs.IEvent) {
 			return
 		}
 		b.OnNewMessage(value)
+
+	case NewPostEvent:
+		b.OnNewPost(value)
 	}
 
 	b.fsm.Trigger(event)
@@ -79,6 +82,14 @@ func (b *Bot) OnNewMessage(event NewMessageEvent) {
 	b.fsm.OnNewMessage(event)
 }
 
+func (b *Bot) OnNewPost(event NewPostEvent) {
+	b.fsm.OnNewPost(event)
+}
+
 func (b *Bot) Id() string {
 	return b.id
+}
+
+func (b *Bot) GetState() libs.IState {
+	return b.fsm.GetState()
 }

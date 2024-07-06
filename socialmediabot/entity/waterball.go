@@ -12,6 +12,7 @@ type IChannel interface {
 type Waterball struct {
 	Writer    io.Writer
 	ChatRoom  ChatRoom
+	Forum     Forum
 	sessions  map[string]IMember
 	observers []INewLoginObserver
 }
@@ -60,6 +61,10 @@ func NewWaterball(w io.Writer) *Waterball {
 		sessions: make(map[string]IMember),
 	}
 	waterball.ChatRoom = ChatRoom{
+		Writer:    w,
+		Waterball: waterball,
+	}
+	waterball.Forum = Forum{
 		Writer:    w,
 		Waterball: waterball,
 	}

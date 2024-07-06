@@ -29,3 +29,7 @@ func (s *DefaultConversationState) OnNewMessage(event NewMessageEvent) {
 
 	s.talkCount++
 }
+
+func (s *DefaultConversationState) OnNewPost(event NewPostEvent) {
+	s.waterball.Forum.Comment(event.PostId, Comment{Member: s.bot, Content: "Nice post"})
+}

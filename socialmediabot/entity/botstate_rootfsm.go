@@ -24,3 +24,7 @@ func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *
 func (f *RootFSM) OnNewMessage(event NewMessageEvent) {
 	f.GetState().(IBotState).OnNewMessage(event)
 }
+
+func (f *RootFSM) OnNewPost(event NewPostEvent) {
+	f.GetState().(IBotState).OnNewPost(event)
+}

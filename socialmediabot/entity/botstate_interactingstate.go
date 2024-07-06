@@ -28,3 +28,7 @@ func (s *InteractingState) OnNewMessage(event NewMessageEvent) {
 
 	s.talkCount++
 }
+
+func (s *InteractingState) OnNewPost(event NewPostEvent) {
+	s.waterball.Forum.Comment(event.PostId, Comment{Member: s.bot, Content: "How do you guys think about it?"})
+}

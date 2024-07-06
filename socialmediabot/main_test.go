@@ -14,8 +14,9 @@ func TestMain_Integrate(t *testing.T) {
 	waterball := entity.NewWaterball(&writer)
 	bot := entity.NewBot(waterball)
 	waterball.Register(bot)
-	waterball.Login(bot)
 	waterball.ChatRoom.Register(bot)
+	waterball.Forum.Register(bot)
+	waterball.Login(bot)
 
 	member001 := entity.NewMember("member_001", entity.ADMIN)
 	member004 := entity.NewMember("member_004", entity.USER)
@@ -39,17 +40,31 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001: thank you", getLastLine(writer.String()))
 	})
 
+	member008 := entity.NewMember("member_008", entity.USER)
+
 	t.Run("3: test NormalState, InteractingState", func(t *testing.T) {
-		waterball.Login(entity.NewMember("member_008", entity.USER))
+		waterball.Login(member008)
 		waterball.Login(entity.NewMember("member_009", entity.USER))
 
-		waterball.ChatRoom.Send(member001, entity.Message{Content: "wow ten people online"})
+		waterball.ChatRoom.Send(member001, entity.Message{Content: "wow ten peoples online"})
 
 		assert.Equal(t, "bot_001: Hi hi", getLastLine(writer.String()))
 
 		waterball.ChatRoom.Send(member001, entity.Message{Content: "Good morning, who wants McDonald?"})
 
 		assert.Equal(t, "bot_001: I like your idea!", getLastLine(writer.String()))
+	})
+
+	t.Run("4: Post Forum", func(t *testing.T) {
+		waterball.ChatRoom.Send(member008, entity.Message{Content: "Ive post a Joke, haha"})
+
+		assert.Equal(t, "bot_001: Hi hi", getLastLine(writer.String()))
+
+		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
+
+		waterball.Forum.Post(member008, entity.Post{Title: "Single Responsibility Principle", Content: "Too many shit in a class, just get one shit done."})
+
+		assert.Equal(t, "bot_001 comment in post 1: How do you guys think about it?", getLastLine(writer.String()))
 	})
 }
 
