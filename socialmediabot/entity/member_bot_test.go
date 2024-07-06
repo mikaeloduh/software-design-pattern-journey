@@ -2,8 +2,6 @@ package entity
 
 import (
 	"bytes"
-	"io"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,7 +10,7 @@ import (
 func TestBot(t *testing.T) {
 	var writer bytes.Buffer
 
-	waterball := FakeNewWaterball(&writer)
+	waterball := NewWaterball(&writer)
 	bot := NewBot(waterball)
 	waterball.Register(bot)
 	waterball.Login(bot)
@@ -64,17 +62,4 @@ func TestBot(t *testing.T) {
 
 		assert.IsType(t, &DefaultConversationState{}, bot.fsm.GetState())
 	})
-}
-
-func FakeNewWaterball(w io.Writer) *Waterball {
-	return NewWaterball(w)
-}
-
-// test helper
-func getLastLine(output string) string {
-	lines := strings.Split(strings.TrimSpace(output), "\n")
-	if len(lines) == 0 {
-		return ""
-	}
-	return lines[len(lines)-1]
 }
