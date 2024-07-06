@@ -8,6 +8,7 @@ type DefaultConversationState struct {
 	waterball *Waterball
 	libs.SuperState
 	UnimplementedBotState
+	talkCount int
 }
 
 func NewDefaultConversationState(waterball *Waterball, bot *Bot) *DefaultConversationState {
@@ -23,5 +24,8 @@ func (s *DefaultConversationState) GetState() libs.IState {
 }
 
 func (s *DefaultConversationState) OnNewMessage(event NewMessageEvent) {
-	s.waterball.ChatRoom.Send(s.bot, Message{Content: "good to hear"})
+	line := []string{"good to hear", "thank you", "How are you"}
+	s.waterball.ChatRoom.Send(s.bot, Message{Content: line[s.talkCount%len(line)]})
+
+	s.talkCount++
 }

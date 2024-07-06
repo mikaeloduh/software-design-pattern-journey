@@ -15,7 +15,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 
 		waterball := NewWaterball(&writer)
 		memberId := "1"
-		member := NewMember(memberId)
+		member := NewMember(memberId, USER)
 
 		testMessage := "hello"
 		waterball.ChatRoom.Send(member, Message{Content: testMessage})
@@ -58,7 +58,7 @@ type SpyMember struct {
 
 func NewSpyMember(id string) *SpyMember {
 	return &SpyMember{
-		Member:      *NewMember(id),
+		Member:      *NewMember(id, USER),
 		IsTagCalled: false,
 	}
 }

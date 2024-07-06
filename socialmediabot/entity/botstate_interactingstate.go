@@ -7,6 +7,7 @@ type InteractingState struct {
 	waterball *Waterball
 	libs.SuperState
 	UnimplementedBotState
+	talkCount int
 }
 
 func NewInteractingState(waterball *Waterball, bot *Bot) *InteractingState {
@@ -22,5 +23,8 @@ func (s *InteractingState) GetState() libs.IState {
 }
 
 func (s *InteractingState) OnNewMessage(event NewMessageEvent) {
-	s.waterball.ChatRoom.Send(s.bot, Message{Content: "I like your idea!"})
+	line := []string{"Hi hi", "I like your idea!"}
+	s.waterball.ChatRoom.Send(s.bot, Message{Content: line[s.talkCount%len(line)]})
+
+	s.talkCount++
 }

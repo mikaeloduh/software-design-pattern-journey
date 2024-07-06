@@ -15,7 +15,7 @@ func TestBot(t *testing.T) {
 	waterball.Register(bot)
 	waterball.Login(bot)
 	waterball.ChatRoom.Register(bot)
-	member := NewMember("member_001")
+	member := NewMember("member_001", USER)
 	waterball.Login(member)
 
 	t.Run("given bot is in DefaultConversationState, receiving a new message in chat should trigger a bot response", func(t *testing.T) {
@@ -26,14 +26,14 @@ func TestBot(t *testing.T) {
 	})
 
 	t.Run("when meet the transition rule, it will trigger from DefaultConversationState to InteractingState", func(t *testing.T) {
-		waterball.Login(NewMember("member_002"))
-		waterball.Login(NewMember("member_003"))
-		waterball.Login(NewMember("member_004"))
-		waterball.Login(NewMember("member_005"))
-		waterball.Login(NewMember("member_006"))
-		waterball.Login(NewMember("member_007"))
-		waterball.Login(NewMember("member_008"))
-		waterball.Login(NewMember("member_009")) // 10th login member
+		waterball.Login(NewMember("member_002", USER))
+		waterball.Login(NewMember("member_003", USER))
+		waterball.Login(NewMember("member_004", USER))
+		waterball.Login(NewMember("member_005", USER))
+		waterball.Login(NewMember("member_006", USER))
+		waterball.Login(NewMember("member_007", USER))
+		waterball.Login(NewMember("member_008", USER))
+		waterball.Login(NewMember("member_009", USER)) // 10th login member
 
 		assert.Equal(t, 10, len(waterball.sessions))
 		assert.IsType(t, &InteractingState{}, bot.fsm.GetState())
@@ -42,7 +42,7 @@ func TestBot(t *testing.T) {
 	t.Run("given bot is in InteractingState, send new message in ChatRoom should trigger interacting-mode response", func(t *testing.T) {
 		waterball.ChatRoom.Send(member, Message{Content: "hello"})
 
-		assert.Equal(t, "bot_001: I like your idea!", getLastLine(writer.String()))
+		assert.Equal(t, "bot_001: Hi hi", getLastLine(writer.String()))
 	})
 
 	t.Run("test state transition from NormalState to RecordState", func(t *testing.T) {
