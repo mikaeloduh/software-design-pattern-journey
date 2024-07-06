@@ -24,7 +24,7 @@ func (s *InteractingState) GetState() libs.IState {
 
 func (s *InteractingState) OnNewMessage(event NewMessageEvent) {
 	line := []string{"Hi hi", "I like your idea!"}
-	s.waterball.ChatRoom.Send(s.bot, Message{Content: line[s.talkCount%len(line)]})
+	s.waterball.ChatRoom.Send(s.bot, NewMessage(line[s.talkCount%len(line)], event.Sender))
 
 	s.talkCount++
 }

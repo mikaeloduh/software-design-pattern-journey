@@ -12,18 +12,18 @@ type ChatRoom struct {
 	observers  []INewMessageObserver
 }
 
-func (c *ChatRoom) Send(sender IMember, m Message) {
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\n", sender.Id(), m.Content))
+func (c *ChatRoom) Send(sender IMember, message Message) {
+	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\n", sender.Id(), message.Content))
 
-	for _, tag := range m.Tags {
+	for _, tag := range message.Tags {
 		c.Waterball.TagOnlineMember(TagEvent{
 			TaggedBy: sender,
 			TaggedTo: tag,
-			Message:  m,
+			Message:  message,
 		})
 	}
 
-	c.Notify(NewMessageEvent{Sender: sender, Message: m})
+	c.Notify(NewMessageEvent{Sender: sender, Message: message})
 }
 
 func (c *ChatRoom) Notify(event NewMessageEvent) {

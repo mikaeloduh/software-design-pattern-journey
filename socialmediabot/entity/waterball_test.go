@@ -18,7 +18,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 		member := NewMember(memberId, USER)
 
 		testMessage := "hello"
-		waterball.ChatRoom.Send(member, Message{Content: testMessage})
+		waterball.ChatRoom.Send(member, NewMessage(testMessage))
 
 		assert.Equal(t, memberId+": "+testMessage, getLastLine(writer.String()))
 	})
@@ -32,7 +32,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 		waterball.Login(member1)
 		waterball.Login(member2)
 
-		waterball.ChatRoom.Send(member1, Message{Content: "hello", Tags: []Taggable{member2}})
+		waterball.ChatRoom.Send(member1, NewMessage("hello", member2))
 
 		assert.True(t, member2.IsTagCalled)
 	})
@@ -45,7 +45,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 		member2 := NewSpyMember("2")
 		waterball.Login(member1) // member2 not login
 
-		waterball.ChatRoom.Send(member1, Message{Content: "hello", Tags: []Taggable{member2}})
+		waterball.ChatRoom.Send(member1, NewMessage("hello", member2))
 
 		assert.False(t, member2.IsTagCalled)
 	})

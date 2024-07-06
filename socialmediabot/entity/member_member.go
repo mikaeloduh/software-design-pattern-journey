@@ -18,7 +18,6 @@ func NewMember(id string, role Role) *Member {
 }
 
 func (b *Member) Tag(event TagEvent) {
-	panic("unimplemented")
 }
 
 func (b *Member) Id() string {
