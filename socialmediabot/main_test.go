@@ -101,11 +101,14 @@ func TestMain_Integrate(t *testing.T) {
 		waterball.ChatRoom.Send(member003, entity.NewMessage("C", bot))
 		waterball.ChatRoom.Send(member002, entity.NewMessage("A", bot))
 
-		assert.Equal(t, "bot_001: Congrats! you got the answer!", getLastMessage(writer.String()))
+		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 3))
 	})
 
 	t.Run("5-end: exiting QuestioningState should enter ThanksForJoiningState", func(t *testing.T) {
 		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
+
+		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 2))
+		assert.Equal(t, "bot_001 speaking: The winner is member_008", getLastMessage(writer.String()))
 	})
 }
 

@@ -6,15 +6,13 @@ import (
 	"socialmediabot/libs"
 )
 
-type IChannel interface {
-}
-
 type Waterball struct {
 	Writer    io.Writer
 	ChatRoom  ChatRoom
 	Forum     Forum
 	sessions  map[string]IMember
 	observers []INewLoginObserver
+	Broadcast Broadcast
 }
 
 func (w *Waterball) Login(member IMember) {
@@ -67,6 +65,9 @@ func NewWaterball(w io.Writer) *Waterball {
 	waterball.Forum = Forum{
 		Writer:    w,
 		Waterball: waterball,
+	}
+	waterball.Broadcast = Broadcast{
+		Writer: w,
 	}
 
 	return waterball

@@ -17,6 +17,11 @@ func NewThanksForJoiningState(waterball *Waterball, bot *Bot) *ThanksForJoiningS
 	}
 }
 
+func (s *ThanksForJoiningState) Enter() {
+	s.waterball.Broadcast.GoBroadcasting(s.bot)
+	s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "The winner is member_008"))
+}
+
 func (s *ThanksForJoiningState) GetState() libs.IState {
 	return s
 }
