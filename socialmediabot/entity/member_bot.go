@@ -46,6 +46,7 @@ func NewBot(waterball *Waterball) *Bot {
 		},
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(questioningState, thanksForJoiningState, libs.ExitStateEvent{}, PositiveGuard, NoAction),
 		})
 
 	rootFSM := NewRootFSM(bot,

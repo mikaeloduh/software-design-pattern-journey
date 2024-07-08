@@ -87,7 +87,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 2))
 	})
 
-	t.Run("5-Q2: test questions should be asked sequentially in order", func(t *testing.T) {
+	t.Run("5-Q2: questions should be asked sequentially in order", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問哪個 CSS 屬性可用於設置文字的顏色？\nA) text-align\nB) font-size\nC) color\nD) padding", getLastMessage(writer.String()))
 
 		waterball.ChatRoom.Send(member008, entity.NewMessage("C", bot))
@@ -101,7 +101,11 @@ func TestMain_Integrate(t *testing.T) {
 		waterball.ChatRoom.Send(member003, entity.NewMessage("C", bot))
 		waterball.ChatRoom.Send(member002, entity.NewMessage("A", bot))
 
-		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 2))
+		assert.Equal(t, "bot_001: Congrats! you got the answer!", getLastMessage(writer.String()))
+	})
+
+	t.Run("5-end: exiting QuestioningState should enter ThanksForJoiningState", func(t *testing.T) {
+		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
 	})
 }
 

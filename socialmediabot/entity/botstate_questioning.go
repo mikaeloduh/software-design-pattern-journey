@@ -27,6 +27,10 @@ func (s *QuestioningState) Enter() {
 	s.askQuestion()
 }
 
+func (s *QuestioningState) Exit() {
+	s.talkCount = 0
+}
+
 func (s *QuestioningState) OnNewMessage(event NewMessageEvent) {
 	s.validateAnswer(event.Message.Content, event.Sender)
 }
@@ -41,6 +45,11 @@ func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 	if answer == s.getQuestion().answer {
 		s.waterball.ChatRoom.Send(s.bot, NewMessage("Congrats! you got the answer!", sender))
 		s.talkCount++
+
+		if s.talkCount >= 3 {
+			s.bot.fsm.Trigger(libs.ExitStateEvent{})
+			return
+		}
 
 		s.askQuestion()
 	}
