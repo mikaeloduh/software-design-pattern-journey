@@ -6,19 +6,18 @@ import (
 )
 
 type ChatRoom struct {
-	Writer     io.Writer
-	Waterball  *Waterball
-	TagService func(TagEvent)
-	observers  []INewMessageObserver
+	writer    io.Writer
+	waterball *Waterball
+	observers []INewMessageObserver
 }
 
 func (c *ChatRoom) Send(sender IMember, message Message) {
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\f", sender.Id(), message.Content))
+	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s: %s\f", sender.Id(), message.Content))
 
 	c.Notify(NewMessageEvent{Sender: sender, Message: message})
 
 	for _, tag := range message.Tags {
-		c.Waterball.TagOnlineMember(TagEvent{
+		c.waterball.TagOnlineMember(TagEvent{
 			TaggedBy: sender,
 			TaggedTo: tag,
 			Message:  message,

@@ -7,13 +7,13 @@ import (
 
 // Broadcast
 type Broadcast struct {
-	Writer  io.Writer
+	writer  io.Writer
 	speaker IMember
 }
 
 func (c *Broadcast) GoBroadcasting(speaker IMember) {
 	c.speaker = speaker
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s go broadcasting...\f", speaker.Id()))
+	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s go broadcasting...\f", speaker.Id()))
 }
 
 func (c *Broadcast) Transmit(speak Speak) {
@@ -21,7 +21,7 @@ func (c *Broadcast) Transmit(speak Speak) {
 		return
 	}
 
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s speaking: %s\f", speak.Speaker.Id(), speak.Content))
+	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s speaking: %s\f", speak.Speaker.Id(), speak.Content))
 }
 
 // Speak

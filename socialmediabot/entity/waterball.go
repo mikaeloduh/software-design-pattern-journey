@@ -7,12 +7,12 @@ import (
 )
 
 type Waterball struct {
-	Writer    io.Writer
+	writer    io.Writer
 	ChatRoom  ChatRoom
 	Forum     Forum
+	Broadcast Broadcast
 	sessions  map[string]IMember
 	observers []INewLoginObserver
-	Broadcast Broadcast
 }
 
 func (w *Waterball) Login(member IMember) {
@@ -55,19 +55,19 @@ func (w *Waterball) TagOnlineMember(event TagEvent) {
 
 func NewWaterball(w io.Writer) *Waterball {
 	waterball := &Waterball{
-		Writer:   w,
+		writer:   w,
 		sessions: make(map[string]IMember),
 	}
 	waterball.ChatRoom = ChatRoom{
-		Writer:    w,
-		Waterball: waterball,
+		writer:    w,
+		waterball: waterball,
 	}
 	waterball.Forum = Forum{
-		Writer:    w,
-		Waterball: waterball,
+		writer:    w,
+		waterball: waterball,
 	}
 	waterball.Broadcast = Broadcast{
-		Writer: w,
+		writer: w,
 	}
 
 	return waterball
