@@ -69,7 +69,7 @@ func (m *SpyMember) Tag(e TagEvent) {
 
 // test helper
 func getLastLine(output string) string {
-	lines := strings.Split(strings.TrimSpace(output), "\n")
+	lines := strings.Split(strings.TrimSpace(output), "\f")
 	if len(lines) == 0 {
 		return ""
 	}

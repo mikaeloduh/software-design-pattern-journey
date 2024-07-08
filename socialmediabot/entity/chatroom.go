@@ -13,7 +13,7 @@ type ChatRoom struct {
 }
 
 func (c *ChatRoom) Send(sender IMember, message Message) {
-	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\n", sender.Id(), message.Content))
+	_, _ = fmt.Fprint(c.Writer, fmt.Sprintf("%s: %s\f", sender.Id(), message.Content))
 
 	c.Notify(NewMessageEvent{Sender: sender, Message: message})
 

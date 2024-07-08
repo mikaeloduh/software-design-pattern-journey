@@ -16,7 +16,7 @@ type Forum struct {
 func (f *Forum) Post(member IMember, post Post) {
 	f.Posts = append(f.Posts, post)
 
-	_, _ = fmt.Fprint(f.Writer, fmt.Sprintf("%s: [%s] %s\n", member.Id(), post.Title, post.Content))
+	_, _ = fmt.Fprint(f.Writer, fmt.Sprintf("%s: [%s] %s\f", member.Id(), post.Title, post.Content))
 
 	f.Notify(NewPostEvent{PostId: len(f.Posts)})
 }
