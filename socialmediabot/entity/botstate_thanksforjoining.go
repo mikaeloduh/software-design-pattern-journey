@@ -1,6 +1,9 @@
 package entity
 
-import "socialmediabot/libs"
+import (
+	"fmt"
+	"socialmediabot/libs"
+)
 
 type ThanksForJoiningState struct {
 	bot       *Bot
@@ -18,8 +21,30 @@ func NewThanksForJoiningState(waterball *Waterball, bot *Bot) *ThanksForJoiningS
 }
 
 func (s *ThanksForJoiningState) Enter() {
-	s.waterball.Broadcast.GoBroadcasting(s.bot)
-	s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "The winner is member_008"))
+	err := s.waterball.Broadcast.GoBroadcasting(s.bot)
+	if err == nil {
+		if num := len(s.bot.Winners); num > 1 {
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Tie!"))
+		} else if num == 1 {
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", s.bot.Winners[0])))
+		} else {
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
+		}
+
+		_ = s.waterball.Broadcast.StopBroadcasting(s.bot)
+	} else {
+		if num := len(s.bot.Winners); num > 1 {
+			s.waterball.ChatRoom.Send(NewMessage(s.bot, "Tie!"))
+		} else if num == 1 {
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", s.bot.Winners[0])))
+		} else {
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
+		}
+	}
+}
+
+func (s *ThanksForJoiningState) Exit() {
+	s.bot.Winners = nil
 }
 
 func (s *ThanksForJoiningState) GetState() libs.IState {

@@ -11,14 +11,14 @@ type ChatRoom struct {
 	observers []INewMessageObserver
 }
 
-func (c *ChatRoom) Send(sender IMember, message Message) {
-	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s: %s\f", sender.Id(), message.Content))
+func (c *ChatRoom) Send(message Message) {
+	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s: %s\f", message.Sender.Id(), message.Content))
 
-	c.Notify(NewMessageEvent{Sender: sender, Message: message})
+	c.Notify(NewMessageEvent{Sender: message.Sender, Message: message})
 
 	for _, tag := range message.Tags {
 		c.waterball.TagOnlineMember(TagEvent{
-			TaggedBy: sender,
+			TaggedBy: message.Sender,
 			TaggedTo: tag,
 			Message:  message,
 		})

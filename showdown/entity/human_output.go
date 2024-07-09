@@ -47,7 +47,7 @@ func (p HumanOutput) YouExchangeMyCardOutput(name string) {
 }
 
 func (p HumanOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
-	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
+	fmt.Printf("\n============== Game Over ==============\nThe Winners is P%d: %s\n", winner.Id(), winner.Name())
 	for _, player := range players {
 		fmt.Printf("%-8s: %d point\n", player.Name(), player.Point())
 	}

@@ -32,12 +32,12 @@ func TestMain_Integrate(t *testing.T) {
 	waterball.Login(member006)
 
 	t.Run("2: test NormalState, DefaultConversationState", func(t *testing.T) {
-		waterball.ChatRoom.Send(member001, entity.Message{Content: "Good morning, my fist day on board"})
+		waterball.ChatRoom.Send(entity.NewMessage(member001, "Good morning, my fist day on board"))
 
 		assert.Equal(t, "bot_001: good to hear", getLastMessage(writer.String()))
 
 		waterball.Login(entity.NewMember("member_007", entity.USER))
-		waterball.ChatRoom.Send(member004, entity.NewMessage("everyone have a good day", member001))
+		waterball.ChatRoom.Send(entity.NewMessage(member004, "everyone have a good day", member001))
 
 		assert.Equal(t, "bot_001: thank you", getLastMessage(writer.String()))
 	})
@@ -48,17 +48,17 @@ func TestMain_Integrate(t *testing.T) {
 		waterball.Login(member008)
 		waterball.Login(entity.NewMember("member_009", entity.USER))
 
-		waterball.ChatRoom.Send(member001, entity.NewMessage("wow ten peoples online"))
+		waterball.ChatRoom.Send(entity.NewMessage(member001, "wow ten peoples online"))
 
 		assert.Equal(t, "bot_001: Hi hi", getLastMessage(writer.String()))
 
-		waterball.ChatRoom.Send(member001, entity.NewMessage("Good morning, who wants McDonald?"))
+		waterball.ChatRoom.Send(entity.NewMessage(member001, "Good morning, who wants McDonald?"))
 
 		assert.Equal(t, "bot_001: I like your idea!", getLastMessage(writer.String()))
 	})
 
 	t.Run("4: Post Forum", func(t *testing.T) {
-		waterball.ChatRoom.Send(member008, entity.NewMessage("Ive post a Joke, haha"))
+		waterball.ChatRoom.Send(entity.NewMessage(member008, "Ive post a Joke, haha"))
 
 		assert.Equal(t, "bot_001: Hi hi", getLastMessage(writer.String()))
 
@@ -72,7 +72,7 @@ func TestMain_Integrate(t *testing.T) {
 	t.Run("5: test KnowledgeKingState", func(t *testing.T) {
 		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
 
-		waterball.ChatRoom.Send(member001, entity.NewMessage("king", bot))
+		waterball.ChatRoom.Send(entity.NewMessage(member001, "king", bot))
 
 		assert.Equal(t, "bot_001: I like your idea!", getNthLastMessage(writer.String(), 3))
 		assert.IsType(t, &entity.QuestioningState{}, bot.GetState())
@@ -82,7 +82,7 @@ func TestMain_Integrate(t *testing.T) {
 	t.Run("5-Q1: starting QuestioningState should begin with the first question ", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問哪個 SQL 語句用於選擇所有的行？\nA) SELECT *\nB) SELECT ALL\nC) SELECT ROWS\nD) SELECT DATA", getLastMessage(writer.String()))
 
-		waterball.ChatRoom.Send(member006, entity.NewMessage("A", bot))
+		waterball.ChatRoom.Send(entity.NewMessage(member006, "A", bot))
 
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 2))
 	})
@@ -90,7 +90,7 @@ func TestMain_Integrate(t *testing.T) {
 	t.Run("5-Q2: questions should be asked sequentially in order", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問哪個 CSS 屬性可用於設置文字的顏色？\nA) text-align\nB) font-size\nC) color\nD) padding", getLastMessage(writer.String()))
 
-		waterball.ChatRoom.Send(member008, entity.NewMessage("C", bot))
+		waterball.ChatRoom.Send(entity.NewMessage(member008, "C", bot))
 
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 2))
 	})
@@ -98,17 +98,17 @@ func TestMain_Integrate(t *testing.T) {
 	t.Run("5-Q3: submitting the correct answer should count only the right answer", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問在計算機科學中，「XML」代表什麼？\nA) Extensible Markup Language\nB) Extensible Modeling Language\nC) Extended Markup Language\nD) Extended Modeling Language", getLastMessage(writer.String()))
 
-		waterball.ChatRoom.Send(member003, entity.NewMessage("C", bot))
-		waterball.ChatRoom.Send(member002, entity.NewMessage("A", bot))
+		waterball.ChatRoom.Send(entity.NewMessage(member003, "C", bot))
+		waterball.ChatRoom.Send(entity.NewMessage(member008, "A", bot))
 
-		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 3))
+		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 4))
 	})
 
 	t.Run("5-end: exiting QuestioningState should enter ThanksForJoiningState", func(t *testing.T) {
 		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
 
-		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 2))
-		assert.Equal(t, "bot_001 speaking: The winner is member_008", getLastMessage(writer.String()))
+		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 3))
+		assert.Equal(t, "bot_001 speaking: The winner is member_008", getNthLastMessage(writer.String(), 2))
 	})
 }
 

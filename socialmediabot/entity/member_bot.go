@@ -4,8 +4,9 @@ import "socialmediabot/libs"
 
 // Bot
 type Bot struct {
-	id  string
-	fsm *RootFSM
+	id      string
+	fsm     *RootFSM
+	Winners []string
 }
 
 func NewBot(waterball *Waterball) *Bot {

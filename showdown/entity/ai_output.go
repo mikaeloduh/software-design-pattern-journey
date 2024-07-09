@@ -41,7 +41,7 @@ func (ai AIOutput) YouExchangeMyCardOutput(_ string) {
 }
 
 func (ai AIOutput) GameOverOutput(winner IPlayer, players []IPlayer) {
-	fmt.Printf("\n============== Game Over ==============\nThe Winner is P%d: %s\n", winner.Id(), winner.Name())
+	fmt.Printf("\n============== Game Over ==============\nThe Winners is P%d: %s\n", winner.Id(), winner.Name())
 	for _, p := range players {
 		fmt.Printf("%-8s: %d point\n", p.Name(), p.Point())
 	}

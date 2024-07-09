@@ -11,9 +11,26 @@ type Broadcast struct {
 	speaker IMember
 }
 
-func (c *Broadcast) GoBroadcasting(speaker IMember) {
+func (c *Broadcast) GoBroadcasting(speaker IMember) error {
+	if c.speaker != nil {
+		return fmt.Errorf("broacashing is already running")
+	}
+
 	c.speaker = speaker
 	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s go broadcasting...\f", speaker.Id()))
+
+	return nil
+}
+
+func (c *Broadcast) StopBroadcasting(speaker IMember) error {
+	if speaker != c.speaker {
+		return fmt.Errorf("cannot stop broadcasting, not a member")
+	}
+
+	c.speaker = nil
+	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s Stop boradcasting\f", speaker.Id()))
+
+	return nil
 }
 
 func (c *Broadcast) Transmit(speak Speak) {

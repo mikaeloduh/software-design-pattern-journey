@@ -7,7 +7,8 @@ type QuestioningState struct {
 	waterball *Waterball
 	libs.SuperState
 	UnimplementedBotState
-	talkCount int
+	talkCount  int
+	scoreBoard map[string]int
 }
 
 func NewQuestioningState(waterball *Waterball, bot *Bot) *QuestioningState {
@@ -15,6 +16,7 @@ func NewQuestioningState(waterball *Waterball, bot *Bot) *QuestioningState {
 		bot:        bot,
 		waterball:  waterball,
 		SuperState: libs.SuperState{},
+		scoreBoard: make(map[string]int),
 	}
 }
 
@@ -23,7 +25,7 @@ func (s *QuestioningState) GetState() libs.IState {
 }
 
 func (s *QuestioningState) Enter() {
-	s.waterball.ChatRoom.Send(s.bot, NewMessage("KnowledgeKing is started!"))
+	s.waterball.ChatRoom.Send(NewMessage(s.bot, "KnowledgeKing is started!"))
 	s.askQuestion()
 }
 
@@ -38,15 +40,25 @@ func (s *QuestioningState) OnNewMessage(event NewMessageEvent) {
 /// privates
 
 func (s *QuestioningState) askQuestion() {
-	s.waterball.ChatRoom.Send(s.bot, NewMessage(s.getQuestion().question))
+	s.waterball.ChatRoom.Send(NewMessage(s.bot, s.getQuestion().question))
+}
+
+type ExitQuestionStateEvent struct {
+	Winner IMember
+}
+
+func (e ExitQuestionStateEvent) GetData() libs.IEvent {
+	return e
 }
 
 func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 	if answer == s.getQuestion().answer {
-		s.waterball.ChatRoom.Send(s.bot, NewMessage("Congrats! you got the answer!", sender))
+		s.waterball.ChatRoom.Send(NewMessage(s.bot, "Congrats! you got the answer!", sender))
+		s.scoreBoard[sender.Id()] += 1
 		s.talkCount++
 
 		if s.talkCount >= 3 {
+			s.bot.Winners = findMax(s.scoreBoard)
 			s.bot.fsm.Trigger(libs.ExitStateEvent{})
 			return
 		}
@@ -68,4 +80,22 @@ func (s *QuestioningState) getQuestion() Question {
 	}
 
 	return questions[s.talkCount%len(questions)]
+}
+
+func findMax(myMap map[string]int) []string {
+	var maxVal int
+	var keysWithMaxVal []string
+	first := true
+
+	for key, value := range myMap {
+		if first || value > maxVal {
+			maxVal = value
+			keysWithMaxVal = []string{key}
+			first = false
+		} else if value == maxVal {
+			keysWithMaxVal = append(keysWithMaxVal, key)
+		}
+	}
+
+	return keysWithMaxVal
 }

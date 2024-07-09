@@ -19,7 +19,7 @@ func TestBot(t *testing.T) {
 	waterball.Login(member)
 
 	t.Run("given bot is in DefaultConversationState, receiving a new message in chat should trigger a bot response", func(t *testing.T) {
-		waterball.ChatRoom.Send(member, Message{Content: "hello"})
+		waterball.ChatRoom.Send(NewMessage(member, "hello"))
 
 		assert.IsType(t, &DefaultConversationState{}, bot.fsm.GetState())
 		assert.Equal(t, "bot_001: good to hear", getLastLine(writer.String()))
@@ -40,13 +40,13 @@ func TestBot(t *testing.T) {
 	})
 
 	t.Run("given bot is in InteractingState, send new message in ChatRoom should trigger interacting-mode response", func(t *testing.T) {
-		waterball.ChatRoom.Send(member, Message{Content: "hello"})
+		waterball.ChatRoom.Send(NewMessage(member, "hello"))
 
 		assert.Equal(t, "bot_001: Hi hi", getLastLine(writer.String()))
 	})
 
 	t.Run("test state transition from NormalState to RecordState", func(t *testing.T) {
-		waterball.ChatRoom.Send(member, Message{Content: "record", Tags: []Taggable{bot}})
+		waterball.ChatRoom.Send(NewMessage(member, "record", bot))
 
 		assert.IsType(t, &WaitingState{}, bot.fsm.GetState())
 	})
@@ -58,7 +58,7 @@ func TestBot(t *testing.T) {
 	})
 
 	t.Run("test state transition from RecordState to NormalState", func(t *testing.T) {
-		waterball.ChatRoom.Send(member, Message{Content: "stop-recording", Tags: []Taggable{bot}})
+		waterball.ChatRoom.Send(NewMessage(member, "stop-recording", bot))
 
 		assert.IsType(t, &DefaultConversationState{}, bot.fsm.GetState())
 	})
