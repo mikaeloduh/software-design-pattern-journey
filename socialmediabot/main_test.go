@@ -19,6 +19,7 @@ func TestMain_Integrate(t *testing.T) {
 	waterball.Register(bot)
 	waterball.ChatRoom.Register(bot)
 	waterball.Forum.Register(bot)
+	waterball.Broadcast.Register(bot)
 	waterball.Login(bot)
 
 	member001 := entity.NewMember("member_001", entity.ADMIN)
@@ -127,6 +128,29 @@ func TestMain_Integrate(t *testing.T) {
 		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
 
 		wg.Wait()
+	})
+
+	t.Run("6: while in WaitingState, stating a broadcast should enter RecordingState", func(t *testing.T) {
+		waterball.ChatRoom.Send(entity.NewMessage(member003, "record", bot))
+		assert.IsType(t, &entity.WaitingState{}, bot.GetState())
+
+		assert.Equal(t, "bot_001: Hi hi", getLastMessage(writer.String()))
+
+		err := waterball.Broadcast.GoBroadcasting(member004)
+		assert.NoError(t, err)
+
+		assert.Equal(t, "member_004 go broadcasting...", getLastMessage(writer.String()))
+		assert.IsType(t, &entity.RecordingState{}, bot.GetState())
+
+		waterball.Broadcast.Transmit(entity.NewSpeak(member004, "Good morning guys"))
+		assert.Equal(t, "member_004 speaking: Good morning guys", getLastMessage(writer.String()))
+
+		waterball.Broadcast.Transmit(entity.NewSpeak(member004, "Have you had breakfast yet?"))
+		assert.Equal(t, "member_004 speaking: Have you had breakfast yet?", getLastMessage(writer.String()))
+
+		err = waterball.Broadcast.StopBroadcasting(member004)
+		assert.NoError(t, err)
+		assert.Equal(t, "member_004 stop broadcasting", getLastMessage(writer.String()))
 	})
 }
 

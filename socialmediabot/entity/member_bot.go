@@ -35,6 +35,7 @@ func NewBot(waterball *Waterball) *Bot {
 		},
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(waitingState, recordingState, GoBroadcastingEvent{}, PositiveGuard, NoAction),
 		},
 	)
 

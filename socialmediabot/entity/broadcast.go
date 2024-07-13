@@ -3,12 +3,18 @@ package entity
 import (
 	"fmt"
 	"io"
+	"socialmediabot/libs"
 )
+
+type IBroadcastObserver interface {
+	Update(event libs.IEvent)
+}
 
 // Broadcast
 type Broadcast struct {
-	writer  io.Writer
-	speaker IMember
+	writer    io.Writer
+	speaker   IMember
+	observers []IBroadcastObserver
 }
 
 func (c *Broadcast) GoBroadcasting(speaker IMember) error {
@@ -19,6 +25,8 @@ func (c *Broadcast) GoBroadcasting(speaker IMember) error {
 	c.speaker = speaker
 	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s go broadcasting...\f", speaker.Id()))
 
+	c.Notify(GoBroadcastingEvent{})
+
 	return nil
 }
 
@@ -28,7 +36,7 @@ func (c *Broadcast) StopBroadcasting(speaker IMember) error {
 	}
 
 	c.speaker = nil
-	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s Stop boradcasting\f", speaker.Id()))
+	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s stop broadcasting\f", speaker.Id()))
 
 	return nil
 }
@@ -39,6 +47,16 @@ func (c *Broadcast) Transmit(speak Speak) {
 	}
 
 	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s speaking: %s\f", speak.Speaker.Id(), speak.Content))
+}
+
+func (c *Broadcast) Notify(event libs.IEvent) {
+	for _, observer := range c.observers {
+		observer.Update(event)
+	}
+}
+
+func (c *Broadcast) Register(observer IBroadcastObserver) {
+	c.observers = append(c.observers, observer)
 }
 
 // Speak
