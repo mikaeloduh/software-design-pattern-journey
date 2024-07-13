@@ -147,10 +147,14 @@ func TestMain_Integrate(t *testing.T) {
 
 		waterball.Broadcast.Transmit(entity.NewSpeak(member004, "Have you had breakfast yet?"))
 		assert.Equal(t, "member_004 speaking: Have you had breakfast yet?", getLastMessage(writer.String()))
+	})
 
-		err = waterball.Broadcast.StopBroadcasting(member004)
+	t.Run("7: when broadcast stop, bot should output the recorded text", func(t *testing.T) {
+		err := waterball.Broadcast.StopBroadcasting(member004)
 		assert.NoError(t, err)
-		assert.Equal(t, "member_004 stop broadcasting", getLastMessage(writer.String()))
+		assert.Equal(t, "member_004 stop broadcasting", getNthLastMessage(writer.String(), 2))
+
+		assert.Equal(t, "bot_001: [Record Replay] Good morning guys\nHave you had breakfast yet?", getLastMessage(writer.String()))
 	})
 }
 

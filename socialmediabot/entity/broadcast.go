@@ -38,6 +38,8 @@ func (c *Broadcast) StopBroadcasting(speaker IMember) error {
 	c.speaker = nil
 	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s stop broadcasting\f", speaker.Id()))
 
+	c.Notify(BroadcastStopEvent{})
+
 	return nil
 }
 
@@ -47,6 +49,8 @@ func (c *Broadcast) Transmit(speak Speak) {
 	}
 
 	_, _ = fmt.Fprint(c.writer, fmt.Sprintf("%s speaking: %s\f", speak.Speaker.Id(), speak.Content))
+
+	c.Notify(SpeakEvent{Speaker: speak.Speaker, Content: speak.Content})
 }
 
 func (c *Broadcast) Notify(event libs.IEvent) {

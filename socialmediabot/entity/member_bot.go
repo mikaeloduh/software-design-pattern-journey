@@ -95,6 +95,12 @@ func (b *Bot) Update(event libs.IEvent) {
 	case NewPostEvent:
 		b.OnNewPost(value)
 
+	case SpeakEvent:
+		b.OnSpeak(value)
+
+	case BroadcastStopEvent:
+		b.OnBroadcastStop(value)
+
 	case TagEvent:
 		b.fsm.Trigger(value)
 
@@ -109,6 +115,14 @@ func (b *Bot) OnNewMessage(event NewMessageEvent) {
 
 func (b *Bot) OnNewPost(event NewPostEvent) {
 	b.fsm.OnNewPost(event)
+}
+
+func (b *Bot) OnSpeak(event SpeakEvent) {
+	b.fsm.OnSpeak(event)
+}
+
+func (b *Bot) OnBroadcastStop(event BroadcastStopEvent) {
+	b.fsm.OnBroadcastStop(event)
 }
 
 func (b *Bot) Id() string {

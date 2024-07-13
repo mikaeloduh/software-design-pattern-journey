@@ -20,3 +20,11 @@ func NewKnowledgeKingStateFSM(waterball *Waterball, bot *Bot, states []libs.ISta
 
 	return fsm
 }
+
+func (f *KnowledgeKingStateFSM) OnSpeak(event SpeakEvent) {
+	f.GetState().(IBotState).OnSpeak(event)
+}
+
+func (f *KnowledgeKingStateFSM) OnBroadcastStop(event BroadcastStopEvent) {
+	f.GetState().(IBotState).OnBroadcastStop(event)
+}

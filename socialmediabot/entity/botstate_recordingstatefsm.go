@@ -24,3 +24,11 @@ func NewRecordStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, tra
 func (f *RecordStateFSM) OnNewMessage(event NewMessageEvent) {
 	f.GetState().(IBotState).OnNewMessage(event)
 }
+
+func (f *RecordStateFSM) OnSpeak(event SpeakEvent) {
+	f.GetState().(IBotState).OnSpeak(event)
+}
+
+func (f *RecordStateFSM) OnBroadcastStop(event BroadcastStopEvent) {
+	f.GetState().(IBotState).OnBroadcastStop(event)
+}

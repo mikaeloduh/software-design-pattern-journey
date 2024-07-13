@@ -56,6 +56,12 @@ func (s *ThanksForJoiningState) GetState() libs.IState {
 	return s
 }
 
+func (s *ThanksForJoiningState) OnSpeak(event SpeakEvent) {
+}
+
+func (s *ThanksForJoiningState) OnBroadcastStop(event BroadcastStopEvent) {
+}
+
 // ExitThanksForJoiningStateEvent
 type ExitThanksForJoiningStateEvent struct {
 }

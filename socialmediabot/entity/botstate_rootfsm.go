@@ -28,3 +28,11 @@ func (f *RootFSM) OnNewMessage(event NewMessageEvent) {
 func (f *RootFSM) OnNewPost(event NewPostEvent) {
 	f.GetState().(IBotState).OnNewPost(event)
 }
+
+func (f *RootFSM) OnSpeak(event SpeakEvent) {
+	f.GetState().(IBotState).OnSpeak(event)
+}
+
+func (f *RootFSM) OnBroadcastStop(event BroadcastStopEvent) {
+	f.GetState().(IBotState).OnBroadcastStop(event)
+}
