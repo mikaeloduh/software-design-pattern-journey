@@ -23,6 +23,7 @@ func NewBot(waterball *Waterball) *Bot {
 			libs.NewTransition(&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
 			libs.NewTransition(&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
 			libs.NewTransition(defaultConversationState, interactingState, NewLoginEvent{}, LoginEventGuard, NoAction),
+			libs.NewTransition(interactingState, defaultConversationState, NewLogoutEvent{}, LogoutEventGuard, NoAction),
 		},
 	)
 
