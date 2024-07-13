@@ -8,6 +8,7 @@ import (
 
 type Waterball struct {
 	writer    io.Writer
+	timer     ITimeProvider
 	ChatRoom  ChatRoom
 	Forum     Forum
 	Broadcast Broadcast
@@ -53,9 +54,10 @@ func (w *Waterball) TagOnlineMember(event TagEvent) {
 	}
 }
 
-func NewWaterball(w io.Writer) *Waterball {
+func NewWaterball(w io.Writer, timer ITimeProvider) *Waterball {
 	waterball := &Waterball{
 		writer:   w,
+		timer:    timer,
 		sessions: make(map[string]IMember),
 	}
 	waterball.ChatRoom = ChatRoom{
@@ -74,5 +76,5 @@ func NewWaterball(w io.Writer) *Waterball {
 }
 
 func NewDefaultWaterball(w io.Writer) *Waterball {
-	return NewWaterball(os.Stdout)
+	return NewWaterball(os.Stdout, DefaultTimeProvider{})
 }

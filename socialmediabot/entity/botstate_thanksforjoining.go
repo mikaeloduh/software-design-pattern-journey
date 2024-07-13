@@ -3,6 +3,7 @@ package entity
 import (
 	"fmt"
 	"socialmediabot/libs"
+	"time"
 )
 
 type ThanksForJoiningState struct {
@@ -41,6 +42,10 @@ func (s *ThanksForJoiningState) Enter() {
 			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
 		}
 	}
+
+	s.waterball.timer.Sleep(5 * time.Second) // Simulate task processing
+
+	s.bot.fsm.Trigger(ExitThanksForJoiningStateEvent{})
 }
 
 func (s *ThanksForJoiningState) Exit() {
@@ -49,4 +54,12 @@ func (s *ThanksForJoiningState) Exit() {
 
 func (s *ThanksForJoiningState) GetState() libs.IState {
 	return s
+}
+
+// ExitThanksForJoiningStateEvent
+type ExitThanksForJoiningStateEvent struct {
+}
+
+func (e ExitThanksForJoiningStateEvent) GetData() libs.IEvent {
+	return e
 }

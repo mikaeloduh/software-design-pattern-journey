@@ -43,14 +43,6 @@ func (s *QuestioningState) askQuestion() {
 	s.waterball.ChatRoom.Send(NewMessage(s.bot, s.getQuestion().question))
 }
 
-type ExitQuestionStateEvent struct {
-	Winner IMember
-}
-
-func (e ExitQuestionStateEvent) GetData() libs.IEvent {
-	return e
-}
-
 func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 	if answer == s.getQuestion().answer {
 		s.waterball.ChatRoom.Send(NewMessage(s.bot, "Congrats! you got the answer!", sender))
@@ -59,7 +51,7 @@ func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 
 		if s.talkCount >= 3 {
 			s.bot.Winners = findMax(s.scoreBoard)
-			s.bot.fsm.Trigger(libs.ExitStateEvent{})
+			s.bot.fsm.Trigger(ExitQuestioningStateEvent{})
 			return
 		}
 
@@ -98,4 +90,12 @@ func findMax(myMap map[string]int) []string {
 	}
 
 	return keysWithMaxVal
+}
+
+// ExitQuestioningStateEvent
+type ExitQuestioningStateEvent struct {
+}
+
+func (e ExitQuestioningStateEvent) GetData() libs.IEvent {
+	return e
 }

@@ -9,8 +9,8 @@ import (
 
 func TestBot(t *testing.T) {
 	var writer bytes.Buffer
-
-	waterball := NewWaterball(&writer)
+	var timer = DefaultTimeProvider{}
+	waterball := NewWaterball(&writer, timer)
 	bot := NewBot(waterball)
 	waterball.Register(bot)
 	waterball.Login(bot)

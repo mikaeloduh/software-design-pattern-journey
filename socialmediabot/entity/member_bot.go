@@ -47,7 +47,7 @@ func NewBot(waterball *Waterball) *Bot {
 		},
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(questioningState, thanksForJoiningState, libs.ExitStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
 		})
 
 	rootFSM := NewRootFSM(bot,
@@ -61,6 +61,7 @@ func NewBot(waterball *Waterball) *Bot {
 			libs.NewTransition(normalStateFSM, recordStateFSM, TagEvent{}, RecordCommandGuard, NoAction),
 			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, TagEvent{}, KingCommandGuard, NoAction),
 			libs.NewTransition(recordStateFSM, normalStateFSM, TagEvent{}, StopRecordCommandGuard, NoAction),
+			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
 	rootFSM.Enter()
@@ -74,7 +75,7 @@ func KingCommandGuard(event libs.IEvent) bool {
 	return event.GetData().(TagEvent).Message.Content == "king"
 }
 
-func PositiveGuard(event libs.IEvent) bool {
+func PositiveGuard(_ libs.IEvent) bool {
 	return true
 }
 

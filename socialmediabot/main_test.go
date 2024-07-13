@@ -2,16 +2,19 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"socialmediabot/entity"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 )
 
 func TestMain_Integrate(t *testing.T) {
 	var writer bytes.Buffer
-
-	waterball := entity.NewWaterball(&writer)
+	var timer = newMockTimeProvider()
+	waterball := entity.NewWaterball(&writer, timer)
 	bot := entity.NewBot(waterball)
 	waterball.Register(bot)
 	waterball.ChatRoom.Register(bot)
@@ -30,6 +33,8 @@ func TestMain_Integrate(t *testing.T) {
 	waterball.Login(member004)
 	waterball.Login(entity.NewMember("member_005", entity.USER))
 	waterball.Login(member006)
+
+	var wg sync.WaitGroup
 
 	t.Run("2: test NormalState, DefaultConversationState", func(t *testing.T) {
 		waterball.ChatRoom.Send(entity.NewMessage(member001, "Good morning, my fist day on board"))
@@ -98,17 +103,30 @@ func TestMain_Integrate(t *testing.T) {
 	t.Run("5-Q3: submitting the correct answer should count only the right answer", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問在計算機科學中，「XML」代表什麼？\nA) Extensible Markup Language\nB) Extensible Modeling Language\nC) Extended Markup Language\nD) Extended Modeling Language", getLastMessage(writer.String()))
 
-		waterball.ChatRoom.Send(entity.NewMessage(member003, "C", bot))
-		waterball.ChatRoom.Send(entity.NewMessage(member008, "A", bot))
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			waterball.ChatRoom.Send(entity.NewMessage(member003, "C", bot))
+			waterball.ChatRoom.Send(entity.NewMessage(member008, "A", bot))
+		}()
+
+		time.Sleep(100 * time.Millisecond) // Allow some time for the goroutine to start and call Sleep
 
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 4))
+		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
 	})
 
 	t.Run("5-end: exiting QuestioningState should enter ThanksForJoiningState", func(t *testing.T) {
-		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
-
 		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 3))
 		assert.Equal(t, "bot_001 speaking: The winner is member_008", getNthLastMessage(writer.String(), 2))
+
+		timer.Advance(5 * time.Second)
+		time.Sleep(100 * time.Millisecond) // Allow some time for the goroutine to signal the timer
+
+		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
+
+		wg.Wait()
 	})
 }
 
@@ -123,4 +141,14 @@ func getNthLastMessage(output string, nthLast int) string {
 		return ""
 	}
 	return lines[len(lines)-nthLast]
+}
+
+func printMessage(output string) {
+	lines := strings.Split(strings.TrimSpace(output), "\f")
+	if len(lines) == 0 {
+		fmt.Println("")
+	}
+	for _, line := range lines {
+		fmt.Println(line)
+	}
 }

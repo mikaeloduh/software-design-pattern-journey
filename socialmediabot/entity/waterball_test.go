@@ -13,7 +13,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 	t.Run("Chatting in a chatroom should output the member's ID and message", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		waterball := NewWaterball(&writer)
+		waterball := NewWaterball(&writer, DefaultTimeProvider{})
 		memberId := "1"
 		member := NewMember(memberId, USER)
 
@@ -26,7 +26,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 	t.Run("Tagging a member in a chat message should trigger their notification if is logged-in", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		waterball := NewWaterball(&writer)
+		waterball := NewWaterball(&writer, DefaultTimeProvider{})
 		member1 := NewSpyMember("1")
 		member2 := NewSpyMember("2")
 		waterball.Login(member1)
@@ -40,7 +40,7 @@ func TestWaterball_ChatRoom(t *testing.T) {
 	t.Run("Tagging a member in a chat message should not trigger their notification if is not logged-in", func(t *testing.T) {
 		var writer bytes.Buffer
 
-		waterball := NewWaterball(&writer)
+		waterball := NewWaterball(&writer, DefaultTimeProvider{})
 		member1 := NewSpyMember("1")
 		member2 := NewSpyMember("2")
 		waterball.Login(member1) // member2 not login
