@@ -28,16 +28,17 @@ func TestMain_Integrate(t *testing.T) {
 	member002 := entity.NewMember("member_002", entity.USER)
 	member003 := entity.NewMember("member_003", entity.USER)
 	member004 := entity.NewMember("member_004", entity.USER)
+	member005 := entity.NewMember("member_005", entity.USER)
 	member006 := entity.NewMember("member_006", entity.USER)
+	member007 := entity.NewMember("member_007", entity.USER)
 	member008 := entity.NewMember("member_008", entity.USER)
 	member009 := entity.NewMember("member_009", entity.USER)
-	member007 := entity.NewMember("member_007", entity.USER)
 
 	waterball.Login(member001)
 	waterball.Login(member002)
 	waterball.Login(member003)
 	waterball.Login(member004)
-	waterball.Login(entity.NewMember("member_005", entity.USER))
+	waterball.Login(member005)
 	waterball.Login(member006)
 
 	t.Run("2: test NormalState, DefaultConversationState", func(t *testing.T) {
