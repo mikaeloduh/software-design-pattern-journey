@@ -3,12 +3,15 @@ package entity
 import (
 	"io"
 	"os"
+
+	"github.com/benbjohnson/clock"
+
 	"socialmediabot/libs"
 )
 
 type Waterball struct {
 	writer    io.Writer
-	timer     ITimeProvider
+	Clock     clock.Clock
 	ChatRoom  ChatRoom
 	Forum     Forum
 	Broadcast Broadcast
@@ -54,10 +57,10 @@ func (w *Waterball) TagOnlineMember(event TagEvent) {
 	}
 }
 
-func NewWaterball(w io.Writer, timer ITimeProvider) *Waterball {
+func NewWaterball(w io.Writer, clock clock.Clock) *Waterball {
 	waterball := &Waterball{
 		writer:   w,
-		timer:    timer,
+		Clock:    clock,
 		sessions: make(map[string]IMember),
 	}
 	waterball.ChatRoom = ChatRoom{
@@ -76,5 +79,5 @@ func NewWaterball(w io.Writer, timer ITimeProvider) *Waterball {
 }
 
 func NewDefaultWaterball(w io.Writer) *Waterball {
-	return NewWaterball(os.Stdout, DefaultTimeProvider{})
+	return NewWaterball(os.Stdout, clock.NewMock())
 }

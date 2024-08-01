@@ -1,6 +1,12 @@
 package entity
 
-import "socialmediabot/libs"
+import (
+	"time"
+
+	"github.com/benbjohnson/clock"
+
+	"socialmediabot/libs"
+)
 
 type QuestioningState struct {
 	bot       *Bot
@@ -9,6 +15,8 @@ type QuestioningState struct {
 	UnimplementedBotState
 	talkCount  int
 	scoreBoard map[string]int
+	quitCh     chan bool
+	timer      *clock.Timer
 }
 
 func NewQuestioningState(waterball *Waterball, bot *Bot) *QuestioningState {
@@ -17,6 +25,7 @@ func NewQuestioningState(waterball *Waterball, bot *Bot) *QuestioningState {
 		waterball:  waterball,
 		SuperState: libs.SuperState{},
 		scoreBoard: make(map[string]int),
+		quitCh:     make(chan bool, 1),
 	}
 }
 
@@ -26,11 +35,22 @@ func (s *QuestioningState) GetState() libs.IState {
 
 func (s *QuestioningState) Enter() {
 	s.waterball.ChatRoom.Send(NewMessage(s.bot, "KnowledgeKing is started!"))
+
+	s.timer = s.waterball.Clock.AfterFunc(1*time.Hour, s.afterGameEnd)
+
 	s.askQuestion()
 }
 
 func (s *QuestioningState) Exit() {
 	s.talkCount = 0
+	if !s.timer.Stop() {
+		select {
+		case <-s.timer.C:
+			// Drained the channel successfully
+		default:
+			// The channel was already empty
+		}
+	}
 }
 
 func (s *QuestioningState) OnNewMessage(event NewMessageEvent) {
@@ -49,9 +69,9 @@ func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 		s.scoreBoard[sender.Id()] += 1
 		s.talkCount++
 
-		if s.talkCount >= 3 {
+		if s.isGameEnd() {
 			s.bot.Winners = findMax(s.scoreBoard)
-			s.bot.fsm.Trigger(ExitQuestioningStateEvent{})
+			s.afterGameEnd()
 			return
 		}
 
@@ -59,6 +79,15 @@ func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 	}
 }
 
+func (s *QuestioningState) isGameEnd() bool {
+	return s.talkCount >= 3
+}
+
+func (s *QuestioningState) afterGameEnd() {
+	s.bot.fsm.Trigger(ExitQuestioningStateEvent{})
+}
+
+// Question
 type Question struct {
 	question string
 	answer   string

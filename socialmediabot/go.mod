@@ -2,7 +2,10 @@ module socialmediabot
 
 go 1.20
 
-require github.com/stretchr/testify v1.8.4
+require (
+	github.com/benbjohnson/clock v1.3.5
+	github.com/stretchr/testify v1.8.4
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

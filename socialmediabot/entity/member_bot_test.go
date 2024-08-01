@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/benbjohnson/clock"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBot(t *testing.T) {
 	var writer bytes.Buffer
-	var timer = DefaultTimeProvider{}
-	waterball := NewWaterball(&writer, timer)
+	var mockClock = clock.NewMock()
+	waterball := NewWaterball(&writer, mockClock)
 	bot := NewBot(waterball)
 	waterball.Register(bot)
 	waterball.Login(bot)
