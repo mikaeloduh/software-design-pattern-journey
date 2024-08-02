@@ -42,7 +42,7 @@ func (s *RecordingState) OnSpeak(event SpeakEvent) {
 }
 
 func (s *RecordingState) OnBroadcastStop(_ BroadcastStopEvent) {
-	s.bot.fsm.Trigger(ExitRecordingStateEvent{})
+	s.bot.Update(ExitRecordingStateEvent{})
 }
 
 func (s *RecordingState) replayRecord() {

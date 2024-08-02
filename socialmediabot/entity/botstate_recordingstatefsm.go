@@ -21,6 +21,10 @@ func NewRecordStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, tra
 	return fsm
 }
 
+func (f *RecordStateFSM) Exit() {
+	f.SetState(&NullState{}, nil)
+}
+
 func (f *RecordStateFSM) OnNewMessage(event NewMessageEvent) {
 	f.GetState().(IBotState).OnNewMessage(event)
 }

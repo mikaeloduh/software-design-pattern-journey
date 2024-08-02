@@ -21,6 +21,10 @@ func NewKnowledgeKingStateFSM(waterball *Waterball, bot *Bot, states []libs.ISta
 	return fsm
 }
 
+func (f *KnowledgeKingStateFSM) Exit() {
+	f.SetState(&NullState{}, nil)
+}
+
 func (f *KnowledgeKingStateFSM) OnSpeak(event SpeakEvent) {
 	f.GetState().(IBotState).OnSpeak(event)
 }

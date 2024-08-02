@@ -48,7 +48,7 @@ func (s *ThanksForJoiningState) Enter(event libs.IEvent) {
 		}
 	}
 
-	s.timer = s.waterball.Clock.AfterFunc(5*time.Second, func() { s.bot.fsm.Trigger(ExitThanksForJoiningStateEvent{}) })
+	s.timer = s.waterball.Clock.AfterFunc(5*time.Second, func() { s.bot.Update(ExitThanksForJoiningStateEvent{}) })
 }
 
 func (s *ThanksForJoiningState) Exit() {

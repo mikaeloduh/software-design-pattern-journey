@@ -70,7 +70,7 @@ func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 		s.talkCount++
 
 		if s.isGameEnd() {
-			s.bot.fsm.Trigger(ExitQuestioningStateEvent{findMax(s.scoreBoard)})
+			s.bot.Update(ExitQuestioningStateEvent{findMax(s.scoreBoard)})
 			return
 		}
 
@@ -83,7 +83,7 @@ func (s *QuestioningState) isGameEnd() bool {
 }
 
 func (s *QuestioningState) afterGameEnd() {
-	s.bot.fsm.Trigger(ExitQuestioningStateEvent{})
+	s.bot.Update(ExitQuestioningStateEvent{})
 }
 
 // Question

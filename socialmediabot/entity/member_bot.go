@@ -72,6 +72,7 @@ func NewBot(waterball *Waterball) *Bot {
 			libs.NewTransition(normalStateFSM, recordStateFSM, TagEvent{}, RecordCommandGuard, saveRecorderAction),
 			libs.NewTransition(recordStateFSM, normalStateFSM, StopRecordCommandEvent{}, StopRecordCommandGuard, NoAction),
 			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, TagEvent{}, KingCommandGuard, NoAction),
+			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, TagEvent{}, KingStopCommandGuard, NoAction),
 			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
