@@ -18,7 +18,7 @@ func (UnimplementedBotState) OnNewPost(event NewPostEvent) {
 	panic("implement me")
 }
 
-func (s UnimplementedBotState) OnSpeak(event SpeakEvent) {
+func (UnimplementedBotState) OnSpeak(event SpeakEvent) {
 	panic("implement me")
 }
 
