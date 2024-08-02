@@ -8,17 +8,15 @@ import (
 
 // RecordingState
 type RecordingState struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperState
 	UnimplementedBotState
 	record *Record
 }
 
-func NewRecordingState(waterball *service.Waterball, bot *Bot) *RecordingState {
+func NewRecordingState(bot *Bot) *RecordingState {
 	return &RecordingState{
 		bot:        bot,
-		waterball:  waterball,
 		SuperState: libs.SuperState{},
 	}
 }
@@ -47,7 +45,7 @@ func (s *RecordingState) OnBroadcastStop(_ service.BroadcastStopEvent) {
 }
 
 func (s *RecordingState) replayRecord() {
-	s.waterball.ChatRoom.Send(service.NewMessage(s.bot, fmt.Sprintf("[Record Replay] %s", s.record.GetContent())))
+	s.bot.waterball.ChatRoom.Send(service.NewMessage(s.bot, fmt.Sprintf("[Record Replay] %s", s.record.GetContent())))
 }
 
 // Record

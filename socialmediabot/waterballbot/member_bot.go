@@ -7,18 +7,22 @@ import (
 
 // Bot
 type Bot struct {
-	id       string
-	role     service.Role
-	fsm      *RootFSM
-	recorder service.IMember
+	id        string
+	role      service.Role
+	fsm       *RootFSM
+	waterball *service.Waterball
+	recorder  service.IMember
 }
 
 func NewBot(waterball *service.Waterball) *Bot {
-	bot := &Bot{id: "bot_001"}
+	bot := &Bot{
+		id:        "bot_001",
+		waterball: waterball,
+	}
 
-	defaultConversationState := NewDefaultConversationState(waterball, bot)
-	interactingState := NewInteractingState(waterball, bot)
-	normalStateFSM := NewNormalStateFSM(waterball, bot,
+	defaultConversationState := NewDefaultConversationState(bot)
+	interactingState := NewInteractingState(bot)
+	normalStateFSM := NewNormalStateFSM(bot,
 		[]libs.IState{
 			defaultConversationState,
 			interactingState,
@@ -31,9 +35,9 @@ func NewBot(waterball *service.Waterball) *Bot {
 		},
 	)
 
-	waitingState := NewWaitingState(waterball, bot)
-	recordingState := NewRecordingState(waterball, bot)
-	recordStateFSM := NewRecordStateFSM(waterball, bot,
+	waitingState := NewWaitingState(bot)
+	recordingState := NewRecordingState(bot)
+	recordStateFSM := NewRecordStateFSM(bot,
 		[]libs.IState{
 			waitingState,
 			recordingState,
@@ -45,9 +49,9 @@ func NewBot(waterball *service.Waterball) *Bot {
 		},
 	)
 
-	questioningState := NewQuestioningState(waterball, bot)
-	thanksForJoiningState := NewThanksForJoiningState(waterball, bot)
-	knowledgeKingStateFSM := NewKnowledgeKingStateFSM(waterball, bot,
+	questioningState := NewQuestioningState(bot)
+	thanksForJoiningState := NewThanksForJoiningState(bot)
+	knowledgeKingStateFSM := NewKnowledgeKingStateFSM(bot,
 		[]libs.IState{
 			questioningState,
 			thanksForJoiningState,

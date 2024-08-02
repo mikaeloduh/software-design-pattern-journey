@@ -7,17 +7,15 @@ import (
 
 // NormalStateFSM
 type NormalStateFSM struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperFSM
 	UnimplementedBotState
 }
 
-func NewNormalStateFSM(waterball *service.Waterball, bot *Bot, states []libs.IState, transitions []libs.Transition) *NormalStateFSM {
+func NewNormalStateFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *NormalStateFSM {
 	fsm := &NormalStateFSM{
-		bot:       bot,
-		waterball: waterball,
-		SuperFSM:  libs.NewSuperFSM(&NullState{}),
+		bot:      bot,
+		SuperFSM: libs.NewSuperFSM(&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
@@ -26,7 +24,7 @@ func NewNormalStateFSM(waterball *service.Waterball, bot *Bot, states []libs.ISt
 }
 
 func (s *NormalStateFSM) Enter(_ libs.IEvent) {
-	s.Trigger(EnterNormalStateEvent{OnlineCount: s.waterball.OnlineCount()})
+	s.Trigger(EnterNormalStateEvent{OnlineCount: s.bot.waterball.OnlineCount()})
 }
 
 func (s *NormalStateFSM) Exit() {

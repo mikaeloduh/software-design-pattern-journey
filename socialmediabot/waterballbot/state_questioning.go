@@ -10,8 +10,7 @@ import (
 )
 
 type QuestioningState struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperState
 	UnimplementedBotState
 	talkCount  int
@@ -20,10 +19,9 @@ type QuestioningState struct {
 	timer      *clock.Timer
 }
 
-func NewQuestioningState(waterball *service.Waterball, bot *Bot) *QuestioningState {
+func NewQuestioningState(bot *Bot) *QuestioningState {
 	return &QuestioningState{
 		bot:        bot,
-		waterball:  waterball,
 		SuperState: libs.SuperState{},
 		scoreBoard: make(map[string]int),
 		quitCh:     make(chan bool, 1),
@@ -35,9 +33,9 @@ func (s *QuestioningState) GetState() libs.IState {
 }
 
 func (s *QuestioningState) Enter(_ libs.IEvent) {
-	s.waterball.ChatRoom.Send(service.NewMessage(s.bot, "KnowledgeKing is started!"))
+	s.bot.waterball.ChatRoom.Send(service.NewMessage(s.bot, "KnowledgeKing is started!"))
 
-	s.timer = s.waterball.Clock.AfterFunc(1*time.Hour, s.afterGameEnd)
+	s.timer = s.bot.waterball.Clock.AfterFunc(1*time.Hour, s.afterGameEnd)
 
 	s.askQuestion()
 }
@@ -61,12 +59,12 @@ func (s *QuestioningState) OnNewMessage(event service.NewMessageEvent) {
 /// privates
 
 func (s *QuestioningState) askQuestion() {
-	s.waterball.ChatRoom.Send(service.NewMessage(s.bot, s.getQuestion().question))
+	s.bot.waterball.ChatRoom.Send(service.NewMessage(s.bot, s.getQuestion().question))
 }
 
 func (s *QuestioningState) validateAnswer(answer string, sender service.Taggable) {
 	if answer == s.getQuestion().answer {
-		s.waterball.ChatRoom.Send(service.NewMessage(s.bot, "Congrats! you got the answer!", sender))
+		s.bot.waterball.ChatRoom.Send(service.NewMessage(s.bot, "Congrats! you got the answer!", sender))
 		s.scoreBoard[sender.Id()] += 1
 		s.talkCount++
 

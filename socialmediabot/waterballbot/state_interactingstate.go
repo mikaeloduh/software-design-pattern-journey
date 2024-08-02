@@ -6,17 +6,15 @@ import (
 )
 
 type InteractingState struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperState
 	UnimplementedBotState
 	talkCount int
 }
 
-func NewInteractingState(waterball *service.Waterball, bot *Bot) *InteractingState {
+func NewInteractingState(bot *Bot) *InteractingState {
 	return &InteractingState{
 		bot:        bot,
-		waterball:  waterball,
 		SuperState: libs.SuperState{},
 	}
 }
@@ -27,11 +25,11 @@ func (s *InteractingState) GetState() libs.IState {
 
 func (s *InteractingState) OnNewMessage(event service.NewMessageEvent) {
 	line := []string{"Hi hi", "I like your idea!"}
-	s.waterball.ChatRoom.Send(service.NewMessage(s.bot, line[s.talkCount%len(line)], event.Sender))
+	s.bot.waterball.ChatRoom.Send(service.NewMessage(s.bot, line[s.talkCount%len(line)], event.Sender))
 
 	s.talkCount++
 }
 
 func (s *InteractingState) OnNewPost(event service.NewPostEvent) {
-	s.waterball.Forum.Comment(event.PostId, service.Comment{Member: s.bot, Content: "How do you guys think about it?"})
+	s.bot.waterball.Forum.Comment(event.PostId, service.Comment{Member: s.bot, Content: "How do you guys think about it?"})
 }

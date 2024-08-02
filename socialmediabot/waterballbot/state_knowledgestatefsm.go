@@ -6,17 +6,15 @@ import (
 )
 
 type KnowledgeKingStateFSM struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperFSM
 	UnimplementedBotState
 }
 
-func NewKnowledgeKingStateFSM(waterball *service.Waterball, bot *Bot, states []libs.IState, transitions []libs.Transition) *KnowledgeKingStateFSM {
+func NewKnowledgeKingStateFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *KnowledgeKingStateFSM {
 	fsm := &KnowledgeKingStateFSM{
-		bot:       bot,
-		waterball: waterball,
-		SuperFSM:  libs.NewSuperFSM(&NullState{}),
+		bot:      bot,
+		SuperFSM: libs.NewSuperFSM(&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)

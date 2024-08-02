@@ -6,16 +6,14 @@ import (
 )
 
 type WaitingState struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperState
 	UnimplementedBotState
 }
 
-func NewWaitingState(waterball *service.Waterball, bot *Bot) *WaitingState {
+func NewWaitingState(bot *Bot) *WaitingState {
 	return &WaitingState{
 		bot:        bot,
-		waterball:  waterball,
 		SuperState: libs.SuperState{},
 	}
 }

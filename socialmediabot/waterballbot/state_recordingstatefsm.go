@@ -6,17 +6,15 @@ import (
 )
 
 type RecordStateFSM struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperFSM
 	UnimplementedBotState
 }
 
-func NewRecordStateFSM(waterball *service.Waterball, bot *Bot, states []libs.IState, transitions []libs.Transition) *RecordStateFSM {
+func NewRecordStateFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *RecordStateFSM {
 	fsm := &RecordStateFSM{
-		bot:       bot,
-		waterball: waterball,
-		SuperFSM:  libs.NewSuperFSM(&NullState{}),
+		bot:      bot,
+		SuperFSM: libs.NewSuperFSM(&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)

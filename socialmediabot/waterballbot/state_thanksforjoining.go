@@ -11,17 +11,15 @@ import (
 )
 
 type ThanksForJoiningState struct {
-	bot       *Bot
-	waterball *service.Waterball
+	bot *Bot
 	libs.SuperState
 	UnimplementedBotState
 	timer *clock.Timer
 }
 
-func NewThanksForJoiningState(waterball *service.Waterball, bot *Bot) *ThanksForJoiningState {
+func NewThanksForJoiningState(bot *Bot) *ThanksForJoiningState {
 	return &ThanksForJoiningState{
 		bot:        bot,
-		waterball:  waterball,
 		SuperState: libs.SuperState{},
 	}
 }
@@ -29,27 +27,27 @@ func NewThanksForJoiningState(waterball *service.Waterball, bot *Bot) *ThanksFor
 func (s *ThanksForJoiningState) Enter(event libs.IEvent) {
 	winners := event.(ExitQuestioningStateEvent).Winners
 
-	if err := s.waterball.Broadcast.GoBroadcasting(s.bot); err == nil {
+	if err := s.bot.waterball.Broadcast.GoBroadcasting(s.bot); err == nil {
 		if num := len(winners); num > 1 || num == 0 {
-			s.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, "Tie!"))
+			s.bot.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, "Tie!"))
 		} else if num == 1 {
-			s.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
+			s.bot.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
 		} else {
-			s.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, "Something went wrong"))
+			s.bot.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, "Something went wrong"))
 		}
 
-		_ = s.waterball.Broadcast.StopBroadcasting(s.bot)
+		_ = s.bot.waterball.Broadcast.StopBroadcasting(s.bot)
 	} else {
 		if num := len(winners); num > 1 || num == 0 {
-			s.waterball.ChatRoom.Send(service.NewMessage(s.bot, "Tie!"))
+			s.bot.waterball.ChatRoom.Send(service.NewMessage(s.bot, "Tie!"))
 		} else if num == 1 {
-			s.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
+			s.bot.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
 		} else {
-			s.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, "Something went wrong"))
+			s.bot.waterball.Broadcast.Transmit(service.NewSpeak(s.bot, "Something went wrong"))
 		}
 	}
 
-	s.timer = s.waterball.Clock.AfterFunc(5*time.Second, func() { s.bot.Update(ExitThanksForJoiningStateEvent{}) })
+	s.timer = s.bot.waterball.Clock.AfterFunc(5*time.Second, func() { s.bot.Update(ExitThanksForJoiningStateEvent{}) })
 }
 
 func (s *ThanksForJoiningState) Exit() {
@@ -67,10 +65,10 @@ func (s *ThanksForJoiningState) GetState() libs.IState {
 	return s
 }
 
-func (s *ThanksForJoiningState) OnSpeak(event service.SpeakEvent) {
+func (s *ThanksForJoiningState) OnSpeak(_ service.SpeakEvent) {
 }
 
-func (s *ThanksForJoiningState) OnBroadcastStop(event service.BroadcastStopEvent) {
+func (s *ThanksForJoiningState) OnBroadcastStop(_ service.BroadcastStopEvent) {
 }
 
 // ExitThanksForJoiningStateEvent
