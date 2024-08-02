@@ -76,30 +76,6 @@ func (AnotherEvent) GetData() IEvent {
 	panic("implement me")
 }
 
-// TestPositiveGuard
-type TestPositiveGuard struct {
-}
-
-func (t TestPositiveGuard) Exec(_ IEvent) bool {
-	return true
-}
-
-// TestNegativeGuard
-type TestNegativeGuard struct {
-}
-
-func (t TestNegativeGuard) Exec(_ IEvent) bool {
-	return false
-}
-
-func PositiveTestGuard(_ IEvent) bool {
-	return true
-}
-
-func NegativeTestGuard(_ IEvent) bool {
-	return false
-}
-
 // Test states in FSM
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
@@ -115,7 +91,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, Action(func() {})))
+		fsm.AddTransition(NewTransition(&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, NoAction))
 
 		fsm.Trigger(testEvent)
 
@@ -129,7 +105,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, NegativeTestGuard, Action(func() {})))
+		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, NegativeTestGuard, NoAction))
 
 		fsm.Trigger(testEvent)
 
@@ -143,7 +119,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		anotherState := &AnotherTestState{}
 		fsm.AddState(anotherState)
-		fsm.AddTransition(NewTransition(initState, anotherState, testEvent, PositiveTestGuard, Action(func() {})))
+		fsm.AddTransition(NewTransition(initState, anotherState, testEvent, PositiveTestGuard, NoAction))
 
 		anotherEvent := AnotherEvent{}
 		fsm.Trigger(anotherEvent)
@@ -160,7 +136,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{writer: &writer}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, PositiveTestGuard, Action(func() {})))
+		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, PositiveTestGuard, NoAction))
 		statefulSubject := FakeStatefulSubject{fsm: &fsm, writer: &writer}
 		statefulSubject.PublicMethod()
 
@@ -258,14 +234,12 @@ func TestFSM_Composite(t *testing.T) {
 
 	t.Run("the behavior of public method should variant depends on it's current state", func(t *testing.T) {
 
-		normalStateFSM.SetState(interactiveState)
+		normalStateFSM.SetState(interactiveState, nil)
 		normalStateFSM.PublicMethod()
 
 		assert.Equal(t, "InteractiveState public method called", writer.String())
 	})
 }
-
-// Test helpers
 
 // FakeStatefulSubject
 type FakeStatefulSubject struct {

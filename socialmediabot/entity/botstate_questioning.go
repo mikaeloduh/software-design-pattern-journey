@@ -33,7 +33,7 @@ func (s *QuestioningState) GetState() libs.IState {
 	return s
 }
 
-func (s *QuestioningState) Enter() {
+func (s *QuestioningState) Enter(_ libs.IEvent) {
 	s.waterball.ChatRoom.Send(NewMessage(s.bot, "KnowledgeKing is started!"))
 
 	s.timer = s.waterball.Clock.AfterFunc(1*time.Hour, s.afterGameEnd)
@@ -70,8 +70,7 @@ func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
 		s.talkCount++
 
 		if s.isGameEnd() {
-			s.bot.Winners = findMax(s.scoreBoard)
-			s.afterGameEnd()
+			s.bot.fsm.Trigger(ExitQuestioningStateEvent{findMax(s.scoreBoard)})
 			return
 		}
 
@@ -123,6 +122,7 @@ func findMax(myMap map[string]int) []string {
 
 // ExitQuestioningStateEvent
 type ExitQuestioningStateEvent struct {
+	Winners []string
 }
 
 func (e ExitQuestioningStateEvent) GetData() libs.IEvent {

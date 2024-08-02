@@ -1,3 +1,3 @@
 package entity
 
-func NoAction() {}
+func NoAction(arg any) {}

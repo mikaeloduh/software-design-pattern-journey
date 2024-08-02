@@ -1,7 +1,16 @@
 package entity
 
-import "socialmediabot/libs"
+import (
+	"log"
+	"socialmediabot/libs"
+)
 
 func RecordCommandGuard(event libs.IEvent) bool {
-	return event.GetData().(TagEvent).Message.Content == "record"
+	data, ok := event.GetData().(TagEvent)
+	if !ok {
+		log.Println("Error: Event data is not of type TagEvent")
+		return false
+	}
+
+	return data.Message.Content == "record"
 }

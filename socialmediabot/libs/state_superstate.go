@@ -3,7 +3,7 @@ package libs
 type SuperState struct {
 }
 
-func (s *SuperState) Enter() {
+func (s *SuperState) Enter(event IEvent) {
 	//TODO implement me
 }
 

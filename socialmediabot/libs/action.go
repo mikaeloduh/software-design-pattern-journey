@@ -1,3 +1,3 @@
 package libs
 
-type Action func()
+type Action func(arg any)

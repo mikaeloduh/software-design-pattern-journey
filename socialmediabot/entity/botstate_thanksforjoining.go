@@ -25,23 +25,24 @@ func NewThanksForJoiningState(waterball *Waterball, bot *Bot) *ThanksForJoiningS
 	}
 }
 
-func (s *ThanksForJoiningState) Enter() {
-	err := s.waterball.Broadcast.GoBroadcasting(s.bot)
-	if err == nil {
-		if num := len(s.bot.Winners); num > 1 || num == 0 {
+func (s *ThanksForJoiningState) Enter(event libs.IEvent) {
+	winners := event.(ExitQuestioningStateEvent).Winners
+
+	if err := s.waterball.Broadcast.GoBroadcasting(s.bot); err == nil {
+		if num := len(winners); num > 1 || num == 0 {
 			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Tie!"))
 		} else if num == 1 {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", s.bot.Winners[0])))
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
 		} else {
 			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
 		}
 
 		_ = s.waterball.Broadcast.StopBroadcasting(s.bot)
 	} else {
-		if num := len(s.bot.Winners); num > 1 || num == 0 {
+		if num := len(winners); num > 1 || num == 0 {
 			s.waterball.ChatRoom.Send(NewMessage(s.bot, "Tie!"))
 		} else if num == 1 {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", s.bot.Winners[0])))
+			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
 		} else {
 			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
 		}
@@ -51,7 +52,6 @@ func (s *ThanksForJoiningState) Enter() {
 }
 
 func (s *ThanksForJoiningState) Exit() {
-	s.bot.Winners = nil
 	if !s.timer.Stop() {
 		select {
 		case <-s.timer.C:

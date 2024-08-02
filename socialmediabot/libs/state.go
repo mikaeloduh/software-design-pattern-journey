@@ -2,7 +2,7 @@ package libs
 
 // IState
 type IState interface {
-	Enter()
+	Enter(event IEvent)
 	Exit()
 	GetState() IState
 	Trigger(event IEvent)

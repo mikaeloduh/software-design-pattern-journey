@@ -32,7 +32,7 @@ func (c *Broadcast) GoBroadcasting(speaker IMember) error {
 
 func (c *Broadcast) StopBroadcasting(speaker IMember) error {
 	if speaker != c.speaker {
-		return fmt.Errorf("cannot stop broadcasting, not a member")
+		return fmt.Errorf("cannot stop broadcasting, not a boradcaster")
 	}
 
 	c.speaker = nil

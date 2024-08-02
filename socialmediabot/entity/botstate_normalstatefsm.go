@@ -22,12 +22,12 @@ func NewNormalStateFSM(waterball *Waterball, bot *Bot, states []libs.IState, tra
 	return fsm
 }
 
-func (s *NormalStateFSM) Enter() {
+func (s *NormalStateFSM) Enter(_ libs.IEvent) {
 	s.Trigger(EnterNormalStateEvent{OnlineCount: s.waterball.OnlineCount()})
 }
 
 func (s *NormalStateFSM) Exit() {
-	s.SetState(&NullState{})
+	s.SetState(&NullState{}, nil)
 }
 
 func (s *NormalStateFSM) OnNewMessage(event NewMessageEvent) {

@@ -23,3 +23,7 @@ func (b *Member) Tag(event TagEvent) {
 func (b *Member) Id() string {
 	return b.id
 }
+
+func (b *Member) Role() Role {
+	return b.role
+}

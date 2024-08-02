@@ -1,12 +1,15 @@
 package entity
 
-import "socialmediabot/libs"
+import (
+	"socialmediabot/libs"
+)
 
 // Bot
 type Bot struct {
-	id      string
-	fsm     *RootFSM
-	Winners []string
+	id       string
+	role     Role
+	fsm      *RootFSM
+	recorder IMember
 }
 
 func NewBot(waterball *Waterball) *Bot {
@@ -37,6 +40,7 @@ func NewBot(waterball *Waterball) *Bot {
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
 			libs.NewTransition(waitingState, recordingState, GoBroadcastingEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(recordingState, waitingState, ExitRecordingStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
 
@@ -52,6 +56,11 @@ func NewBot(waterball *Waterball) *Bot {
 			libs.NewTransition(questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
 		})
 
+	saveRecorderAction := func(arg any) {
+		member := arg.(TagEvent).TaggedBy.(IMember)
+		bot.SetRecorder(member)
+	}
+
 	rootFSM := NewRootFSM(bot,
 		[]libs.IState{
 			normalStateFSM,
@@ -60,29 +69,30 @@ func NewBot(waterball *Waterball) *Bot {
 		},
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(normalStateFSM, recordStateFSM, TagEvent{}, RecordCommandGuard, NoAction),
+			libs.NewTransition(normalStateFSM, recordStateFSM, TagEvent{}, RecordCommandGuard, saveRecorderAction),
+			libs.NewTransition(recordStateFSM, normalStateFSM, StopRecordCommandEvent{}, StopRecordCommandGuard, NoAction),
 			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, TagEvent{}, KingCommandGuard, NoAction),
-			libs.NewTransition(recordStateFSM, normalStateFSM, TagEvent{}, StopRecordCommandGuard, NoAction),
 			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
-	rootFSM.Enter()
+	rootFSM.Enter(nil)
 
 	bot.fsm = rootFSM
 
 	return bot
 }
 
-func KingCommandGuard(event libs.IEvent) bool {
-	return event.GetData().(TagEvent).Message.Content == "king"
-}
-
-func PositiveGuard(_ libs.IEvent) bool {
-	return true
-}
-
 func (b *Bot) Tag(event TagEvent) {
-	b.Update(event)
+	if event.Message.Content == "stop-recording" {
+		b.Update(StopRecordCommandEvent{
+			TaggedBy: event.TaggedBy,
+			TaggedTo: event.TaggedTo,
+			Message:  event.Message,
+			Recorder: b.Recorder(),
+		})
+	} else {
+		b.Update(event)
+	}
 }
 
 func (b *Bot) Update(event libs.IEvent) {
@@ -128,6 +138,18 @@ func (b *Bot) OnBroadcastStop(event BroadcastStopEvent) {
 
 func (b *Bot) Id() string {
 	return b.id
+}
+
+func (b *Bot) Role() Role {
+	return b.role
+}
+
+func (b *Bot) Recorder() IMember {
+	return b.recorder
+}
+
+func (b *Bot) SetRecorder(recorder IMember) {
+	b.recorder = recorder
 }
 
 func (b *Bot) GetState() libs.IState {
