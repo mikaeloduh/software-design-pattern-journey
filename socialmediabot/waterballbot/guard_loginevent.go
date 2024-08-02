@@ -1,10 +1,10 @@
 package waterballbot
 
 import (
-	"socialmediabot/entity"
 	"socialmediabot/libs"
+	"socialmediabot/service"
 )
 
 func LoginEventGuard(event libs.IEvent) bool {
-	return event.GetData().(entity.NewLoginEvent).OnlineCount >= 10
+	return event.GetData().(service.NewLoginEvent).OnlineCount >= 10
 }

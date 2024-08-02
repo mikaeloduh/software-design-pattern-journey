@@ -1,19 +1,19 @@
 package waterballbot
 
 import (
-	"socialmediabot/entity"
 	"socialmediabot/libs"
+	"socialmediabot/service"
 )
 
 // Bot
 type Bot struct {
 	id       string
-	role     entity.Role
+	role     service.Role
 	fsm      *RootFSM
-	recorder entity.IMember
+	recorder service.IMember
 }
 
-func NewBot(waterball *entity.Waterball) *Bot {
+func NewBot(waterball *service.Waterball) *Bot {
 	bot := &Bot{id: "bot_001"}
 
 	defaultConversationState := NewDefaultConversationState(waterball, bot)
@@ -24,10 +24,10 @@ func NewBot(waterball *entity.Waterball) *Bot {
 			interactingState,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&entity.NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
-			libs.NewTransition(&entity.NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
-			libs.NewTransition(defaultConversationState, interactingState, entity.NewLoginEvent{}, LoginEventGuard, NoAction),
-			libs.NewTransition(interactingState, defaultConversationState, entity.NewLogoutEvent{}, LogoutEventGuard, NoAction),
+			libs.NewTransition(&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
+			libs.NewTransition(&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
+			libs.NewTransition(defaultConversationState, interactingState, service.NewLoginEvent{}, LoginEventGuard, NoAction),
+			libs.NewTransition(interactingState, defaultConversationState, service.NewLogoutEvent{}, LogoutEventGuard, NoAction),
 		},
 	)
 
@@ -39,8 +39,8 @@ func NewBot(waterball *entity.Waterball) *Bot {
 			recordingState,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&entity.NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(waitingState, recordingState, entity.GoBroadcastingEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(waitingState, recordingState, service.GoBroadcastingEvent{}, PositiveGuard, NoAction),
 			libs.NewTransition(recordingState, waitingState, ExitRecordingStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
@@ -53,12 +53,12 @@ func NewBot(waterball *entity.Waterball) *Bot {
 			thanksForJoiningState,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&entity.NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
 			libs.NewTransition(questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
 		})
 
 	saveRecorderAction := func(arg any) {
-		member := arg.(entity.TagEvent).TaggedBy.(entity.IMember)
+		member := arg.(service.TagEvent).TaggedBy.(service.IMember)
 		bot.SetRecorder(member)
 	}
 
@@ -69,11 +69,11 @@ func NewBot(waterball *entity.Waterball) *Bot {
 			knowledgeKingStateFSM,
 		},
 		[]libs.Transition{
-			libs.NewTransition(&entity.NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(normalStateFSM, recordStateFSM, entity.TagEvent{}, RecordCommandGuard, saveRecorderAction),
+			libs.NewTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition(normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, saveRecorderAction),
 			libs.NewTransition(recordStateFSM, normalStateFSM, StopRecordCommandEvent{}, StopRecordCommandGuard, NoAction),
-			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, entity.TagEvent{}, KingCommandGuard, NoAction),
-			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, entity.TagEvent{}, KingStopCommandGuard, NoAction),
+			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, service.TagEvent{}, KingCommandGuard, NoAction),
+			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, service.TagEvent{}, KingStopCommandGuard, NoAction),
 			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
@@ -84,7 +84,7 @@ func NewBot(waterball *entity.Waterball) *Bot {
 	return bot
 }
 
-func (b *Bot) Tag(event entity.TagEvent) {
+func (b *Bot) Tag(event service.TagEvent) {
 	if event.Message.Content == "stop-recording" {
 		b.Update(StopRecordCommandEvent{
 			TaggedBy: event.TaggedBy,
@@ -99,22 +99,22 @@ func (b *Bot) Tag(event entity.TagEvent) {
 
 func (b *Bot) Update(event libs.IEvent) {
 	switch value := event.(type) {
-	case entity.NewMessageEvent:
+	case service.NewMessageEvent:
 		if value.Sender == b {
 			return
 		}
 		b.OnNewMessage(value)
 
-	case entity.NewPostEvent:
+	case service.NewPostEvent:
 		b.OnNewPost(value)
 
-	case entity.SpeakEvent:
+	case service.SpeakEvent:
 		b.OnSpeak(value)
 
-	case entity.BroadcastStopEvent:
+	case service.BroadcastStopEvent:
 		b.OnBroadcastStop(value)
 
-	case entity.TagEvent:
+	case service.TagEvent:
 		b.fsm.Trigger(value)
 
 	default:
@@ -122,19 +122,19 @@ func (b *Bot) Update(event libs.IEvent) {
 	}
 }
 
-func (b *Bot) OnNewMessage(event entity.NewMessageEvent) {
+func (b *Bot) OnNewMessage(event service.NewMessageEvent) {
 	b.fsm.OnNewMessage(event)
 }
 
-func (b *Bot) OnNewPost(event entity.NewPostEvent) {
+func (b *Bot) OnNewPost(event service.NewPostEvent) {
 	b.fsm.OnNewPost(event)
 }
 
-func (b *Bot) OnSpeak(event entity.SpeakEvent) {
+func (b *Bot) OnSpeak(event service.SpeakEvent) {
 	b.fsm.OnSpeak(event)
 }
 
-func (b *Bot) OnBroadcastStop(event entity.BroadcastStopEvent) {
+func (b *Bot) OnBroadcastStop(event service.BroadcastStopEvent) {
 	b.fsm.OnBroadcastStop(event)
 }
 
@@ -142,15 +142,15 @@ func (b *Bot) Id() string {
 	return b.id
 }
 
-func (b *Bot) Role() entity.Role {
+func (b *Bot) Role() service.Role {
 	return b.role
 }
 
-func (b *Bot) Recorder() entity.IMember {
+func (b *Bot) Recorder() service.IMember {
 	return b.recorder
 }
 
-func (b *Bot) SetRecorder(recorder entity.IMember) {
+func (b *Bot) SetRecorder(recorder service.IMember) {
 	b.recorder = recorder
 }
 
