@@ -62,13 +62,3 @@ func (c *Broadcast) Notify(event libs.IEvent) {
 func (c *Broadcast) Register(observer IBroadcastObserver) {
 	c.observers = append(c.observers, observer)
 }
-
-// Speak
-type Speak struct {
-	Speaker IMember
-	Content string
-}
-
-func NewSpeak(speaker IMember, content string) Speak {
-	return Speak{Speaker: speaker, Content: content}
-}

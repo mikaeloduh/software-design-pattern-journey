@@ -40,20 +40,3 @@ func (f *Forum) Register(observer INewPostObserver) {
 func (f *Forum) GetPost(id int) *Post {
 	return &f.posts[id-1]
 }
-
-// Post
-type Post struct {
-	Title    string
-	Content  string
-	Comments []Comment
-}
-
-func (p *Post) AddComment(comment Comment) {
-	p.Comments = append(p.Comments, comment)
-}
-
-// Comment
-type Comment struct {
-	Content string
-	Member  IMember
-}
