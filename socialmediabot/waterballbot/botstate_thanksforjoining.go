@@ -1,4 +1,4 @@
-package entity
+package waterballbot
 
 import (
 	"fmt"
@@ -6,18 +6,19 @@ import (
 
 	"github.com/benbjohnson/clock"
 
+	"socialmediabot/entity"
 	"socialmediabot/libs"
 )
 
 type ThanksForJoiningState struct {
 	bot       *Bot
-	waterball *Waterball
+	waterball *entity.Waterball
 	libs.SuperState
 	UnimplementedBotState
 	timer *clock.Timer
 }
 
-func NewThanksForJoiningState(waterball *Waterball, bot *Bot) *ThanksForJoiningState {
+func NewThanksForJoiningState(waterball *entity.Waterball, bot *Bot) *ThanksForJoiningState {
 	return &ThanksForJoiningState{
 		bot:        bot,
 		waterball:  waterball,
@@ -30,21 +31,21 @@ func (s *ThanksForJoiningState) Enter(event libs.IEvent) {
 
 	if err := s.waterball.Broadcast.GoBroadcasting(s.bot); err == nil {
 		if num := len(winners); num > 1 || num == 0 {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Tie!"))
+			s.waterball.Broadcast.Transmit(entity.NewSpeak(s.bot, "Tie!"))
 		} else if num == 1 {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
+			s.waterball.Broadcast.Transmit(entity.NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
 		} else {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
+			s.waterball.Broadcast.Transmit(entity.NewSpeak(s.bot, "Something went wrong"))
 		}
 
 		_ = s.waterball.Broadcast.StopBroadcasting(s.bot)
 	} else {
 		if num := len(winners); num > 1 || num == 0 {
-			s.waterball.ChatRoom.Send(NewMessage(s.bot, "Tie!"))
+			s.waterball.ChatRoom.Send(entity.NewMessage(s.bot, "Tie!"))
 		} else if num == 1 {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
+			s.waterball.Broadcast.Transmit(entity.NewSpeak(s.bot, fmt.Sprintf("The winner is %s", winners[0])))
 		} else {
-			s.waterball.Broadcast.Transmit(NewSpeak(s.bot, "Something went wrong"))
+			s.waterball.Broadcast.Transmit(entity.NewSpeak(s.bot, "Something went wrong"))
 		}
 	}
 
@@ -66,10 +67,10 @@ func (s *ThanksForJoiningState) GetState() libs.IState {
 	return s
 }
 
-func (s *ThanksForJoiningState) OnSpeak(event SpeakEvent) {
+func (s *ThanksForJoiningState) OnSpeak(event entity.SpeakEvent) {
 }
 
-func (s *ThanksForJoiningState) OnBroadcastStop(event BroadcastStopEvent) {
+func (s *ThanksForJoiningState) OnBroadcastStop(event entity.BroadcastStopEvent) {
 }
 
 // ExitThanksForJoiningStateEvent

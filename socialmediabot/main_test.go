@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"socialmediabot/waterballbot"
 	"strings"
 	"testing"
 	"time"
@@ -17,7 +18,7 @@ func TestMain_Integrate(t *testing.T) {
 	var writer bytes.Buffer
 	var mockClock = clock.NewMock()
 	waterball := entity.NewWaterball(&writer, mockClock)
-	bot := entity.NewBot(waterball)
+	bot := waterballbot.NewBot(waterball)
 	waterball.Register(bot)
 	waterball.ChatRoom.Register(bot)
 	waterball.Forum.Register(bot)
@@ -70,7 +71,7 @@ func TestMain_Integrate(t *testing.T) {
 
 		assert.Equal(t, "bot_001: Hi hi", getLastMessage(writer.String()))
 
-		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 
 		waterball.Forum.Post(member008, entity.Post{Title: "Single Responsibility Principle", Content: "Too many shit in a class, just get one shit done."})
 
@@ -78,13 +79,13 @@ func TestMain_Integrate(t *testing.T) {
 	})
 
 	t.Run("5: test KnowledgeKingState", func(t *testing.T) {
-		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 
 		waterball.ChatRoom.Send(entity.NewMessage(member001, "king", bot))
 
 		assert.Equal(t, "bot_001: I like your idea!", getNthLastMessage(writer.String(), 3))
 		assert.Equal(t, "bot_001: KnowledgeKing is started!", getNthLastMessage(writer.String(), 2))
-		assert.IsType(t, &entity.QuestioningState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.QuestioningState{}, bot.GetState())
 	})
 
 	t.Run("5-Q1: starting QuestioningState should begin with the first question ", func(t *testing.T) {
@@ -113,18 +114,18 @@ func TestMain_Integrate(t *testing.T) {
 	})
 
 	t.Run("5-end: exiting QuestioningState should enter ThanksForJoiningState", func(t *testing.T) {
-		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.ThanksForJoiningState{}, bot.GetState())
 		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 3))
 		assert.Equal(t, "bot_001 speaking: The winner is member_008", getNthLastMessage(writer.String(), 2))
 
 		mockClock.Add(5 * time.Second)
 
-		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 	})
 
 	t.Run("6-1: while in WaitingState, stating a broadcast should enter RecordingState", func(t *testing.T) {
 		waterball.ChatRoom.Send(entity.NewMessage(member003, "record", bot))
-		assert.IsType(t, &entity.WaitingState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.WaitingState{}, bot.GetState())
 
 		assert.Equal(t, "bot_001: Hi hi", getLastMessage(writer.String()))
 
@@ -132,7 +133,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, "member_004 go broadcasting...", getLastMessage(writer.String()))
-		assert.IsType(t, &entity.RecordingState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.RecordingState{}, bot.GetState())
 
 		waterball.Broadcast.Transmit(entity.NewSpeak(member004, "Good morning guys"))
 		assert.Equal(t, "member_004 speaking: Good morning guys", getLastMessage(writer.String()))
@@ -150,7 +151,7 @@ func TestMain_Integrate(t *testing.T) {
 
 		waterball.ChatRoom.Send(entity.NewMessage(member003, "stop-recording", bot))
 
-		assert.IsType(t, &entity.InteractingState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 	})
 
 	t.Run("7: when online users are less than 10, should transit to DefaultConversationState", func(t *testing.T) {
@@ -161,7 +162,7 @@ func TestMain_Integrate(t *testing.T) {
 
 		waterball.ChatRoom.Send(entity.NewMessage(member001, "Yeah, people went off-line"))
 
-		assert.IsType(t, &entity.DefaultConversationState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.DefaultConversationState{}, bot.GetState())
 		assert.Equal(t, "bot_001: How are you", getLastMessage(writer.String()))
 	})
 }
@@ -170,7 +171,7 @@ func TestMain_Integrate_Timeout(t *testing.T) {
 	var writer bytes.Buffer
 	var mockClock = clock.NewMock()
 	waterball := entity.NewWaterball(&writer, mockClock)
-	bot := entity.NewBot(waterball)
+	bot := waterballbot.NewBot(waterball)
 	waterball.Register(bot)
 	waterball.ChatRoom.Register(bot)
 	waterball.Forum.Register(bot)
@@ -183,13 +184,13 @@ func TestMain_Integrate_Timeout(t *testing.T) {
 	t.Run("Given KnowledgeKingState is initialized to QuestioningState - ", func(t *testing.T) {
 		waterball.ChatRoom.Send(entity.NewMessage(member001, "king", bot))
 
-		assert.IsType(t, &entity.QuestioningState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.QuestioningState{}, bot.GetState())
 	})
 
 	t.Run("When an hour of inactivity in QuestioningState - QuestioningState should end automatically", func(t *testing.T) {
 		mockClock.Add(1 * time.Hour)
 
-		assert.IsType(t, &entity.ThanksForJoiningState{}, bot.GetState())
+		assert.IsType(t, &waterballbot.ThanksForJoiningState{}, bot.GetState())
 		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 3))
 		assert.Equal(t, "bot_001 speaking: Tie!", getNthLastMessage(writer.String(), 2))
 	})

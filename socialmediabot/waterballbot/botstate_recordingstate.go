@@ -1,20 +1,21 @@
-package entity
+package waterballbot
 
 import (
 	"fmt"
+	"socialmediabot/entity"
 	"socialmediabot/libs"
 )
 
 // RecordingState
 type RecordingState struct {
 	bot       *Bot
-	waterball *Waterball
+	waterball *entity.Waterball
 	libs.SuperState
 	UnimplementedBotState
 	record *Record
 }
 
-func NewRecordingState(waterball *Waterball, bot *Bot) *RecordingState {
+func NewRecordingState(waterball *entity.Waterball, bot *Bot) *RecordingState {
 	return &RecordingState{
 		bot:        bot,
 		waterball:  waterball,
@@ -34,19 +35,19 @@ func (s *RecordingState) Exit() {
 	s.replayRecord()
 }
 
-func (s *RecordingState) OnNewMessage(_ NewMessageEvent) {
+func (s *RecordingState) OnNewMessage(_ entity.NewMessageEvent) {
 }
 
-func (s *RecordingState) OnSpeak(event SpeakEvent) {
+func (s *RecordingState) OnSpeak(event entity.SpeakEvent) {
 	s.record.AddContent(event.Content)
 }
 
-func (s *RecordingState) OnBroadcastStop(_ BroadcastStopEvent) {
+func (s *RecordingState) OnBroadcastStop(_ entity.BroadcastStopEvent) {
 	s.bot.Update(ExitRecordingStateEvent{})
 }
 
 func (s *RecordingState) replayRecord() {
-	s.waterball.ChatRoom.Send(NewMessage(s.bot, fmt.Sprintf("[Record Replay] %s", s.record.GetContent())))
+	s.waterball.ChatRoom.Send(entity.NewMessage(s.bot, fmt.Sprintf("[Record Replay] %s", s.record.GetContent())))
 }
 
 // Record

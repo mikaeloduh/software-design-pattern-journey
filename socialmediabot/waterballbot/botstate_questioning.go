@@ -1,16 +1,17 @@
-package entity
+package waterballbot
 
 import (
 	"time"
 
 	"github.com/benbjohnson/clock"
 
+	"socialmediabot/entity"
 	"socialmediabot/libs"
 )
 
 type QuestioningState struct {
 	bot       *Bot
-	waterball *Waterball
+	waterball *entity.Waterball
 	libs.SuperState
 	UnimplementedBotState
 	talkCount  int
@@ -19,7 +20,7 @@ type QuestioningState struct {
 	timer      *clock.Timer
 }
 
-func NewQuestioningState(waterball *Waterball, bot *Bot) *QuestioningState {
+func NewQuestioningState(waterball *entity.Waterball, bot *Bot) *QuestioningState {
 	return &QuestioningState{
 		bot:        bot,
 		waterball:  waterball,
@@ -34,7 +35,7 @@ func (s *QuestioningState) GetState() libs.IState {
 }
 
 func (s *QuestioningState) Enter(_ libs.IEvent) {
-	s.waterball.ChatRoom.Send(NewMessage(s.bot, "KnowledgeKing is started!"))
+	s.waterball.ChatRoom.Send(entity.NewMessage(s.bot, "KnowledgeKing is started!"))
 
 	s.timer = s.waterball.Clock.AfterFunc(1*time.Hour, s.afterGameEnd)
 
@@ -53,19 +54,19 @@ func (s *QuestioningState) Exit() {
 	}
 }
 
-func (s *QuestioningState) OnNewMessage(event NewMessageEvent) {
+func (s *QuestioningState) OnNewMessage(event entity.NewMessageEvent) {
 	s.validateAnswer(event.Message.Content, event.Sender)
 }
 
 /// privates
 
 func (s *QuestioningState) askQuestion() {
-	s.waterball.ChatRoom.Send(NewMessage(s.bot, s.getQuestion().question))
+	s.waterball.ChatRoom.Send(entity.NewMessage(s.bot, s.getQuestion().question))
 }
 
-func (s *QuestioningState) validateAnswer(answer string, sender Taggable) {
+func (s *QuestioningState) validateAnswer(answer string, sender entity.Taggable) {
 	if answer == s.getQuestion().answer {
-		s.waterball.ChatRoom.Send(NewMessage(s.bot, "Congrats! you got the answer!", sender))
+		s.waterball.ChatRoom.Send(entity.NewMessage(s.bot, "Congrats! you got the answer!", sender))
 		s.scoreBoard[sender.Id()] += 1
 		s.talkCount++
 

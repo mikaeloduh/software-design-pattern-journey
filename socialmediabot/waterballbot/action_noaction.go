@@ -1,3 +1,3 @@
-package entity
+package waterballbot
 
 func NoAction(arg any) {}

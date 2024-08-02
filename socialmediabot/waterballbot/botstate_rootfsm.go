@@ -1,6 +1,7 @@
-package entity
+package waterballbot
 
 import (
+	"socialmediabot/entity"
 	"socialmediabot/libs"
 )
 
@@ -13,7 +14,7 @@ type RootFSM struct {
 func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *RootFSM {
 	fsm := &RootFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM(&NullState{}),
+		SuperFSM: libs.NewSuperFSM(&entity.NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
@@ -21,18 +22,18 @@ func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *
 	return fsm
 }
 
-func (f *RootFSM) OnNewMessage(event NewMessageEvent) {
+func (f *RootFSM) OnNewMessage(event entity.NewMessageEvent) {
 	f.GetState().(IBotState).OnNewMessage(event)
 }
 
-func (f *RootFSM) OnNewPost(event NewPostEvent) {
+func (f *RootFSM) OnNewPost(event entity.NewPostEvent) {
 	f.GetState().(IBotState).OnNewPost(event)
 }
 
-func (f *RootFSM) OnSpeak(event SpeakEvent) {
+func (f *RootFSM) OnSpeak(event entity.SpeakEvent) {
 	f.GetState().(IBotState).OnSpeak(event)
 }
 
-func (f *RootFSM) OnBroadcastStop(event BroadcastStopEvent) {
+func (f *RootFSM) OnBroadcastStop(event entity.BroadcastStopEvent) {
 	f.GetState().(IBotState).OnBroadcastStop(event)
 }

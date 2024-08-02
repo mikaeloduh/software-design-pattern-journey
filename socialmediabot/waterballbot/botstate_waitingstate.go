@@ -1,15 +1,18 @@
-package entity
+package waterballbot
 
-import "socialmediabot/libs"
+import (
+	"socialmediabot/entity"
+	"socialmediabot/libs"
+)
 
 type WaitingState struct {
 	bot       *Bot
-	waterball *Waterball
+	waterball *entity.Waterball
 	libs.SuperState
 	UnimplementedBotState
 }
 
-func NewWaitingState(waterball *Waterball, bot *Bot) *WaitingState {
+func NewWaitingState(waterball *entity.Waterball, bot *Bot) *WaitingState {
 	return &WaitingState{
 		bot:        bot,
 		waterball:  waterball,
@@ -21,6 +24,6 @@ func (s *WaitingState) GetState() libs.IState {
 	return s
 }
 
-func (s *WaitingState) OnNewMessage(_ NewMessageEvent) {
+func (s *WaitingState) OnNewMessage(_ entity.NewMessageEvent) {
 	// do nothing
 }

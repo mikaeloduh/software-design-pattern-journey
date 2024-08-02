@@ -1,7 +1,8 @@
-package entity
+package waterballbot
 
 import (
 	"log"
+	"socialmediabot/entity"
 	"socialmediabot/libs"
 )
 
@@ -17,10 +18,10 @@ func StopRecordCommandGuard(event libs.IEvent) bool {
 
 // StopRecordCommandEvent
 type StopRecordCommandEvent struct {
-	TaggedBy Taggable
-	TaggedTo Taggable
-	Message  Message
-	Recorder IMember
+	TaggedBy entity.Taggable
+	TaggedTo entity.Taggable
+	Message  entity.Message
+	Recorder entity.IMember
 }
 
 func (e StopRecordCommandEvent) GetData() libs.IEvent {
