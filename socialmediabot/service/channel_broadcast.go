@@ -6,7 +6,6 @@ import (
 	"socialmediabot/libs"
 )
 
-// Broadcast
 type Broadcast struct {
 	writer    io.Writer
 	speaker   IMember

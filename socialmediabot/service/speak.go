@@ -1,6 +1,5 @@
 package service
 
-// Speak
 type Speak struct {
 	Speaker IMember
 	Content string

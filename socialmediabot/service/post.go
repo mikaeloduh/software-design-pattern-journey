@@ -1,6 +1,5 @@
 package service
 
-// Post
 type Post struct {
 	Title    string
 	Content  string

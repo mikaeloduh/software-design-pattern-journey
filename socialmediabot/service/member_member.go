@@ -1,6 +1,5 @@
 package service
 
-// Member
 type Member struct {
 	id   string
 	role Role

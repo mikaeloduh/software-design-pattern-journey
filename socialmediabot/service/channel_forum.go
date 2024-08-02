@@ -5,7 +5,6 @@ import (
 	"io"
 )
 
-// Forum
 type Forum struct {
 	writer    io.Writer
 	waterball *Waterball
