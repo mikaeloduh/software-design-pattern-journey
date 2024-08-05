@@ -1,3 +1,5 @@
 package waterballbot
 
-func NoAction(arg any) {}
+import "socialmediabot/libs"
+
+func NoAction(_ libs.IEvent) {}

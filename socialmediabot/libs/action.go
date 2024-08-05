@@ -1,3 +1,3 @@
 package libs
 
-type Action func(arg any)
+type Action func(event IEvent)

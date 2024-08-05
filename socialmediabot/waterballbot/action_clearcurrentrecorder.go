@@ -1,6 +1,8 @@
 package waterballbot
 
-func ClearCurrentRecorderAction(_ any) {
+import "socialmediabot/libs"
+
+func ClearCurrentRecorderAction(_ libs.IEvent) {
 	isCurrentRecorder = func(_ string) bool {
 		return true
 	}

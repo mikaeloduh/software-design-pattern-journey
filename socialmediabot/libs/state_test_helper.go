@@ -8,4 +8,4 @@ func NegativeTestGuard(_ IEvent) bool {
 	return false
 }
 
-func NoAction(_ any) {}
+func NoAction(_ IEvent) {}
