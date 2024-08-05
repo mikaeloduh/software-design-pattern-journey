@@ -7,13 +7,18 @@ import (
 )
 
 func StopRecordCommandGuard(event libs.IEvent) bool {
-	data, ok := event.GetData().(StopRecordCommandEvent)
+	data, ok := event.GetData().(service.TagEvent)
 	if !ok {
-		log.Println("Error: Event data is not of type StopRecordCommandEvent")
+		log.Println("Error: Event data is not of type TagEvent")
 		return false
 	}
 
-	return data.Message.Content == "stop-recording" && data.TaggedBy == data.Recorder
+	return data.Message.Content == "stop-recording" && isCurrentRecorder(data.TaggedBy.Id())
+}
+
+// isCurrentRecorder
+var isCurrentRecorder = func(memberId string) bool {
+	return true
 }
 
 // StopRecordCommandEvent

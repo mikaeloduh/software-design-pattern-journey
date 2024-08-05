@@ -61,11 +61,6 @@ func NewBot(waterball *service.Waterball) *Bot {
 			libs.NewTransition(questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
 		})
 
-	saveRecorderAction := func(arg any) {
-		member := arg.(service.TagEvent).TaggedBy.(service.IMember)
-		bot.SetRecorder(member)
-	}
-
 	rootFSM := NewRootFSM(bot,
 		[]libs.IState{
 			normalStateFSM,
@@ -74,8 +69,8 @@ func NewBot(waterball *service.Waterball) *Bot {
 		},
 		[]libs.Transition{
 			libs.NewTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, saveRecorderAction),
-			libs.NewTransition(recordStateFSM, normalStateFSM, StopRecordCommandEvent{}, StopRecordCommandGuard, NoAction),
+			libs.NewTransition(normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, SaveCurrentRecorderAction),
+			libs.NewTransition(recordStateFSM, normalStateFSM, service.TagEvent{}, StopRecordCommandGuard, ClearCurrentRecorderAction),
 			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, service.TagEvent{}, KingCommandGuard, NoAction),
 			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, service.TagEvent{}, KingStopCommandGuard, NoAction),
 			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
@@ -89,16 +84,7 @@ func NewBot(waterball *service.Waterball) *Bot {
 }
 
 func (b *Bot) Tag(event service.TagEvent) {
-	if event.Message.Content == "stop-recording" {
-		b.Update(StopRecordCommandEvent{
-			TaggedBy: event.TaggedBy,
-			TaggedTo: event.TaggedTo,
-			Message:  event.Message,
-			Recorder: b.Recorder(),
-		})
-	} else {
-		b.Update(event)
-	}
+	b.Update(event)
 }
 
 func (b *Bot) Update(event libs.IEvent) {
