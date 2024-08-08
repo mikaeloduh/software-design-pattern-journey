@@ -42,7 +42,7 @@ func TestMain_Integrate(t *testing.T) {
 	waterball.Login(member005)
 	waterball.Login(member006)
 
-	t.Run("2: test NormalState, DefaultConversationState", func(t *testing.T) {
+	t.Run("2: Given the bot in DefaultConversationState, chatting in ChatRoom should result in a specific reply", func(t *testing.T) {
 		waterball.ChatRoom.Send(service.NewMessage(member001, "Good morning, my fist day on board"))
 
 		assert.Equal(t, "bot_001: good to hear", getLastMessage(writer.String()))
@@ -53,7 +53,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001: thank you", getLastMessage(writer.String()))
 	})
 
-	t.Run("3: test NormalState, InteractingState", func(t *testing.T) {
+	t.Run("3: Given the bot in InteractingState, chatting in ChatRoom should result in a specific reply", func(t *testing.T) {
 		waterball.Login(member008)
 		waterball.Login(member009)
 
@@ -66,7 +66,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001: I like your idea!", getLastMessage(writer.String()))
 	})
 
-	t.Run("4: Post Forum", func(t *testing.T) {
+	t.Run("4: Given the bot in InteractingState, Posting in Forum should result in a specific reply", func(t *testing.T) {
 		waterball.ChatRoom.Send(service.NewMessage(member008, "Ive post a Joke, haha"))
 
 		assert.Equal(t, "bot_001: Hi hi", getLastMessage(writer.String()))
@@ -78,7 +78,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001 comment in post 1: How do you guys think about it?", getLastMessage(writer.String()))
 	})
 
-	t.Run("5: test KnowledgeKingState", func(t *testing.T) {
+	t.Run("5: Given the bot in NormalState, when making the 'king' command, the bot should transition to QuestioningState", func(t *testing.T) {
 		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 
 		waterball.ChatRoom.Send(service.NewMessage(member001, "king", bot))
@@ -88,7 +88,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.IsType(t, &waterballbot.QuestioningState{}, bot.GetState())
 	})
 
-	t.Run("5-Q1: starting QuestioningState should begin with the first question ", func(t *testing.T) {
+	t.Run("5-Q1: When QuestioningState is initialized, it should begin with the first question ", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問哪個 SQL 語句用於選擇所有的行？\nA) SELECT *\nB) SELECT ALL\nC) SELECT ROWS\nD) SELECT DATA", getLastMessage(writer.String()))
 
 		waterball.ChatRoom.Send(service.NewMessage(member006, "A", bot))
@@ -96,7 +96,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 2))
 	})
 
-	t.Run("5-Q2: questions should be asked sequentially in order", func(t *testing.T) {
+	t.Run("5-Q2: Following the previous test, when the first question has been answered, the second question should be presented", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問哪個 CSS 屬性可用於設置文字的顏色？\nA) text-align\nB) font-size\nC) color\nD) padding", getLastMessage(writer.String()))
 
 		waterball.ChatRoom.Send(service.NewMessage(member008, "C", bot))
@@ -104,17 +104,17 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 2))
 	})
 
-	t.Run("5-Q3: submitting the correct answer should count only the right answer", func(t *testing.T) {
+	t.Run("5-Q3: Only the correct answer will be counted ", func(t *testing.T) {
 		assert.Equal(t, "bot_001: 請問在計算機科學中，「XML」代表什麼？\nA) Extensible Markup Language\nB) Extensible Modeling Language\nC) Extended Markup Language\nD) Extended Modeling Language", getLastMessage(writer.String()))
 
 		waterball.ChatRoom.Send(service.NewMessage(member003, "C", bot))
 		waterball.ChatRoom.Send(service.NewMessage(member008, "A", bot))
 
 		assert.Equal(t, "bot_001: Congrats! you got the answer!", getNthLastMessage(writer.String(), 4))
+		assert.IsType(t, &waterballbot.ThanksForJoiningState{}, bot.GetState())
 	})
 
-	t.Run("5-end: exiting QuestioningState should enter ThanksForJoiningState", func(t *testing.T) {
-		assert.IsType(t, &waterballbot.ThanksForJoiningState{}, bot.GetState())
+	t.Run("5-end: ThanksForJoiningState should release the game result and wait for 5 seconds before transiting to InteractingState", func(t *testing.T) {
 		assert.Equal(t, "bot_001 go broadcasting...", getNthLastMessage(writer.String(), 3))
 		assert.Equal(t, "bot_001 speaking: The winner is member_008", getNthLastMessage(writer.String(), 2))
 
@@ -123,7 +123,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 	})
 
-	t.Run("6-1: while in WaitingState, stating a broadcast should enter RecordingState", func(t *testing.T) {
+	t.Run("6-1: Given the bot is in WaitingState, when the broadcast starts, the bot should transition to RecordingState", func(t *testing.T) {
 		waterball.ChatRoom.Send(service.NewMessage(member003, "record", bot))
 		assert.IsType(t, &waterballbot.WaitingState{}, bot.GetState())
 
@@ -142,7 +142,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.Equal(t, "member_004 speaking: Have you had breakfast yet?", getLastMessage(writer.String()))
 	})
 
-	t.Run("6-2: when broadcast stop, bot should output the recorded text", func(t *testing.T) {
+	t.Run("6-2: When the broadcast stops, the bot should output the recorded text", func(t *testing.T) {
 		err := waterball.Broadcast.StopBroadcasting(member004)
 		assert.NoError(t, err)
 		assert.Equal(t, "member_004 stop broadcasting", getNthLastMessage(writer.String(), 2))
@@ -154,7 +154,7 @@ func TestMain_Integrate(t *testing.T) {
 		assert.IsType(t, &waterballbot.InteractingState{}, bot.GetState())
 	})
 
-	t.Run("7: when online users are less than 10, should transit to DefaultConversationState", func(t *testing.T) {
+	t.Run("7: Given the bot in InteractingState, when a user logout and online count is less than 10, it should transition to DefaultConversationState", func(t *testing.T) {
 		waterball.Logout(member009.Id())
 		waterball.Logout(member008.Id())
 		waterball.Logout(member007.Id())
@@ -187,7 +187,7 @@ func TestMain_Integrate_Timeout(t *testing.T) {
 		assert.IsType(t, &waterballbot.QuestioningState{}, bot.GetState())
 	})
 
-	t.Run("When an hour of inactivity in QuestioningState - QuestioningState should end automatically", func(t *testing.T) {
+	t.Run("After an hour of inactivity - QuestioningState should end automatically", func(t *testing.T) {
 		mockClock.Add(1 * time.Hour)
 
 		assert.IsType(t, &waterballbot.ThanksForJoiningState{}, bot.GetState())
