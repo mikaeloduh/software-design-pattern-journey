@@ -25,8 +25,11 @@ func Test_Main(t *testing.T) {
 		assert.Implements(t, (*IModel)(nil), scalingModel)
 	})
 
+	var scalingModel IModel
+
 	t.Run("Validating array length must equal the model's row size ", func(t *testing.T) {
-		scalingModel, err := models.CreateModel("Scaling")
+		var err error
+		scalingModel, err = models.CreateModel("Scaling")
 		assert.NoError(t, err)
 
 		array := testArray(999)
@@ -34,6 +37,13 @@ func Test_Main(t *testing.T) {
 		_, err2 := scalingModel.LinearTransformation(array)
 
 		assert.Error(t, err2)
+	})
+
+	t.Run("Calling CreateModel multiple times should return the same instance", func(t *testing.T) {
+		testScalingModel, err := models.CreateModel("Scaling")
+		assert.NoError(t, err)
+
+		assert.Same(t, scalingModel, testScalingModel)
 	})
 }
 

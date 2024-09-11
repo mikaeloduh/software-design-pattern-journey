@@ -6,11 +6,15 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type IModels interface {
 	CreateModel(name string) (IModel, error)
 }
+
+var once sync.Once
+var instance IModel
 
 type Models struct {
 }
@@ -20,6 +24,13 @@ func NewModels() IModels {
 }
 
 func (m Models) CreateModel(name string) (IModel, error) {
+	once.Do(func() {
+		instance, _ = m.newModel(name)
+	})
+	return instance, nil
+}
+
+func (m Models) newModel(name string) (IModel, error) {
 	file, err := os.Open(fmt.Sprintf("./data/%s.mat", name))
 	if err != nil {
 		return nil, err
@@ -35,7 +46,7 @@ func (m Models) CreateModel(name string) (IModel, error) {
 		index += 1
 	}
 
-	return BaseModel{matrix: matrix}, nil
+	return &baseModel{matrix: matrix}, nil
 }
 
 func splitStringToFloatArray(line string) ([]float64, error) {
