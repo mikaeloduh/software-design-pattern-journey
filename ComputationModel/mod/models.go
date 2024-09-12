@@ -25,7 +25,7 @@ func NewModels() IModels {
 var instances = make(map[string]IModel)
 var lock = &sync.Mutex{}
 
-func (m models) CreateModel(name string) (IModel, error) {
+func (m *models) CreateModel(name string) (IModel, error) {
 	if instances[name] == nil {
 		lock.Lock()
 		defer lock.Unlock()
@@ -38,7 +38,7 @@ func (m models) CreateModel(name string) (IModel, error) {
 	return instances[name], nil
 }
 
-func (m models) newModel(name string) (IModel, error) {
+func (m *models) newModel(name string) (IModel, error) {
 	file, err := os.Open(fmt.Sprintf("./data/%s.mat", name))
 	if err != nil {
 		return nil, err
