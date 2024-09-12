@@ -9,12 +9,11 @@ import (
 	"sync"
 )
 
+var instances = make(map[string]IModel)
+
 type IModels interface {
 	CreateModel(name string) (IModel, error)
 }
-
-var once sync.Once
-var instance IModel
 
 type Models struct {
 }
@@ -23,11 +22,19 @@ func NewModels() IModels {
 	return &Models{}
 }
 
+var lock = &sync.Mutex{}
+
 func (m Models) CreateModel(name string) (IModel, error) {
-	once.Do(func() {
-		instance, _ = m.newModel(name)
-	})
-	return instance, nil
+	if instances[name] == nil {
+		lock.Lock()
+		defer lock.Unlock()
+
+		if instances[name] == nil {
+			instances[name], _ = m.newModel(name)
+		}
+	}
+
+	return instances[name], nil
 }
 
 func (m Models) newModel(name string) (IModel, error) {
