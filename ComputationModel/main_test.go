@@ -20,8 +20,9 @@ func Test_Main(t *testing.T) {
 		output, err2 := scalingModel.LinearTransformation(array)
 		assert.NoError(t, err2)
 
-		assert.Equal(t, 2.0, output[0])
-		assert.Equal(t, 2.0, output[1])
+		for i := range output {
+			assert.Equal(t, 2.0, output[i])
+		}
 		assert.Implements(t, (*IModel)(nil), scalingModel)
 	})
 
@@ -44,6 +45,21 @@ func Test_Main(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Same(t, scalingModel, testScalingModel)
+	})
+
+	t.Run("test Reflection model", func(t *testing.T) {
+		reflectionModel, err := models.CreateModel("Reflection")
+		assert.NoError(t, err)
+
+		array := testArray(1000)
+
+		output, err2 := reflectionModel.LinearTransformation(array)
+		assert.NoError(t, err2)
+
+		for i := range output {
+			assert.Equal(t, -1.0, output[i])
+		}
+		assert.Implements(t, (*IModel)(nil), reflectionModel)
 	})
 }
 
