@@ -59,6 +59,20 @@ func Test_Main(t *testing.T) {
 		}
 		assert.Implements(t, (*IModel)(nil), reflectionModel)
 	})
+
+	t.Run("Creating Shrinking model should return correct transform matrix", func(t *testing.T) {
+		reflectionModel, err := models.CreateModel("Shrinking")
+		assert.NoError(t, err)
+		array := testArray(1.0, 1000)
+
+		output, err2 := reflectionModel.LinearTransformation(array)
+		assert.NoError(t, err2)
+
+		for i := range output {
+			assert.Equal(t, 0.5, output[i])
+		}
+		assert.Implements(t, (*IModel)(nil), reflectionModel)
+	})
 }
 
 // helpers
