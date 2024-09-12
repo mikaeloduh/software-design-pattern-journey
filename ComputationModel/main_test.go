@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,11 +10,14 @@ import (
 	"computationmodel/mod"
 )
 
+var scalingModel mod.IModel
+
 func Test_Main(t *testing.T) {
 	models := mod.NewModels()
 
 	t.Run("Creating Scaling model should return correct transform matrix", func(t *testing.T) {
-		scalingModel, err := models.CreateModel("Scaling")
+		var err error
+		scalingModel, err = models.CreateModel("Scaling")
 		assert.NoError(t, err)
 
 		array := testArray(1.0, 1000)
@@ -26,8 +31,6 @@ func Test_Main(t *testing.T) {
 		assert.Implements(t, (*mod.IModel)(nil), scalingModel)
 	})
 
-	var scalingModel mod.IModel
-
 	t.Run("Validating array length must equal the model's row size", func(t *testing.T) {
 		var err error
 		scalingModel, err = models.CreateModel("Scaling")
@@ -40,10 +43,10 @@ func Test_Main(t *testing.T) {
 	})
 
 	t.Run("Calling CreateModel multiple times should always return the same instance", func(t *testing.T) {
-		testScalingModel, err := models.CreateModel("Scaling")
+		actualScalingModel, err := models.CreateModel("Scaling")
 		assert.NoError(t, err)
 
-		assert.Same(t, scalingModel, testScalingModel)
+		assert.Same(t, scalingModel, actualScalingModel)
 	})
 
 	t.Run("Creating Reflection model should return correct transform matrix", func(t *testing.T) {
@@ -73,6 +76,24 @@ func Test_Main(t *testing.T) {
 		}
 		assert.Implements(t, (*mod.IModel)(nil), reflectionModel)
 	})
+}
+
+func Test_Async(t *testing.T) {
+	var wg sync.WaitGroup
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+
+			// Create a new subtest for each goroutine to ensure proper test isolation
+			t.Run(fmt.Sprintf("async-%02d", i), func(t *testing.T) {
+				Test_Main(t)
+			})
+		}(i)
+	}
+
+	wg.Wait()
 }
 
 // helpers
