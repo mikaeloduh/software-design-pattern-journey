@@ -13,6 +13,8 @@ import (
 var scalingModel mod.IModel
 
 func Test_Main(t *testing.T) {
+	t.Parallel()
+
 	models := mod.NewModels()
 
 	t.Run("Creating Scaling model should return correct transform matrix", func(t *testing.T) {
