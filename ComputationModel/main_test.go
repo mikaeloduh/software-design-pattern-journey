@@ -10,12 +10,16 @@ import (
 	"computationmodel/mod"
 )
 
+var modelsInstance mod.IModels
 var scalingModel mod.IModel
 
 func Test_Main(t *testing.T) {
 	t.Parallel()
 
+	modelsInstance = mod.NewModels()
 	models := mod.NewModels()
+
+	assert.Same(t, modelsInstance, models)
 
 	t.Run("Creating Scaling model should return correct transform matrix", func(t *testing.T) {
 		var err error

@@ -18,24 +18,32 @@ type IModels interface {
 type models struct {
 }
 
+var once sync.Once
+var modelsInstance *models
+
 func NewModels() IModels {
-	return &models{}
+	if modelsInstance == nil {
+		once.Do(func() {
+			modelsInstance = &models{}
+		})
+	}
+	return modelsInstance
 }
 
-var instances = make(map[string]IModel)
+var modelInstances = make(map[string]IModel)
 var lock = &sync.Mutex{}
 
 func (m *models) CreateModel(name string) (IModel, error) {
-	if instances[name] == nil {
+	if modelInstances[name] == nil {
 		lock.Lock()
 		defer lock.Unlock()
 
-		if instances[name] == nil {
-			instances[name], _ = m.newModel(name)
+		if modelInstances[name] == nil {
+			modelInstances[name], _ = m.newModel(name)
 		}
 	}
 
-	return instances[name], nil
+	return modelInstances[name], nil
 }
 
 func (m *models) newModel(name string) (IModel, error) {
