@@ -1,4 +1,4 @@
-package mod
+package model
 
 import (
 	"bufio"
@@ -34,10 +34,12 @@ var modelInstances = make(map[string]IModel)
 var lock = &sync.Mutex{}
 
 func (m *models) CreateModel(name string) (IModel, error) {
+	// the first nil-check is to prevent expensive lock operations
 	if modelInstances[name] == nil {
 		lock.Lock()
 		defer lock.Unlock()
-
+		// the second nil-check ensure that if more than one goroutine bypasses the first check,
+		// only one goroutine can create the singleton instance.
 		if modelInstances[name] == nil {
 			modelInstances[name], _ = m.newModel(name)
 		}

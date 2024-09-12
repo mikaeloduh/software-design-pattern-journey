@@ -7,17 +7,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"computationmodel/mod"
+	"computationmodel/model"
 )
 
-var modelsInstance mod.IModels
-var scalingModel mod.IModel
+var modelsInstance model.IModels
+var scalingModel model.IModel
 
 func Test_Main(t *testing.T) {
 	t.Parallel()
 
-	modelsInstance = mod.NewModels()
-	models := mod.NewModels()
+	modelsInstance = model.NewModels()
+	models := model.NewModels()
 
 	assert.Same(t, modelsInstance, models)
 
@@ -34,7 +34,7 @@ func Test_Main(t *testing.T) {
 		for i := range output {
 			assert.Equal(t, 2.0, output[i])
 		}
-		assert.Implements(t, (*mod.IModel)(nil), scalingModel)
+		assert.Implements(t, (*model.IModel)(nil), scalingModel)
 	})
 
 	t.Run("Validating array length must equal the model's row size", func(t *testing.T) {
@@ -66,7 +66,7 @@ func Test_Main(t *testing.T) {
 		for i := range output {
 			assert.Equal(t, -1.0, output[i])
 		}
-		assert.Implements(t, (*mod.IModel)(nil), reflectionModel)
+		assert.Implements(t, (*model.IModel)(nil), reflectionModel)
 	})
 
 	t.Run("Creating Shrinking model should return correct transform matrix", func(t *testing.T) {
@@ -80,7 +80,7 @@ func Test_Main(t *testing.T) {
 		for i := range output {
 			assert.Equal(t, 0.5, output[i])
 		}
-		assert.Implements(t, (*mod.IModel)(nil), reflectionModel)
+		assert.Implements(t, (*model.IModel)(nil), reflectionModel)
 	})
 }
 
