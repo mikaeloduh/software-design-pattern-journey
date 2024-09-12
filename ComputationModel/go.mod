@@ -1,4 +1,4 @@
-module showdown
+module computationmodel
 
 go 1.20
 

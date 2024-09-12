@@ -1,4 +1,4 @@
-package main
+package mod
 
 import (
 	"bufio"
@@ -9,22 +9,23 @@ import (
 	"sync"
 )
 
-var instances = make(map[string]IModel)
-
+// IModels
 type IModels interface {
 	CreateModel(name string) (IModel, error)
 }
 
-type Models struct {
+// models
+type models struct {
 }
 
 func NewModels() IModels {
-	return &Models{}
+	return &models{}
 }
 
+var instances = make(map[string]IModel)
 var lock = &sync.Mutex{}
 
-func (m Models) CreateModel(name string) (IModel, error) {
+func (m models) CreateModel(name string) (IModel, error) {
 	if instances[name] == nil {
 		lock.Lock()
 		defer lock.Unlock()
@@ -37,7 +38,7 @@ func (m Models) CreateModel(name string) (IModel, error) {
 	return instances[name], nil
 }
 
-func (m Models) newModel(name string) (IModel, error) {
+func (m models) newModel(name string) (IModel, error) {
 	file, err := os.Open(fmt.Sprintf("./data/%s.mat", name))
 	if err != nil {
 		return nil, err

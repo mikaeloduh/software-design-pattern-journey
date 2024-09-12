@@ -1,4 +1,4 @@
-package main
+package mod
 
 type IModel interface {
 	Matrix() [][]float64

@@ -4,12 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"computationmodel/mod"
 )
 
 func Test_Main(t *testing.T) {
-	models := NewModels()
-
-	assert.IsType(t, &Models{}, models)
+	models := mod.NewModels()
 
 	t.Run("Creating Scaling model should return correct transform matrix", func(t *testing.T) {
 		scalingModel, err := models.CreateModel("Scaling")
@@ -23,10 +23,10 @@ func Test_Main(t *testing.T) {
 		for i := range output {
 			assert.Equal(t, 2.0, output[i])
 		}
-		assert.Implements(t, (*IModel)(nil), scalingModel)
+		assert.Implements(t, (*mod.IModel)(nil), scalingModel)
 	})
 
-	var scalingModel IModel
+	var scalingModel mod.IModel
 
 	t.Run("Validating array length must equal the model's row size", func(t *testing.T) {
 		var err error
@@ -57,7 +57,7 @@ func Test_Main(t *testing.T) {
 		for i := range output {
 			assert.Equal(t, -1.0, output[i])
 		}
-		assert.Implements(t, (*IModel)(nil), reflectionModel)
+		assert.Implements(t, (*mod.IModel)(nil), reflectionModel)
 	})
 
 	t.Run("Creating Shrinking model should return correct transform matrix", func(t *testing.T) {
@@ -71,7 +71,7 @@ func Test_Main(t *testing.T) {
 		for i := range output {
 			assert.Equal(t, 0.5, output[i])
 		}
-		assert.Implements(t, (*IModel)(nil), reflectionModel)
+		assert.Implements(t, (*mod.IModel)(nil), reflectionModel)
 	})
 }
 
