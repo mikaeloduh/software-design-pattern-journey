@@ -1,19 +1,6 @@
 package ga
 
-import (
-	"math/rand"
-)
-
-// Individual represents a single solution in the population.
-type Individual interface {
-	Fitness() float64
-	Crossover(other Individual) (Individual, Individual)
-	Mutate()
-	Clone() Individual
-}
-
-// Population is a collection of individuals.
-type Population []Individual
+import "math/rand"
 
 // GeneticAlgorithm encapsulates the parameters and operations of the GA.
 type GeneticAlgorithm struct {
