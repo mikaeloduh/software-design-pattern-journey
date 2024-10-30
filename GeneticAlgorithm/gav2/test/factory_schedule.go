@@ -13,23 +13,17 @@ type Product struct {
 	Demand         int // units to produce
 }
 
-// Define the products.
-var Products = []Product{
-	{Name: "A", ProductionTime: 2, Demand: 100},
-	{Name: "B", ProductionTime: 4, Demand: 200},
-	{Name: "C", ProductionTime: 6, Demand: 300},
-}
-
 // Task represents a production task.
 type Task struct {
 	ProductIndex int // index of the product in the Products slice
 	Quantity     int // quantity to produce in this task
 }
 
-// Resources available.
-const (
-	Machines = 2
-	Workers  = 4
+// Define the products and available resources.
+var (
+	Products []Product
+	Machines int
+	Workers  int
 )
 
 // ScheduleGenome represents the genome for the scheduling problem.

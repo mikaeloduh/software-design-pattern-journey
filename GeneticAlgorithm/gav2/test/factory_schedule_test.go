@@ -10,6 +10,15 @@ import (
 func TestScheduling(t *testing.T) {
 	rand.Seed(42) // For reproducibility
 
+	// Define the products and available resources.
+	Products = []Product{
+		{Name: "A", ProductionTime: 2, Demand: 100},
+		{Name: "B", ProductionTime: 4, Demand: 200},
+		{Name: "C", ProductionTime: 6, Demand: 300},
+	}
+	Machines = 2
+	Workers = 4
+
 	// Initialize population
 	populationSize := 50
 	initialPopulation := make([]ga.Individual, populationSize)

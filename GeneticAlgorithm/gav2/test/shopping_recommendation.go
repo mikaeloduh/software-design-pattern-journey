@@ -8,64 +8,49 @@ import (
 
 // Merchandise represents a product with price, weight, and category.
 type Merchandise struct {
-	Price    int
+	Price    float64
 	Weight   int
 	Category string
 }
 
-// Define available products.
-var Merchandises = []Merchandise{
-	{Price: 100, Weight: 2, Category: "A"}, // Merchandise 1
-	{Price: 200, Weight: 3, Category: "A"}, // Merchandise 2
-	{Price: 150, Weight: 5, Category: "B"}, // Merchandise 3
-	{Price: 300, Weight: 4, Category: "B"}, // Merchandise 4
-	{Price: 180, Weight: 6, Category: "C"}, // Merchandise 5
-	{Price: 250, Weight: 7, Category: "C"}, // Merchandise 6
-}
-
-// Customer's preferences for each category.
-var Preferences = map[string]float64{
-	"A": 0.8,
-	"B": 0.6,
-	"C": 0.2,
-}
-
-const (
-	Budget   = 700
-	Capacity = 15
+var (
+	Merchandises []Merchandise
+	Preferences  map[string]float64
+	Budget       float64
+	Capacity     int
 )
 
 // RecommendationGenome represents the genome for the recommendation problem.
 type RecommendationGenome struct {
-	Quantities []int
+	RecommendationList []Merchandise
 }
 
 // Implement Genome interface
 func (g *RecommendationGenome) Length() int {
-	return len(g.Quantities)
+	return len(g.RecommendationList)
 }
 
 func (g *RecommendationGenome) GetGene(index int) interface{} {
-	return g.Quantities[index]
+	return g.RecommendationList[index]
 }
 
 func (g *RecommendationGenome) SetGene(index int, value interface{}) {
-	g.Quantities[index] = value.(int)
+	g.RecommendationList[index] = value.(Merchandise)
 }
 
 func (g *RecommendationGenome) SwapGenes(i, j int) {
-	g.Quantities[i], g.Quantities[j] = g.Quantities[j], g.Quantities[i]
+	g.RecommendationList[i], g.RecommendationList[j] = g.RecommendationList[j], g.RecommendationList[i]
 }
 
 func (g *RecommendationGenome) RandomGene() interface{} {
-	// Return a random quantity (0, 1, or 2)
-	return rand.Intn(3)
+	// Return a random merchandise from the list of available merchandises
+	return Merchandises[rand.Intn(len(Merchandises))]
 }
 
 func (g *RecommendationGenome) Clone() ga.Genome {
-	copied := make([]int, len(g.Quantities))
-	copy(copied, g.Quantities)
-	return &RecommendationGenome{Quantities: copied}
+	copiedList := make([]Merchandise, len(g.RecommendationList))
+	copy(copiedList, g.RecommendationList)
+	return &RecommendationGenome{RecommendationList: copiedList}
 }
 
 // RecommendationIndividual represents an individual in the recommendation problem.
@@ -83,18 +68,26 @@ func (ind *RecommendationIndividual) SetGenome(genome ga.Genome) {
 }
 
 func (ind *RecommendationIndividual) Fitness() float64 {
-	totalPrice := 0
+	totalUtility := 0.0
+	totalPrice := 0.0
 	totalWeight := 0
-	totalPreference := 0.0
-	for i, qty := range ind.genome.Quantities {
-		totalPrice += qty * Merchandises[i].Price
-		totalWeight += qty * Merchandises[i].Weight
-		totalPreference += float64(qty) * Preferences[Merchandises[i].Category]
+
+	for _, merchandise := range ind.genome.RecommendationList {
+		preference, exists := Preferences[merchandise.Category]
+		if !exists {
+			preference = 0.0 // If category not in preferences, assume 0 preference
+		}
+		totalUtility += preference
+		totalPrice += merchandise.Price
+		totalWeight += merchandise.Weight
 	}
+
+	// Check budget and capacity constraints
 	if totalPrice > Budget || totalWeight > Capacity {
-		return 0 // Over budget, invalid solution
+		return 0 // Invalid solution
 	}
-	return totalPreference
+
+	return totalUtility
 }
 
 func (ind *RecommendationIndividual) Clone() ga.Individual {
