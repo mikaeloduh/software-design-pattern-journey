@@ -15,7 +15,7 @@ func TestRunAGamePeacefully(t *testing.T) {
 	p2 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
 	p3 := entity.NewHumanPlayer(MockInput{}, MockOutput{})
 	pAI := entity.NewAIPlayer(MockInput{}, MockOutput{})
-	var game *template.GameFramework[entity.ShowDownCard]
+	var game *template.GameFramework[entity.ShowDownCard, entity.IShowdownPlayer]
 
 	t.Run("Test creating game with human Player, AI Player, and new Deck", func(t *testing.T) {
 		game = NewShowdownGame([]entity.IShowdownPlayer{p1, p2, p3, pAI})

@@ -14,10 +14,11 @@ type BigTwoGame struct {
 	Passed        int
 }
 
-func NewBigTwoGame(deck *entity.BigTwoDeck, players []entity.IBigTwoPlayer) *template.GameFramework[entity.BigTwoCard] {
-	game := &template.GameFramework[entity.BigTwoCard]{
+func NewBigTwoGame(players []entity.IBigTwoPlayer) *template.GameFramework[entity.BigTwoCard, entity.IBigTwoPlayer] {
+	deck := entity.NewBigTwoDeck()
+	game := &template.GameFramework[entity.BigTwoCard, entity.IBigTwoPlayer]{
 		Deck:        &deck.Deck,
-		Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
+		Players:     make([]entity.IBigTwoPlayer, len(players)),
 		NumCard:     13,
 		PlayingGame: &BigTwoGame{Players: players, Deck: deck},
 	}
@@ -61,11 +62,11 @@ func (b *BigTwoGame) PreTakeTurns() {
 	b.UpdateGameAndMoveToNext()
 }
 
-func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
+func (b *BigTwoGame) TakeTurnStep(player entity.IBigTwoPlayer) {
 	var playerPlay func() []entity.BigTwoCard
 
 	playerPlay = func() []entity.BigTwoCard {
-		move := player.(entity.IBigTwoPlayer).TakeTurnMove()
+		move := player.TakeTurnMove()
 		if !b.isValidTurnMove(move.DryRun()) {
 			return playerPlay()
 		}
@@ -75,7 +76,7 @@ func (b *BigTwoGame) TakeTurnStep(player template.IPlayer[entity.BigTwoCard]) {
 	b.updateDeskCard(playerPlay())
 }
 
-func (b *BigTwoGame) GetCurrentPlayer() template.IPlayer[entity.BigTwoCard] {
+func (b *BigTwoGame) GetCurrentPlayer() entity.IBigTwoPlayer {
 	return b.Players[b.CurrentPlayer]
 }
 
@@ -97,7 +98,7 @@ func (b *BigTwoGame) IsGameFinished() bool {
 	return false
 }
 
-func (b *BigTwoGame) GameResult() (winner template.IPlayer[entity.BigTwoCard]) {
+func (b *BigTwoGame) GameResult() (winner entity.IBigTwoPlayer) {
 	for _, player := range b.Players {
 		if len(player.GetHand()) == 0 {
 			fmt.Printf("%s is the winner!\n", player.GetName())
@@ -123,7 +124,7 @@ func (b *BigTwoGame) isValidTurnMove(playCards []entity.BigTwoCard) bool {
 		return false
 	}
 	top := b.Deck.PatternConstructor().Do(b.TopCards)
-	if played == nil {
+	if top == nil {
 		panic("this should not happen")
 	}
 

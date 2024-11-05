@@ -18,8 +18,7 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("New game success and have 4 players", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		deck := entity.NewBigTwoDeck()
-		game := NewBigTwoGame(deck, players)
+		game := NewBigTwoGame(players)
 
 		assert.Equal(t, 4, len(game.Players))
 	})
@@ -36,8 +35,7 @@ func TestBigTwo(t *testing.T) {
 
 	t.Run("New game and have card deal to all players", func(t *testing.T) {
 		players := FakeNewAIPlayers()
-		deck := entity.NewBigTwoDeck()
-		game := NewBigTwoGame(deck, players)
+		game := NewBigTwoGame(players)
 
 		game.DrawHands(game.NumCard)
 
@@ -227,11 +225,11 @@ func TestBigTwoAcceptanceTest(t *testing.T) {
 	game.PreTakeTurns()
 }
 
-func FakeNewBigTwoGame(deck *entity.BigTwoDeck, players []entity.IBigTwoPlayer) (*template.GameFramework[entity.BigTwoCard], *BigTwoGame) {
+func FakeNewBigTwoGame(deck *entity.BigTwoDeck, players []entity.IBigTwoPlayer) (*template.GameFramework[entity.BigTwoCard, entity.IBigTwoPlayer], *BigTwoGame) {
 	playingGame := &BigTwoGame{Players: players, Deck: deck}
-	game := &template.GameFramework[entity.BigTwoCard]{
+	game := &template.GameFramework[entity.BigTwoCard, entity.IBigTwoPlayer]{
 		Deck:        &deck.Deck,
-		Players:     make([]template.IPlayer[entity.BigTwoCard], len(players)),
+		Players:     make([]entity.IBigTwoPlayer, len(players)),
 		NumCard:     13,
 		PlayingGame: playingGame,
 	}
