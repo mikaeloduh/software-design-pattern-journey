@@ -3,6 +3,7 @@ package asciiui
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 // Padding defines the padding for components
@@ -63,7 +64,8 @@ type BasicButton struct {
 
 func (b *BasicButton) Render() []string {
 	pw, ph := b.padding.Width, b.padding.Height
-	contentWidth := len(b.text) + pw*2
+	textLength := utf8.RuneCountInString(b.text)
+	contentWidth := textLength + pw*2
 	top := "+" + strings.Repeat("-", contentWidth) + "+"
 	side := "|" + strings.Repeat(" ", contentWidth) + "|"
 	content := "|" + strings.Repeat(" ", pw) + b.text + strings.Repeat(" ", pw) + "|"
@@ -95,7 +97,8 @@ type PrettyButton struct {
 
 func (p *PrettyButton) Render() []string {
 	pw, ph := p.padding.Width, p.padding.Height
-	contentWidth := len(p.text) + pw*2
+	textLength := utf8.RuneCountInString(p.text)
+	contentWidth := textLength + pw*2
 	top := "┌" + strings.Repeat("─", contentWidth) + "┐"
 	side := "│" + strings.Repeat(" ", contentWidth) + "│"
 	content := "│" + strings.Repeat(" ", pw) + p.text + strings.Repeat(" ", pw) + "│"
@@ -236,12 +239,13 @@ func (ui *UI) Render() string {
 			if row <= 0 || row >= ui.height-1 {
 				continue // Out of bounds
 			}
-			for dx, ch := range line {
-				col := x + dx
+			col := x
+			for _, ch := range line {
 				if col <= 0 || col >= ui.width-1 {
-					continue // Out of bounds
+					break // Out of bounds
 				}
 				canvas[row][col] = ch
+				col += 1
 			}
 		}
 	}

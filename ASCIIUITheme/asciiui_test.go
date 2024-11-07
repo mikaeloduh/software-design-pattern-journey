@@ -100,3 +100,30 @@ func TestUIRender(t *testing.T) {
 
 	assert.Equal(t, expected, ui.Render(), "UI render failed.")
 }
+
+func TestUIRenderPrettyTheme(t *testing.T) {
+	ui := NewUI(13, 22) // 調整 UI 的尺寸
+	ui.SetTheme(&PrettyThemeFactory{})
+
+	ui.AddComponent(ui.theme.CreateButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(ui.theme.CreateText(4, 4, "Do u love me ?\nPlease tell..."))
+	ui.AddComponent(ui.theme.CreateButton(3, 6, "No", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(ui.theme.CreateButton(12, 6, "Yes", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(ui.theme.CreateNumberedList(3, 9, []string{"Let's Travel", "Back to home", "Have dinner"}))
+
+	expected := `......................
+.  ┌──────────────┐  .
+.  │ Hi, I miss u │  .
+.  └──────────────┘  .
+.   DO U LOVE ME ?   .
+.   PLEASE TELL...   .
+.  ┌────┐   ┌─────┐  .
+.  │ No │   │ Yes │  .
+.  └────┘   └─────┘  .
+.  i. Let's Travel   .
+.  ii. Back to home  .
+.  iii. Have dinner  .
+......................`
+
+	assert.Equal(t, expected, ui.Render(), "UI render failed for Pretty Theme.")
+}
