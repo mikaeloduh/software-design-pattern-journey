@@ -2,6 +2,8 @@ package asciiui
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestButtonRender(t *testing.T) {
@@ -22,13 +24,8 @@ func TestButtonRender(t *testing.T) {
 		"└──────────────┘",
 	}
 
-	if !compareSlices(basicButton.Render(), basicExpected) {
-		t.Errorf("Basic Button render failed.\nExpected:\n%v\nGot:\n%v", basicExpected, basicButton.Render())
-	}
-
-	if !compareSlices(prettyButton.Render(), prettyExpected) {
-		t.Errorf("Pretty Button render failed.\nExpected:\n%v\nGot:\n%v", prettyExpected, prettyButton.Render())
-	}
+	assert.Equal(t, basicExpected, basicButton.Render(), "Basic Button render failed.")
+	assert.Equal(t, prettyExpected, prettyButton.Render(), "Pretty Button render failed.")
 }
 
 func TestNumberedListRender(t *testing.T) {
@@ -51,13 +48,8 @@ func TestNumberedListRender(t *testing.T) {
 		"iii. Have dinner",
 	}
 
-	if !compareSlices(basicList.Render(), basicExpected) {
-		t.Errorf("Basic NumberedList render failed.\nExpected:\n%v\nGot:\n%v", basicExpected, basicList.Render())
-	}
-
-	if !compareSlices(prettyList.Render(), prettyExpected) {
-		t.Errorf("Pretty NumberedList render failed.\nExpected:\n%v\nGot:\n%v", prettyExpected, prettyList.Render())
-	}
+	assert.Equal(t, basicExpected, basicList.Render(), "Basic NumberedList render failed.")
+	assert.Equal(t, prettyExpected, prettyList.Render(), "Pretty NumberedList render failed.")
 }
 
 func TestTextRender(t *testing.T) {
@@ -78,17 +70,12 @@ func TestTextRender(t *testing.T) {
 		"PLEASE TELL...",
 	}
 
-	if !compareSlices(basicText.Render(), basicExpected) {
-		t.Errorf("Basic Text render failed.\nExpected:\n%v\nGot:\n%v", basicExpected, basicText.Render())
-	}
-
-	if !compareSlices(prettyText.Render(), prettyExpected) {
-		t.Errorf("Pretty Text render failed.\nExpected:\n%v\nGot:\n%v", prettyExpected, prettyText.Render())
-	}
+	assert.Equal(t, basicExpected, basicText.Render(), "Basic Text render failed.")
+	assert.Equal(t, prettyExpected, prettyText.Render(), "Pretty Text render failed.")
 }
 
 func TestUIRender(t *testing.T) {
-	ui := NewUI(13, 22)
+	ui := NewUI(13, 22) // 根据您的修改，调整了 UI 的尺寸
 	ui.SetTheme(&BasicThemeFactory{})
 
 	ui.AddComponent(ui.theme.CreateButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
@@ -111,19 +98,5 @@ func TestUIRender(t *testing.T) {
 .  3. Have dinner    .
 ......................`
 
-	if ui.Render() != expected {
-		t.Errorf("UI render failed.\nExpected:\n%s\nGot:\n%s", expected, ui.Render())
-	}
-}
-
-func compareSlices(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
+	assert.Equal(t, expected, ui.Render(), "UI render failed.")
 }
