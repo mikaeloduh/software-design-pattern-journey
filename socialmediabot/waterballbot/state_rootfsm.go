@@ -7,14 +7,14 @@ import (
 
 type RootFSM struct {
 	bot *Bot
-	libs.SuperFSM
+	libs.SuperFSM[IBotState]
 	UnimplementedBotState
 }
 
-func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *RootFSM {
+func NewRootFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *RootFSM {
 	fsm := &RootFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM(&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
@@ -23,17 +23,17 @@ func NewRootFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *
 }
 
 func (f *RootFSM) OnNewMessage(event service.NewMessageEvent) {
-	f.GetState().(IBotState).OnNewMessage(event)
+	f.GetState().OnNewMessage(event)
 }
 
 func (f *RootFSM) OnNewPost(event service.NewPostEvent) {
-	f.GetState().(IBotState).OnNewPost(event)
+	f.GetState().OnNewPost(event)
 }
 
 func (f *RootFSM) OnSpeak(event service.SpeakEvent) {
-	f.GetState().(IBotState).OnSpeak(event)
+	f.GetState().OnSpeak(event)
 }
 
 func (f *RootFSM) OnBroadcastStop(event service.BroadcastStopEvent) {
-	f.GetState().(IBotState).OnBroadcastStop(event)
+	f.GetState().OnBroadcastStop(event)
 }

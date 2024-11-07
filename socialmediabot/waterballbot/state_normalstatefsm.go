@@ -8,14 +8,14 @@ import (
 // NormalStateFSM
 type NormalStateFSM struct {
 	bot *Bot
-	libs.SuperFSM
+	libs.SuperFSM[IBotState]
 	UnimplementedBotState
 }
 
-func NewNormalStateFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *NormalStateFSM {
+func NewNormalStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *NormalStateFSM {
 	fsm := &NormalStateFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM(&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
@@ -32,11 +32,11 @@ func (s *NormalStateFSM) Exit() {
 }
 
 func (s *NormalStateFSM) OnNewMessage(event service.NewMessageEvent) {
-	s.GetState().(IBotState).OnNewMessage(event)
+	s.GetState().OnNewMessage(event)
 }
 
 func (s *NormalStateFSM) OnNewPost(event service.NewPostEvent) {
-	s.GetState().(IBotState).OnNewPost(event)
+	s.GetState().OnNewPost(event)
 }
 
 // EnterNormalStateEvent

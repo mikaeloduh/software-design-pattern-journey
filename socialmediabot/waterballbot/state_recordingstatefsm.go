@@ -7,14 +7,14 @@ import (
 
 type RecordStateFSM struct {
 	bot *Bot
-	libs.SuperFSM
+	libs.SuperFSM[IBotState]
 	UnimplementedBotState
 }
 
-func NewRecordStateFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *RecordStateFSM {
+func NewRecordStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *RecordStateFSM {
 	fsm := &RecordStateFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM(&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)
@@ -27,13 +27,13 @@ func (f *RecordStateFSM) Exit() {
 }
 
 func (f *RecordStateFSM) OnNewMessage(event service.NewMessageEvent) {
-	f.GetState().(IBotState).OnNewMessage(event)
+	f.GetState().OnNewMessage(event)
 }
 
 func (f *RecordStateFSM) OnSpeak(event service.SpeakEvent) {
-	f.GetState().(IBotState).OnSpeak(event)
+	f.GetState().OnSpeak(event)
 }
 
 func (f *RecordStateFSM) OnBroadcastStop(event service.BroadcastStopEvent) {
-	f.GetState().(IBotState).OnBroadcastStop(event)
+	f.GetState().OnBroadcastStop(event)
 }

@@ -7,14 +7,14 @@ import (
 
 type KnowledgeKingStateFSM struct {
 	bot *Bot
-	libs.SuperFSM
+	libs.SuperFSM[IBotState]
 	UnimplementedBotState
 }
 
-func NewKnowledgeKingStateFSM(bot *Bot, states []libs.IState, transitions []libs.Transition) *KnowledgeKingStateFSM {
+func NewKnowledgeKingStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *KnowledgeKingStateFSM {
 	fsm := &KnowledgeKingStateFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM(&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
 	}
 	fsm.AddState(states...)
 	fsm.AddTransition(transitions...)

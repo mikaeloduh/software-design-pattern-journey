@@ -11,7 +11,7 @@ import (
 
 type QuestioningState struct {
 	bot *Bot
-	libs.SuperState
+	libs.SuperState[IBotState]
 	UnimplementedBotState
 	talkCount  int
 	scoreBoard map[string]int
@@ -22,13 +22,13 @@ type QuestioningState struct {
 func NewQuestioningState(bot *Bot) *QuestioningState {
 	return &QuestioningState{
 		bot:        bot,
-		SuperState: libs.SuperState{},
+		SuperState: libs.SuperState[IBotState]{},
 		scoreBoard: make(map[string]int),
 		quitCh:     make(chan bool, 1),
 	}
 }
 
-func (s *QuestioningState) GetState() libs.IState {
+func (s *QuestioningState) GetState() IBotState {
 	return s
 }
 

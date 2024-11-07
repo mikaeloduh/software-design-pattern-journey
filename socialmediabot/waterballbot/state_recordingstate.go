@@ -9,7 +9,7 @@ import (
 // RecordingState
 type RecordingState struct {
 	bot *Bot
-	libs.SuperState
+	libs.SuperState[IBotState]
 	UnimplementedBotState
 	record *Record
 }
@@ -17,11 +17,11 @@ type RecordingState struct {
 func NewRecordingState(bot *Bot) *RecordingState {
 	return &RecordingState{
 		bot:        bot,
-		SuperState: libs.SuperState{},
+		SuperState: libs.SuperState[IBotState]{},
 	}
 }
 
-func (s *RecordingState) GetState() libs.IState {
+func (s *RecordingState) GetState() IBotState {
 	return s
 }
 

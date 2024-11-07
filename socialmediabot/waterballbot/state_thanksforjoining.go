@@ -12,7 +12,7 @@ import (
 
 type ThanksForJoiningState struct {
 	bot *Bot
-	libs.SuperState
+	libs.SuperState[IBotState]
 	UnimplementedBotState
 	timer *clock.Timer
 }
@@ -20,7 +20,7 @@ type ThanksForJoiningState struct {
 func NewThanksForJoiningState(bot *Bot) *ThanksForJoiningState {
 	return &ThanksForJoiningState{
 		bot:        bot,
-		SuperState: libs.SuperState{},
+		SuperState: libs.SuperState[IBotState]{},
 	}
 }
 
@@ -61,7 +61,7 @@ func (s *ThanksForJoiningState) Exit() {
 	}
 }
 
-func (s *ThanksForJoiningState) GetState() libs.IState {
+func (s *ThanksForJoiningState) GetState() IBotState {
 	return s
 }
 

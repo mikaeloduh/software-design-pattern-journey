@@ -8,7 +8,7 @@ import (
 // DefaultConversationState
 type DefaultConversationState struct {
 	bot *Bot
-	libs.SuperState
+	libs.SuperState[IBotState]
 	UnimplementedBotState
 	talkCount int
 }
@@ -16,11 +16,11 @@ type DefaultConversationState struct {
 func NewDefaultConversationState(bot *Bot) *DefaultConversationState {
 	return &DefaultConversationState{
 		bot:        bot,
-		SuperState: libs.SuperState{},
+		SuperState: libs.SuperState[IBotState]{},
 	}
 }
 
-func (s *DefaultConversationState) GetState() libs.IState {
+func (s *DefaultConversationState) GetState() IBotState {
 	return s
 }
 
