@@ -75,7 +75,7 @@ func TestTextRender(t *testing.T) {
 }
 
 func TestUIRender(t *testing.T) {
-	ui := NewUI(13, 22) // 根据您的修改，调整了 UI 的尺寸
+	ui := NewUI(13, 22)
 	ui.SetTheme(&BasicThemeFactory{})
 
 	ui.AddComponent(ui.theme.CreateButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))

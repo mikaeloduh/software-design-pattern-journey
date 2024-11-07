@@ -5,26 +5,26 @@ import (
 	"strings"
 )
 
-// Padding 定义内距
+// Padding defines the padding for components
 type Padding struct {
 	Width  int
 	Height int
 }
 
-// AsciiComponent 定义所有控件的通用接口
+// AsciiComponent interface defines the common behavior of all components
 type AsciiComponent interface {
-	Render() []string        // 返回渲染内容的行
-	GetPosition() (int, int) // 返回 x 和 y 坐标
+	Render() []string        // Returns the rendered lines of the component
+	GetPosition() (int, int) // Returns the x and y coordinates
 }
 
-// AsciiUIFactory 抽象工厂接口
+// AsciiUIFactory is the abstract factory interface
 type AsciiUIFactory interface {
 	CreateButton(x, y int, text string, padding Padding) AsciiComponent
 	CreateNumberedList(x, y int, lines []string) AsciiComponent
 	CreateText(x, y int, text string) AsciiComponent
 }
 
-// BasicThemeFactory 基础风格工厂
+// BasicThemeFactory is the factory for the basic ASCII theme
 type BasicThemeFactory struct{}
 
 func (b *BasicThemeFactory) CreateButton(x, y int, text string, padding Padding) AsciiComponent {
@@ -39,7 +39,7 @@ func (b *BasicThemeFactory) CreateText(x, y int, text string) AsciiComponent {
 	return &BasicText{x, y, text}
 }
 
-// PrettyThemeFactory 漂亮风格工厂
+// PrettyThemeFactory is the factory for the pretty ASCII theme
 type PrettyThemeFactory struct{}
 
 func (p *PrettyThemeFactory) CreateButton(x, y int, text string, padding Padding) AsciiComponent {
@@ -54,7 +54,7 @@ func (p *PrettyThemeFactory) CreateText(x, y int, text string) AsciiComponent {
 	return &PrettyText{x, y, text}
 }
 
-// BasicButton 基础风格按钮
+// BasicButton represents a button in the basic theme
 type BasicButton struct {
 	x, y    int
 	text    string
@@ -86,7 +86,7 @@ func (b *BasicButton) GetPosition() (int, int) {
 	return b.x, b.y
 }
 
-// PrettyButton 漂亮风格按钮
+// PrettyButton represents a button in the pretty theme
 type PrettyButton struct {
 	x, y    int
 	text    string
@@ -118,7 +118,7 @@ func (p *PrettyButton) GetPosition() (int, int) {
 	return p.x, p.y
 }
 
-// BasicNumberedList 基础风格数字列表
+// BasicNumberedList represents a numbered list in the basic theme
 type BasicNumberedList struct {
 	x, y  int
 	lines []string
@@ -136,7 +136,7 @@ func (b *BasicNumberedList) GetPosition() (int, int) {
 	return b.x, b.y
 }
 
-// PrettyNumberedList 漂亮风格数字列表
+// PrettyNumberedList represents a numbered list in the pretty theme
 type PrettyNumberedList struct {
 	x, y  int
 	lines []string
@@ -155,7 +155,7 @@ func (p *PrettyNumberedList) GetPosition() (int, int) {
 	return p.x, p.y
 }
 
-// BasicText 基础风格文本
+// BasicText represents text in the basic theme
 type BasicText struct {
 	x, y int
 	text string
@@ -169,7 +169,7 @@ func (b *BasicText) GetPosition() (int, int) {
 	return b.x, b.y
 }
 
-// PrettyText 漂亮风格文本
+// PrettyText represents text in the pretty theme
 type PrettyText struct {
 	x, y int
 	text string
@@ -184,7 +184,7 @@ func (p *PrettyText) GetPosition() (int, int) {
 	return p.x, p.y
 }
 
-// UI 界面结构
+// UI represents the ASCII UI
 type UI struct {
 	height, width int
 	theme         AsciiUIFactory
@@ -208,7 +208,7 @@ func (ui *UI) AddComponent(component AsciiComponent) {
 }
 
 func (ui *UI) Render() string {
-	// 初始化画布
+	// Initialize the canvas
 	canvas := make([][]rune, ui.height)
 	for i := 0; i < ui.height; i++ {
 		canvas[i] = make([]rune, ui.width)
@@ -217,7 +217,7 @@ func (ui *UI) Render() string {
 		}
 	}
 
-	// 绘制边框
+	// Draw the borders
 	for i := 0; i < ui.height; i++ {
 		canvas[i][0] = '.'
 		canvas[i][ui.width-1] = '.'
@@ -227,26 +227,26 @@ func (ui *UI) Render() string {
 		canvas[ui.height-1][j] = '.'
 	}
 
-	// 放置组件
+	// Place the components
 	for _, component := range ui.components {
 		x, y := component.GetPosition()
 		lines := component.Render()
 		for dy, line := range lines {
 			row := y + dy
 			if row <= 0 || row >= ui.height-1 {
-				continue // 超出边界
+				continue // Out of bounds
 			}
 			for dx, ch := range line {
 				col := x + dx
 				if col <= 0 || col >= ui.width-1 {
-					continue // 超出边界
+					continue // Out of bounds
 				}
 				canvas[row][col] = ch
 			}
 		}
 	}
 
-	// 生成最终输出
+	// Generate the final output
 	var output []string
 	for _, row := range canvas {
 		output = append(output, string(row))
@@ -254,7 +254,7 @@ func (ui *UI) Render() string {
 	return strings.Join(output, "\n")
 }
 
-// 辅助函数：整数转罗马数字（小写）
+// Helper function to convert integers to lowercase Roman numerals
 func toRoman(num int) string {
 	vals := []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
 	syms := []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
