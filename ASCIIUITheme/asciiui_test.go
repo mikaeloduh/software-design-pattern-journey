@@ -11,15 +11,23 @@ func TestButtonRender(t *testing.T) {
 	basicButton := basicFactory.CreateButton(0, 0, "Hi, I miss u", Padding{Width: 1, Height: 0})
 	prettyButton := prettyFactory.CreateButton(0, 0, "Hi, I miss u", Padding{Width: 1, Height: 0})
 
-	basicExpected := "+--------------+\n| Hi, I miss u |\n+--------------+"
-	prettyExpected := "┌──────────────┐\n│ Hi, I miss u │\n└──────────────┘"
-
-	if basicButton.Render() != basicExpected {
-		t.Errorf("Basic Button render failed.\nExpected:\n%s\nGot:\n%s", basicExpected, basicButton.Render())
+	basicExpected := []string{
+		"+--------------+",
+		"| Hi, I miss u |",
+		"+--------------+",
+	}
+	prettyExpected := []string{
+		"┌──────────────┐",
+		"│ Hi, I miss u │",
+		"└──────────────┘",
 	}
 
-	if prettyButton.Render() != prettyExpected {
-		t.Errorf("Pretty Button render failed.\nExpected:\n%s\nGot:\n%s", prettyExpected, prettyButton.Render())
+	if !compareSlices(basicButton.Render(), basicExpected) {
+		t.Errorf("Basic Button render failed.\nExpected:\n%v\nGot:\n%v", basicExpected, basicButton.Render())
+	}
+
+	if !compareSlices(prettyButton.Render(), prettyExpected) {
+		t.Errorf("Pretty Button render failed.\nExpected:\n%v\nGot:\n%v", prettyExpected, prettyButton.Render())
 	}
 }
 
@@ -32,15 +40,23 @@ func TestNumberedListRender(t *testing.T) {
 	basicList := basicFactory.CreateNumberedList(0, 0, lines)
 	prettyList := prettyFactory.CreateNumberedList(0, 0, lines)
 
-	basicExpected := "1. Let's Travel\n2. Back to home\n3. Have dinner"
-	prettyExpected := "i. Let's Travel\nii. Back to home\niii. Have dinner"
-
-	if basicList.Render() != basicExpected {
-		t.Errorf("Basic NumberedList render failed.\nExpected:\n%s\nGot:\n%s", basicExpected, basicList.Render())
+	basicExpected := []string{
+		"1. Let's Travel",
+		"2. Back to home",
+		"3. Have dinner",
+	}
+	prettyExpected := []string{
+		"i. Let's Travel",
+		"ii. Back to home",
+		"iii. Have dinner",
 	}
 
-	if prettyList.Render() != prettyExpected {
-		t.Errorf("Pretty NumberedList render failed.\nExpected:\n%s\nGot:\n%s", prettyExpected, prettyList.Render())
+	if !compareSlices(basicList.Render(), basicExpected) {
+		t.Errorf("Basic NumberedList render failed.\nExpected:\n%v\nGot:\n%v", basicExpected, basicList.Render())
+	}
+
+	if !compareSlices(prettyList.Render(), prettyExpected) {
+		t.Errorf("Pretty NumberedList render failed.\nExpected:\n%v\nGot:\n%v", prettyExpected, prettyList.Render())
 	}
 }
 
@@ -53,20 +69,26 @@ func TestTextRender(t *testing.T) {
 	basicText := basicFactory.CreateText(0, 0, textContent)
 	prettyText := prettyFactory.CreateText(0, 0, textContent)
 
-	basicExpected := "Do u love me ?\nPlease tell..."
-	prettyExpected := "DO U LOVE ME ?\nPLEASE TELL..."
-
-	if basicText.Render() != basicExpected {
-		t.Errorf("Basic Text render failed.\nExpected:\n%s\nGot:\n%s", basicExpected, basicText.Render())
+	basicExpected := []string{
+		"Do u love me ?",
+		"Please tell...",
+	}
+	prettyExpected := []string{
+		"DO U LOVE ME ?",
+		"PLEASE TELL...",
 	}
 
-	if prettyText.Render() != prettyExpected {
-		t.Errorf("Pretty Text render failed.\nExpected:\n%s\nGot:\n%s", prettyExpected, prettyText.Render())
+	if !compareSlices(basicText.Render(), basicExpected) {
+		t.Errorf("Basic Text render failed.\nExpected:\n%v\nGot:\n%v", basicExpected, basicText.Render())
+	}
+
+	if !compareSlices(prettyText.Render(), prettyExpected) {
+		t.Errorf("Pretty Text render failed.\nExpected:\n%v\nGot:\n%v", prettyExpected, prettyText.Render())
 	}
 }
 
 func TestUIRender(t *testing.T) {
-	ui := NewUI(22, 22)
+	ui := NewUI(13, 22)
 	ui.SetTheme(&BasicThemeFactory{})
 
 	ui.AddComponent(ui.theme.CreateButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
@@ -92,4 +114,16 @@ func TestUIRender(t *testing.T) {
 	if ui.Render() != expected {
 		t.Errorf("UI render failed.\nExpected:\n%s\nGot:\n%s", expected, ui.Render())
 	}
+}
+
+func compareSlices(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }

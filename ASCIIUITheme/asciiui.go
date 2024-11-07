@@ -13,7 +13,8 @@ type Padding struct {
 
 // AsciiComponent 定义所有控件的通用接口
 type AsciiComponent interface {
-	Render() string
+	Render() []string        // 返回渲染内容的行
+	GetPosition() (int, int) // 返回 x 和 y 坐标
 }
 
 // AsciiUIFactory 抽象工厂接口
@@ -60,7 +61,7 @@ type BasicButton struct {
 	padding Padding
 }
 
-func (b *BasicButton) Render() string {
+func (b *BasicButton) Render() []string {
 	pw, ph := b.padding.Width, b.padding.Height
 	contentWidth := len(b.text) + pw*2
 	top := "+" + strings.Repeat("-", contentWidth) + "+"
@@ -76,8 +77,13 @@ func (b *BasicButton) Render() string {
 	for i := 0; i < ph; i++ {
 		result = append(result, side)
 	}
-	result = append(result, top)
-	return strings.Join(result, "\n")
+	bottom := "+" + strings.Repeat("-", contentWidth) + "+"
+	result = append(result, bottom)
+	return result
+}
+
+func (b *BasicButton) GetPosition() (int, int) {
+	return b.x, b.y
 }
 
 // PrettyButton 漂亮风格按钮
@@ -87,7 +93,7 @@ type PrettyButton struct {
 	padding Padding
 }
 
-func (p *PrettyButton) Render() string {
+func (p *PrettyButton) Render() []string {
 	pw, ph := p.padding.Width, p.padding.Height
 	contentWidth := len(p.text) + pw*2
 	top := "┌" + strings.Repeat("─", contentWidth) + "┐"
@@ -105,7 +111,11 @@ func (p *PrettyButton) Render() string {
 	}
 	bottom := "└" + strings.Repeat("─", contentWidth) + "┘"
 	result = append(result, bottom)
-	return strings.Join(result, "\n")
+	return result
+}
+
+func (p *PrettyButton) GetPosition() (int, int) {
+	return p.x, p.y
 }
 
 // BasicNumberedList 基础风格数字列表
@@ -114,12 +124,16 @@ type BasicNumberedList struct {
 	lines []string
 }
 
-func (b *BasicNumberedList) Render() string {
+func (b *BasicNumberedList) Render() []string {
 	var result []string
 	for i, line := range b.lines {
 		result = append(result, fmt.Sprintf("%d. %s", i+1, line))
 	}
-	return strings.Join(result, "\n")
+	return result
+}
+
+func (b *BasicNumberedList) GetPosition() (int, int) {
+	return b.x, b.y
 }
 
 // PrettyNumberedList 漂亮风格数字列表
@@ -128,13 +142,17 @@ type PrettyNumberedList struct {
 	lines []string
 }
 
-func (p *PrettyNumberedList) Render() string {
+func (p *PrettyNumberedList) Render() []string {
 	var result []string
 	for i, line := range p.lines {
 		roman := toRoman(i + 1)
 		result = append(result, fmt.Sprintf("%s. %s", roman, line))
 	}
-	return strings.Join(result, "\n")
+	return result
+}
+
+func (p *PrettyNumberedList) GetPosition() (int, int) {
+	return p.x, p.y
 }
 
 // BasicText 基础风格文本
@@ -143,8 +161,12 @@ type BasicText struct {
 	text string
 }
 
-func (b *BasicText) Render() string {
-	return b.text
+func (b *BasicText) Render() []string {
+	return strings.Split(b.text, "\n")
+}
+
+func (b *BasicText) GetPosition() (int, int) {
+	return b.x, b.y
 }
 
 // PrettyText 漂亮风格文本
@@ -153,8 +175,13 @@ type PrettyText struct {
 	text string
 }
 
-func (p *PrettyText) Render() string {
-	return strings.ToUpper(p.text)
+func (p *PrettyText) Render() []string {
+	upperText := strings.ToUpper(p.text)
+	return strings.Split(upperText, "\n")
+}
+
+func (p *PrettyText) GetPosition() (int, int) {
+	return p.x, p.y
 }
 
 // UI 界面结构
@@ -181,19 +208,49 @@ func (ui *UI) AddComponent(component AsciiComponent) {
 }
 
 func (ui *UI) Render() string {
-	var output []string
-	border := strings.Repeat(".", ui.width)
-	output = append(output, border)
-
-	for _, component := range ui.components {
-		lines := strings.Split(component.Render(), "\n")
-		for _, line := range lines {
-			formattedLine := fmt.Sprintf(".  %-18s.", line)
-			output = append(output, formattedLine)
+	// 初始化画布
+	canvas := make([][]rune, ui.height)
+	for i := 0; i < ui.height; i++ {
+		canvas[i] = make([]rune, ui.width)
+		for j := 0; j < ui.width; j++ {
+			canvas[i][j] = ' '
 		}
 	}
 
-	output = append(output, border)
+	// 绘制边框
+	for i := 0; i < ui.height; i++ {
+		canvas[i][0] = '.'
+		canvas[i][ui.width-1] = '.'
+	}
+	for j := 0; j < ui.width; j++ {
+		canvas[0][j] = '.'
+		canvas[ui.height-1][j] = '.'
+	}
+
+	// 放置组件
+	for _, component := range ui.components {
+		x, y := component.GetPosition()
+		lines := component.Render()
+		for dy, line := range lines {
+			row := y + dy
+			if row <= 0 || row >= ui.height-1 {
+				continue // 超出边界
+			}
+			for dx, ch := range line {
+				col := x + dx
+				if col <= 0 || col >= ui.width-1 {
+					continue // 超出边界
+				}
+				canvas[row][col] = ch
+			}
+		}
+	}
+
+	// 生成最终输出
+	var output []string
+	for _, row := range canvas {
+		output = append(output, string(row))
+	}
 	return strings.Join(output, "\n")
 }
 
