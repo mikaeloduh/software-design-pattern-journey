@@ -2,6 +2,8 @@ package asciiui
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestButtonRenderingWithBasicTheme(t *testing.T) {
@@ -13,9 +15,7 @@ func TestButtonRenderingWithBasicTheme(t *testing.T) {
 |   Example   |
 |             |
 +-------------+`
-	if rendered != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, rendered)
-	}
+	assert.Equal(t, expected, rendered, "Button rendering with basic theme should match expected output")
 }
 
 func TestNumberedListRenderingWithBasicTheme(t *testing.T) {
@@ -25,9 +25,7 @@ func TestNumberedListRenderingWithBasicTheme(t *testing.T) {
 	expected := `1. Apple
 2. Banana
 3. Grape`
-	if rendered != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, rendered)
-	}
+	assert.Equal(t, expected, rendered, "Numbered list rendering with basic theme should match expected output")
 }
 
 func TestTextRenderingWithPrettyTheme(t *testing.T) {
@@ -35,14 +33,12 @@ func TestTextRenderingWithPrettyTheme(t *testing.T) {
 	text := NewText(0, 0, "Do u love me ?\nPlease tell...")
 	rendered := text.Render(theme)
 	expected := "DO U LOVE ME ?\nPLEASE TELL..."
-	if rendered != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, rendered)
-	}
+	assert.Equal(t, expected, rendered, "Text rendering with pretty theme should match expected output")
 }
 
 func TestUIRenderingWithBasicTheme(t *testing.T) {
 	theme := NewBasicTheme()
-	ui := NewUI(22, 13, theme) // 修改宽度为22，高度为13
+	ui := NewUI(22, 13, theme)
 
 	ui.AddComponent(NewButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
 	ui.AddComponent(NewText(4, 4, "Do u love me ?\nPlease tell..."))
@@ -65,14 +61,12 @@ func TestUIRenderingWithBasicTheme(t *testing.T) {
 .  3. Have dinner    .
 ......................
 `
-	if rendered != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, rendered)
-	}
+	assert.Equal(t, expected, rendered, "UI rendering with basic theme should match expected output")
 }
 
 func TestUIRenderingWithPrettyTheme(t *testing.T) {
 	theme := NewPrettyTheme()
-	ui := NewUI(22, 13, theme) // 修改宽度为22，高度为13
+	ui := NewUI(22, 13, theme)
 
 	ui.AddComponent(NewButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
 	ui.AddComponent(NewText(4, 4, "Do u love me ?\nPlease tell..."))
@@ -95,7 +89,5 @@ func TestUIRenderingWithPrettyTheme(t *testing.T) {
 .  III. Have dinner  .
 ......................
 `
-	if rendered != expected {
-		t.Errorf("Expected:\n%s\nGot:\n%s", expected, rendered)
-	}
+	assert.Equal(t, expected, rendered, "UI rendering with pretty theme should match expected output")
 }
