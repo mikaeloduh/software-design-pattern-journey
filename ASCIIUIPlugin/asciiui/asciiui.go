@@ -2,25 +2,28 @@ package asciiui
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
-
-	"github.com/mattn/go-runewidth"
 )
 
+// Component interface that all UI components implement
 type Component interface {
 	Render(theme Theme) string
 }
 
+// Theme interface that defines rendering methods for each component type
 type Theme interface {
-	GetStyle(styleKey string) string
+	RenderButton(button *Button) string
+	RenderText(text *Text) string
+	RenderNumberedList(list *NumberedList) string
 }
 
+// Padding struct defines the padding around the button text
 type Padding struct {
 	Width  int
 	Height int
 }
 
+// Button struct represents a button component
 type Button struct {
 	X       int
 	Y       int
@@ -28,6 +31,7 @@ type Button struct {
 	Padding Padding
 }
 
+// NewButton creates a new Button instance
 func NewButton(x, y int, text string, padding Padding) *Button {
 	return &Button{
 		X:       x,
@@ -37,39 +41,85 @@ func NewButton(x, y int, text string, padding Padding) *Button {
 	}
 }
 
+// Render delegates the rendering to the theme's RenderButton method
 func (b *Button) Render(theme Theme) string {
-	tl := theme.GetStyle("button.corner.tl")
-	tr := theme.GetStyle("button.corner.tr")
-	bl := theme.GetStyle("button.corner.bl")
-	br := theme.GetStyle("button.corner.br")
-	hEdge := theme.GetStyle("button.edge.horizontal")
-	vEdge := theme.GetStyle("button.edge.vertical")
+	return theme.RenderButton(b)
+}
 
-	//textRunes := []rune(b.Text)
-	textWidth := runewidth.StringWidth(b.Text)
-	totalWidth := 2*b.Padding.Width + textWidth
-	//totalHeight := 2*b.Padding.Height + 1
+// NumberedList struct represents a numbered list component
+type NumberedList struct {
+	X     int
+	Y     int
+	Lines []string
+}
 
-	// Repeat horizontal edge without spaces
-	topEdge := tl + strings.Repeat(hEdge, totalWidth) + tr
-	bottomEdge := bl + strings.Repeat(hEdge, totalWidth) + br
+// NewNumberedList creates a new NumberedList instance
+func NewNumberedList(x, y int, lines []string) *NumberedList {
+	return &NumberedList{
+		X:     x,
+		Y:     y,
+		Lines: lines,
+	}
+}
+
+// Render delegates the rendering to the theme's RenderNumberedList method
+func (nl *NumberedList) Render(theme Theme) string {
+	return theme.RenderNumberedList(nl)
+}
+
+// Text struct represents a text component
+type Text struct {
+	X    int
+	Y    int
+	Text string
+}
+
+// NewText creates a new Text instance
+func NewText(x, y int, text string) *Text {
+	return &Text{
+		X:    x,
+		Y:    y,
+		Text: text,
+	}
+}
+
+// Render delegates the rendering to the theme's RenderText method
+func (t *Text) Render(theme Theme) string {
+	return theme.RenderText(t)
+}
+
+// BasicTheme struct implements the Theme interface with basic ASCII styles
+type BasicTheme struct{}
+
+// NewBasicTheme creates a new BasicTheme instance
+func NewBasicTheme() *BasicTheme {
+	return &BasicTheme{}
+}
+
+// RenderButton renders a button using the basic ASCII style
+func (t *BasicTheme) RenderButton(button *Button) string {
+	textWidth := len(button.Text)
+	totalWidth := 2*button.Padding.Width + textWidth
+
+	topEdge := "+" + strings.Repeat("-", totalWidth) + "+"
+	bottomEdge := "+" + strings.Repeat("-", totalWidth) + "+"
 
 	var middleLines []string
 
 	// Top padding
-	for i := 0; i < b.Padding.Height; i++ {
-		line := vEdge + strings.Repeat(" ", totalWidth) + vEdge
+	for i := 0; i < button.Padding.Height; i++ {
+		line := "|" + strings.Repeat(" ", totalWidth) + "|"
 		middleLines = append(middleLines, line)
 	}
 
 	// Text line
-	paddingSpaces := strings.Repeat(" ", b.Padding.Width)
-	textLine := vEdge + paddingSpaces + b.Text + paddingSpaces + vEdge
+	paddingSpaces := strings.Repeat(" ", button.Padding.Width)
+	textLine := "|" + paddingSpaces + button.Text + paddingSpaces + "|"
 	middleLines = append(middleLines, textLine)
 
 	// Bottom padding
-	for i := 0; i < b.Padding.Height; i++ {
-		line := vEdge + strings.Repeat(" ", totalWidth) + vEdge
+	for i := 0; i < button.Padding.Height; i++ {
+		line := "|" + strings.Repeat(" ", totalWidth) + "|"
 		middleLines = append(middleLines, line)
 	}
 
@@ -80,123 +130,91 @@ func (b *Button) Render(theme Theme) string {
 	return strings.Join(lines, "\n")
 }
 
-type NumberedList struct {
-	X     int
-	Y     int
-	Lines []string
+// RenderText renders text without any transformation
+func (t *BasicTheme) RenderText(text *Text) string {
+	return text.Text
 }
 
-func NewNumberedList(x, y int, lines []string) *NumberedList {
-	return &NumberedList{
-		X:     x,
-		Y:     y,
-		Lines: lines,
-	}
-}
-
-func (nl *NumberedList) Render(theme Theme) string {
-	var result []string
-	for i, line := range nl.Lines {
-		prefixTemplate := theme.GetStyle("number.prefix")
-		var formattedNumber string
-		if strings.Contains(prefixTemplate, "%s") {
-			formattedNumber = fmt.Sprintf(prefixTemplate, romanNumeral(i+1))
-		} else {
-			formattedNumber = fmt.Sprintf(prefixTemplate, i+1)
-		}
-		result = append(result, formattedNumber+line)
-	}
-	return strings.Join(result, "\n")
-}
-
-func romanNumeral(num int) string {
-	numerals := []string{"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"}
-	if num < 10 {
-		return numerals[num]
-	}
-	// 简单处理，只支持到 9
-	return strconv.Itoa(num)
-}
-
-type Text struct {
-	X    int
-	Y    int
-	Text string
-}
-
-func NewText(x, y int, text string) *Text {
-	return &Text{
-		X:    x,
-		Y:    y,
-		Text: text,
-	}
-}
-
-func (t *Text) Render(theme Theme) string {
-	transform := theme.GetStyle("text.transform")
-	lines := strings.Split(t.Text, "\n")
-	for i, line := range lines {
-		if transform == "upper" {
-			lines[i] = strings.ToUpper(line)
-		} else {
-			lines[i] = line
-		}
+// RenderNumberedList renders a numbered list using Arabic numerals
+func (t *BasicTheme) RenderNumberedList(list *NumberedList) string {
+	var lines []string
+	for i, line := range list.Lines {
+		lines = append(lines, fmt.Sprintf("%d. %s", i+1, line))
 	}
 	return strings.Join(lines, "\n")
 }
 
-type BasicTheme struct {
-	Styles map[string]string
-}
+// PrettyTheme struct implements the Theme interface with enhanced ASCII styles
+type PrettyTheme struct{}
 
-func NewBasicTheme() *BasicTheme {
-	return &BasicTheme{
-		Styles: map[string]string{
-			"button.corner.tl":       "+",
-			"button.corner.tr":       "+",
-			"button.corner.bl":       "+",
-			"button.corner.br":       "+",
-			"button.edge.horizontal": "-",
-			"button.edge.vertical":   "|",
-			"number.prefix":          "%d. ",
-			"text.transform":         "none",
-		},
-	}
-}
-
-func (t *BasicTheme) GetStyle(styleKey string) string {
-	if style, ok := t.Styles[styleKey]; ok {
-		return style
-	}
-	return ""
-}
-
-type PrettyTheme struct {
-	Styles map[string]string
-}
-
+// NewPrettyTheme creates a new PrettyTheme instance
 func NewPrettyTheme() *PrettyTheme {
-	return &PrettyTheme{
-		Styles: map[string]string{
-			"button.corner.tl":       "┌",
-			"button.corner.tr":       "┐",
-			"button.corner.bl":       "└",
-			"button.corner.br":       "┘",
-			"button.edge.horizontal": "─",
-			"button.edge.vertical":   "│",
-			"number.prefix":          "%s. ",
-			"text.transform":         "upper",
-		},
-	}
+	return &PrettyTheme{}
 }
 
-func (t *PrettyTheme) GetStyle(styleKey string) string {
-	if style, ok := t.Styles[styleKey]; ok {
-		return style
+// RenderButton renders a button using box-drawing characters
+func (t *PrettyTheme) RenderButton(button *Button) string {
+	textWidth := len(button.Text)
+	totalWidth := 2*button.Padding.Width + textWidth
+
+	topEdge := "┌" + strings.Repeat("─", totalWidth) + "┐"
+	bottomEdge := "└" + strings.Repeat("─", totalWidth) + "┘"
+
+	var middleLines []string
+
+	// Top padding
+	for i := 0; i < button.Padding.Height; i++ {
+		line := "│" + strings.Repeat(" ", totalWidth) + "│"
+		middleLines = append(middleLines, line)
 	}
-	return ""
+
+	// Text line
+	paddingSpaces := strings.Repeat(" ", button.Padding.Width)
+	textLine := "│" + paddingSpaces + button.Text + paddingSpaces + "│"
+	middleLines = append(middleLines, textLine)
+
+	// Bottom padding
+	for i := 0; i < button.Padding.Height; i++ {
+		line := "│" + strings.Repeat(" ", totalWidth) + "│"
+		middleLines = append(middleLines, line)
+	}
+
+	lines := []string{topEdge}
+	lines = append(lines, middleLines...)
+	lines = append(lines, bottomEdge)
+
+	return strings.Join(lines, "\n")
 }
 
+// RenderText renders text in uppercase
+func (t *PrettyTheme) RenderText(text *Text) string {
+	return strings.ToUpper(text.Text)
+}
+
+// RenderNumberedList renders a numbered list using Roman numerals
+func (t *PrettyTheme) RenderNumberedList(list *NumberedList) string {
+	var lines []string
+	for i, line := range list.Lines {
+		lines = append(lines, fmt.Sprintf("%s. %s", toRoman(i+1), line))
+	}
+	return strings.Join(lines, "\n")
+}
+
+// Helper function to convert integer to Roman numerals
+func toRoman(num int) string {
+	val := []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
+	syb := []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
+	var roman strings.Builder
+	for i := 0; i < len(val); i++ {
+		for num >= val[i] {
+			num -= val[i]
+			roman.WriteString(syb[i])
+		}
+	}
+	return roman.String()
+}
+
+// UI struct represents the user interface containing components and a theme
 type UI struct {
 	Width      int
 	Height     int
@@ -204,21 +222,24 @@ type UI struct {
 	Theme      Theme
 }
 
+// NewUI creates a new UI instance with the specified dimensions and theme
 func NewUI(width, height int, theme Theme) *UI {
 	return &UI{
 		Width:      width,
 		Height:     height,
-		Theme:      theme,
 		Components: []Component{},
+		Theme:      theme,
 	}
 }
 
+// AddComponent adds a component to the UI
 func (ui *UI) AddComponent(c Component) {
 	ui.Components = append(ui.Components, c)
 }
 
+// Render renders the UI by placing components onto a canvas
 func (ui *UI) Render() string {
-	// 初始化画布，使用空格填充
+	// Initialize canvas filled with spaces
 	canvas := make([][]rune, ui.Height)
 	for i := range canvas {
 		canvas[i] = make([]rune, ui.Width)
@@ -227,7 +248,7 @@ func (ui *UI) Render() string {
 		}
 	}
 
-	// 绘制 UI 边框
+	// Draw UI borders
 	for i := 0; i < ui.Width; i++ {
 		canvas[0][i] = '.'
 		canvas[ui.Height-1][i] = '.'
@@ -237,11 +258,11 @@ func (ui *UI) Render() string {
 		canvas[i][ui.Width-1] = '.'
 	}
 
-	// 渲染每个组件并放置到画布上
+	// Render each component and place it onto the canvas
 	for _, c := range ui.Components {
 		rendered := c.Render(ui.Theme)
 		lines := strings.Split(rendered, "\n")
-		// 获取组件的位置
+		// Get component position
 		var x, y int
 		switch comp := c.(type) {
 		case *Button:
@@ -251,8 +272,6 @@ func (ui *UI) Render() string {
 		case *NumberedList:
 			x, y = comp.X, comp.Y
 		}
-
-		// 将组件的渲染结果放置到画布上
 		for i, line := range lines {
 			canvasY := y + i
 			if canvasY <= 0 || canvasY >= ui.Height-1 {
@@ -260,7 +279,7 @@ func (ui *UI) Render() string {
 			}
 			lineRunes := []rune(line)
 			for j, ch := range lineRunes {
-				canvasX := x + runewidth.StringWidth(string(lineRunes[:j]))
+				canvasX := x + j
 				if canvasX <= 0 || canvasX >= ui.Width-1 {
 					continue
 				}
@@ -269,7 +288,7 @@ func (ui *UI) Render() string {
 		}
 	}
 
-	// 将画布转换为字符串
+	// Convert canvas to string
 	var builder strings.Builder
 	for _, line := range canvas {
 		builder.WriteString(string(line))
