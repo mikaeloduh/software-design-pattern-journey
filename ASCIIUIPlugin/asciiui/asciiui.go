@@ -8,6 +8,7 @@ import (
 // Component interface that all UI components implement
 type Component interface {
 	Render(theme Theme) string
+	GetPosition() Coordinate // Updated to return Coordinate
 }
 
 // Theme interface that defines rendering methods for each component type
@@ -15,6 +16,12 @@ type Theme interface {
 	RenderButton(button *Button) string
 	RenderText(text *Text) string
 	RenderNumberedList(list *NumberedList) string
+}
+
+// Coordinate struct represents the position of a component
+type Coordinate struct {
+	X int
+	Y int
 }
 
 // Padding struct defines the padding around the button text
@@ -25,19 +32,17 @@ type Padding struct {
 
 // Button struct represents a button component
 type Button struct {
-	X       int
-	Y       int
-	Text    string
-	Padding Padding
+	Position Coordinate
+	Text     string
+	Padding  Padding
 }
 
 // NewButton creates a new Button instance
-func NewButton(x, y int, text string, padding Padding) *Button {
+func NewButton(position Coordinate, text string, padding Padding) *Button {
 	return &Button{
-		X:       x,
-		Y:       y,
-		Text:    text,
-		Padding: padding,
+		Position: position,
+		Text:     text,
+		Padding:  padding,
 	}
 }
 
@@ -46,19 +51,22 @@ func (b *Button) Render(theme Theme) string {
 	return theme.RenderButton(b)
 }
 
+// GetPosition returns the position of the button
+func (b *Button) GetPosition() Coordinate {
+	return b.Position
+}
+
 // NumberedList struct represents a numbered list component
 type NumberedList struct {
-	X     int
-	Y     int
-	Lines []string
+	Position Coordinate
+	Lines    []string
 }
 
 // NewNumberedList creates a new NumberedList instance
-func NewNumberedList(x, y int, lines []string) *NumberedList {
+func NewNumberedList(position Coordinate, lines []string) *NumberedList {
 	return &NumberedList{
-		X:     x,
-		Y:     y,
-		Lines: lines,
+		Position: position,
+		Lines:    lines,
 	}
 }
 
@@ -67,25 +75,33 @@ func (nl *NumberedList) Render(theme Theme) string {
 	return theme.RenderNumberedList(nl)
 }
 
+// GetPosition returns the position of the numbered list
+func (nl *NumberedList) GetPosition() Coordinate {
+	return nl.Position
+}
+
 // Text struct represents a text component
 type Text struct {
-	X    int
-	Y    int
-	Text string
+	Position Coordinate
+	Text     string
 }
 
 // NewText creates a new Text instance
-func NewText(x, y int, text string) *Text {
+func NewText(position Coordinate, text string) *Text {
 	return &Text{
-		X:    x,
-		Y:    y,
-		Text: text,
+		Position: position,
+		Text:     text,
 	}
 }
 
 // Render delegates the rendering to the theme's RenderText method
 func (t *Text) Render(theme Theme) string {
 	return theme.RenderText(t)
+}
+
+// GetPosition returns the position of the text
+func (t *Text) GetPosition() Coordinate {
+	return t.Position
 }
 
 // BasicTheme struct implements the Theme interface with basic ASCII styles
@@ -262,16 +278,9 @@ func (ui *UI) Render() string {
 	for _, c := range ui.Components {
 		rendered := c.Render(ui.Theme)
 		lines := strings.Split(rendered, "\n")
-		// Get component position
-		var x, y int
-		switch comp := c.(type) {
-		case *Button:
-			x, y = comp.X, comp.Y
-		case *Text:
-			x, y = comp.X, comp.Y
-		case *NumberedList:
-			x, y = comp.X, comp.Y
-		}
+		// Get component position using GetPosition()
+		pos := c.GetPosition()
+		x, y := pos.X, pos.Y
 		for i, line := range lines {
 			canvasY := y + i
 			if canvasY <= 0 || canvasY >= ui.Height-1 {

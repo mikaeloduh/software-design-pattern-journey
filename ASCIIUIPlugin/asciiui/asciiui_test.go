@@ -6,45 +6,86 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestButtonRenderingWithBasicTheme(t *testing.T) {
-	theme := NewBasicTheme()
-	button := NewButton(0, 0, "Example", Padding{Width: 3, Height: 1})
-	rendered := button.Render(theme)
-	expected := `+-------------+
-|             |
-|   Example   |
-|             |
-+-------------+`
-	assert.Equal(t, expected, rendered, "Button rendering with basic theme should match expected output")
+// TestButtonRendering tests the Button component rendering with both themes
+func TestButtonRendering(t *testing.T) {
+	button := NewButton(Coordinate{X: 0, Y: 0}, "Click Me", Padding{Width: 1, Height: 0})
+
+	t.Run("BasicTheme", func(t *testing.T) {
+		theme := NewBasicTheme()
+		rendered := button.Render(theme)
+		expected := `+----------+
+| Click Me |
++----------+`
+
+		assert.Equal(t, expected, rendered, "Button rendering with BasicTheme should match expected output")
+	})
+
+	t.Run("PrettyTheme", func(t *testing.T) {
+		theme := NewPrettyTheme()
+		rendered := button.Render(theme)
+		expected := `┌──────────┐
+│ Click Me │
+└──────────┘`
+
+		assert.Equal(t, expected, rendered, "Button rendering with PrettyTheme should match expected output")
+	})
 }
 
-func TestNumberedListRenderingWithBasicTheme(t *testing.T) {
-	theme := NewBasicTheme()
-	list := NewNumberedList(0, 0, []string{"Apple", "Banana", "Grape"})
-	rendered := list.Render(theme)
-	expected := `1. Apple
+// TestTextRendering tests the Text component rendering with both themes
+func TestTextRendering(t *testing.T) {
+	text := NewText(Coordinate{X: 0, Y: 0}, "Hello, World!")
+
+	t.Run("BasicTheme", func(t *testing.T) {
+		theme := NewBasicTheme()
+		rendered := text.Render(theme)
+		expected := "Hello, World!"
+
+		assert.Equal(t, expected, rendered, "Text rendering with BasicTheme should match expected output")
+	})
+
+	t.Run("PrettyTheme", func(t *testing.T) {
+		theme := NewPrettyTheme()
+		rendered := text.Render(theme)
+		expected := "HELLO, WORLD!"
+
+		assert.Equal(t, expected, rendered, "Text rendering with PrettyTheme should match expected output")
+	})
+}
+
+// TestNumberedListRendering tests the NumberedList component rendering with both themes
+func TestNumberedListRendering(t *testing.T) {
+	list := NewNumberedList(Coordinate{X: 0, Y: 0}, []string{"Apple", "Banana", "Cherry"})
+
+	t.Run("BasicTheme", func(t *testing.T) {
+		theme := NewBasicTheme()
+		rendered := list.Render(theme)
+		expected := `1. Apple
 2. Banana
-3. Grape`
-	assert.Equal(t, expected, rendered, "Numbered list rendering with basic theme should match expected output")
-}
+3. Cherry`
 
-func TestTextRenderingWithPrettyTheme(t *testing.T) {
-	theme := NewPrettyTheme()
-	text := NewText(0, 0, "Do u love me ?\nPlease tell...")
-	rendered := text.Render(theme)
-	expected := "DO U LOVE ME ?\nPLEASE TELL..."
-	assert.Equal(t, expected, rendered, "Text rendering with pretty theme should match expected output")
+		assert.Equal(t, expected, rendered, "NumberedList rendering with BasicTheme should match expected output")
+	})
+
+	t.Run("PrettyTheme", func(t *testing.T) {
+		theme := NewPrettyTheme()
+		rendered := list.Render(theme)
+		expected := `I. Apple
+II. Banana
+III. Cherry`
+
+		assert.Equal(t, expected, rendered, "NumberedList rendering with PrettyTheme should match expected output")
+	})
 }
 
 func TestUIRenderingWithBasicTheme(t *testing.T) {
 	theme := NewBasicTheme()
 	ui := NewUI(22, 13, theme)
 
-	ui.AddComponent(NewButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewText(4, 4, "Do u love me ?\nPlease tell..."))
-	ui.AddComponent(NewButton(3, 6, "No", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewButton(12, 6, "Yes", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewNumberedList(3, 9, []string{"Let's Travel", "Back to home", "Have dinner"}))
+	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 1}, "Hi, I miss u", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(NewText(Coordinate{X: 4, Y: 4}, "Do u love me ?\nPlease tell..."))
+	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 6}, "No", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(NewButton(Coordinate{X: 12, Y: 6}, "Yes", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(NewNumberedList(Coordinate{X: 3, Y: 9}, []string{"Let's Travel", "Back to home", "Have dinner"}))
 
 	rendered := ui.Render()
 	expected := `......................
@@ -68,11 +109,11 @@ func TestUIRenderingWithPrettyTheme(t *testing.T) {
 	theme := NewPrettyTheme()
 	ui := NewUI(22, 13, theme)
 
-	ui.AddComponent(NewButton(3, 1, "Hi, I miss u", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewText(4, 4, "Do u love me ?\nPlease tell..."))
-	ui.AddComponent(NewButton(3, 6, "No", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewButton(12, 6, "Yes", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewNumberedList(3, 9, []string{"Let's Travel", "Back to home", "Have dinner"}))
+	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 1}, "Hi, I miss u", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(NewText(Coordinate{X: 4, Y: 4}, "Do u love me ?\nPlease tell..."))
+	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 6}, "No", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(NewButton(Coordinate{X: 12, Y: 6}, "Yes", Padding{Width: 1, Height: 0}))
+	ui.AddComponent(NewNumberedList(Coordinate{X: 3, Y: 9}, []string{"Let's Travel", "Back to home", "Have dinner"}))
 
 	rendered := ui.Render()
 	expected := `......................
