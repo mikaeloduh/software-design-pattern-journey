@@ -2,6 +2,7 @@ package asciiui
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -138,17 +139,29 @@ func (bt *BaseTheme) renderButton(button *Button) string {
 	textLine := border.Vertical + paddingSpaces + button.Text + paddingSpaces + border.Vertical
 	middleLines = append(middleLines, textLine)
 
-	// 下邊距
+	// Bottom padding
 	for i := 0; i < button.Padding.Height; i++ {
 		line := border.Vertical + strings.Repeat(" ", totalWidth) + border.Vertical
 		middleLines = append(middleLines, line)
 	}
 
-	// Bottom padding
 	lines := []string{topEdge}
 	lines = append(lines, middleLines...)
 	lines = append(lines, bottomEdge)
 
+	return strings.Join(lines, "\n")
+}
+
+func (bt *BaseTheme) renderText(text *Text) string {
+	return text.Text
+}
+
+func (bt *BaseTheme) renderNumberedList(list *NumberedList, numberFormatter func(int) string) string {
+	var lines []string
+	for i, line := range list.Lines {
+		number := numberFormatter(i + 1)
+		lines = append(lines, fmt.Sprintf("%s. %s", number, line))
+	}
 	return strings.Join(lines, "\n")
 }
 
@@ -180,16 +193,14 @@ func (t *BasicTheme) RenderButton(button *Button) string {
 
 // RenderText renders text without any transformation
 func (t *BasicTheme) RenderText(text *Text) string {
-	return text.Text
+	return t.renderText(text)
 }
 
 // RenderNumberedList renders a numbered list using Arabic numerals
 func (t *BasicTheme) RenderNumberedList(list *NumberedList) string {
-	var lines []string
-	for i, line := range list.Lines {
-		lines = append(lines, fmt.Sprintf("%d. %s", i+1, line))
-	}
-	return strings.Join(lines, "\n")
+	return t.renderNumberedList(list, func(n int) string {
+		return strconv.Itoa(n)
+	})
 }
 
 // PrettyTheme struct implements the Theme interface with enhanced ASCII styles
@@ -219,16 +230,12 @@ func (t *PrettyTheme) RenderButton(button *Button) string {
 
 // RenderText renders text in uppercase
 func (t *PrettyTheme) RenderText(text *Text) string {
-	return strings.ToUpper(text.Text)
+	return strings.ToUpper(t.renderText(text))
 }
 
 // RenderNumberedList renders a numbered list using Roman numerals
 func (t *PrettyTheme) RenderNumberedList(list *NumberedList) string {
-	var lines []string
-	for i, line := range list.Lines {
-		lines = append(lines, fmt.Sprintf("%s. %s", toRoman(i+1), line))
-	}
-	return strings.Join(lines, "\n")
+	return t.renderNumberedList(list, toRoman)
 }
 
 // Helper function to convert integer to Roman numerals
