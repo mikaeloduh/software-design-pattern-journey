@@ -37,6 +37,15 @@ type Button struct {
 	Padding  Padding
 }
 
+type BorderStyle struct {
+	TopLeft     string
+	TopRight    string
+	BottomLeft  string
+	BottomRight string
+	Horizontal  string
+	Vertical    string
+}
+
 // NewButton creates a new Button instance
 func NewButton(position Coordinate, text string, padding Padding) *Button {
 	return &Button{
@@ -104,46 +113,69 @@ func (t *Text) GetPosition() Coordinate {
 	return t.Position
 }
 
-// BasicTheme struct implements the Theme interface with basic ASCII styles
-type BasicTheme struct{}
-
-// NewBasicTheme creates a new BasicTheme instance
-func NewBasicTheme() *BasicTheme {
-	return &BasicTheme{}
+type BaseTheme struct {
+	Border BorderStyle
 }
 
-// RenderButton renders a button using the basic ASCII style
-func (t *BasicTheme) RenderButton(button *Button) string {
+func (bt *BaseTheme) renderButton(button *Button) string {
+	border := bt.Border
 	textWidth := len(button.Text)
 	totalWidth := 2*button.Padding.Width + textWidth
 
-	topEdge := "+" + strings.Repeat("-", totalWidth) + "+"
-	bottomEdge := "+" + strings.Repeat("-", totalWidth) + "+"
+	topEdge := border.TopLeft + strings.Repeat(border.Horizontal, totalWidth) + border.TopRight
+	bottomEdge := border.BottomLeft + strings.Repeat(border.Horizontal, totalWidth) + border.BottomRight
 
 	var middleLines []string
 
 	// Top padding
 	for i := 0; i < button.Padding.Height; i++ {
-		line := "|" + strings.Repeat(" ", totalWidth) + "|"
+		line := border.Vertical + strings.Repeat(" ", totalWidth) + border.Vertical
 		middleLines = append(middleLines, line)
 	}
 
 	// Text line
 	paddingSpaces := strings.Repeat(" ", button.Padding.Width)
-	textLine := "|" + paddingSpaces + button.Text + paddingSpaces + "|"
+	textLine := border.Vertical + paddingSpaces + button.Text + paddingSpaces + border.Vertical
 	middleLines = append(middleLines, textLine)
 
-	// Bottom padding
+	// 下邊距
 	for i := 0; i < button.Padding.Height; i++ {
-		line := "|" + strings.Repeat(" ", totalWidth) + "|"
+		line := border.Vertical + strings.Repeat(" ", totalWidth) + border.Vertical
 		middleLines = append(middleLines, line)
 	}
 
+	// Bottom padding
 	lines := []string{topEdge}
 	lines = append(lines, middleLines...)
 	lines = append(lines, bottomEdge)
 
 	return strings.Join(lines, "\n")
+}
+
+// BasicTheme struct implements the Theme interface with basic ASCII styles
+type BasicTheme struct {
+	BaseTheme
+}
+
+// NewBasicTheme creates a new BasicTheme instance
+func NewBasicTheme() *BasicTheme {
+	return &BasicTheme{
+		BaseTheme{
+			Border: BorderStyle{
+				TopLeft:     "+",
+				TopRight:    "+",
+				BottomLeft:  "+",
+				BottomRight: "+",
+				Horizontal:  "-",
+				Vertical:    "|",
+			},
+		},
+	}
+}
+
+// RenderButton renders a button using the basic ASCII style
+func (t *BasicTheme) RenderButton(button *Button) string {
+	return t.renderButton(button)
 }
 
 // RenderText renders text without any transformation
@@ -161,45 +193,28 @@ func (t *BasicTheme) RenderNumberedList(list *NumberedList) string {
 }
 
 // PrettyTheme struct implements the Theme interface with enhanced ASCII styles
-type PrettyTheme struct{}
+type PrettyTheme struct {
+	BaseTheme
+}
 
 // NewPrettyTheme creates a new PrettyTheme instance
 func NewPrettyTheme() *PrettyTheme {
-	return &PrettyTheme{}
+	return &PrettyTheme{
+		BaseTheme{
+			Border: BorderStyle{
+				TopLeft:     "┌",
+				TopRight:    "┐",
+				BottomLeft:  "└",
+				BottomRight: "┘",
+				Horizontal:  "─",
+				Vertical:    "│",
+			},
+		},
+	}
 }
 
-// RenderButton renders a button using box-drawing characters
 func (t *PrettyTheme) RenderButton(button *Button) string {
-	textWidth := len(button.Text)
-	totalWidth := 2*button.Padding.Width + textWidth
-
-	topEdge := "┌" + strings.Repeat("─", totalWidth) + "┐"
-	bottomEdge := "└" + strings.Repeat("─", totalWidth) + "┘"
-
-	var middleLines []string
-
-	// Top padding
-	for i := 0; i < button.Padding.Height; i++ {
-		line := "│" + strings.Repeat(" ", totalWidth) + "│"
-		middleLines = append(middleLines, line)
-	}
-
-	// Text line
-	paddingSpaces := strings.Repeat(" ", button.Padding.Width)
-	textLine := "│" + paddingSpaces + button.Text + paddingSpaces + "│"
-	middleLines = append(middleLines, textLine)
-
-	// Bottom padding
-	for i := 0; i < button.Padding.Height; i++ {
-		line := "│" + strings.Repeat(" ", totalWidth) + "│"
-		middleLines = append(middleLines, line)
-	}
-
-	lines := []string{topEdge}
-	lines = append(lines, middleLines...)
-	lines = append(lines, bottomEdge)
-
-	return strings.Join(lines, "\n")
+	return t.renderButton(button)
 }
 
 // RenderText renders text in uppercase
