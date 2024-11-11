@@ -253,6 +253,11 @@ func (ui *UI) AddComponent(c Component) {
 	ui.Components = append(ui.Components, c)
 }
 
+// SetTheme allows changing the theme of the UI
+func (ui *UI) SetTheme(theme Theme) {
+	ui.Theme = theme
+}
+
 // Render renders the UI by placing components onto a canvas
 func (ui *UI) Render() string {
 	// Initialize canvas filled with spaces

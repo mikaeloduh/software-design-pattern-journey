@@ -77,9 +77,8 @@ III. Cherry`
 	})
 }
 
-func TestUIRenderingWithBasicTheme(t *testing.T) {
-	theme := NewBasicTheme()
-	ui := NewUI(22, 13, theme)
+func TestUIRendering(t *testing.T) {
+	ui := NewUI(22, 13, NewBasicTheme())
 
 	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 1}, "Hi, I miss u", Padding{Width: 1, Height: 0}))
 	ui.AddComponent(NewText(Coordinate{X: 4, Y: 4}, "Do u love me ?\nPlease tell..."))
@@ -87,8 +86,9 @@ func TestUIRenderingWithBasicTheme(t *testing.T) {
 	ui.AddComponent(NewButton(Coordinate{X: 12, Y: 6}, "Yes", Padding{Width: 1, Height: 0}))
 	ui.AddComponent(NewNumberedList(Coordinate{X: 3, Y: 9}, []string{"Let's Travel", "Back to home", "Have dinner"}))
 
-	rendered := ui.Render()
-	expected := `......................
+	t.Run("BasicTheme", func(t *testing.T) {
+		rendered := ui.Render()
+		expected := `......................
 .  +--------------+  .
 .  | Hi, I miss u |  .
 .  +--------------+  .
@@ -102,21 +102,15 @@ func TestUIRenderingWithBasicTheme(t *testing.T) {
 .  3. Have dinner    .
 ......................
 `
-	assert.Equal(t, expected, rendered, "UI rendering with basic theme should match expected output")
-}
+		assert.Equal(t, expected, rendered, "UI rendering with basic theme should match expected output")
+	})
 
-func TestUIRenderingWithPrettyTheme(t *testing.T) {
-	theme := NewPrettyTheme()
-	ui := NewUI(22, 13, theme)
+	t.Run("PrettyTheme", func(t *testing.T) {
+		// Change to PrettyTheme using SetTheme
+		ui.SetTheme(NewPrettyTheme())
 
-	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 1}, "Hi, I miss u", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewText(Coordinate{X: 4, Y: 4}, "Do u love me ?\nPlease tell..."))
-	ui.AddComponent(NewButton(Coordinate{X: 3, Y: 6}, "No", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewButton(Coordinate{X: 12, Y: 6}, "Yes", Padding{Width: 1, Height: 0}))
-	ui.AddComponent(NewNumberedList(Coordinate{X: 3, Y: 9}, []string{"Let's Travel", "Back to home", "Have dinner"}))
-
-	rendered := ui.Render()
-	expected := `......................
+		rendered := ui.Render()
+		expected := `......................
 .  ┌──────────────┐  .
 .  │ Hi, I miss u │  .
 .  └──────────────┘  .
@@ -130,5 +124,6 @@ func TestUIRenderingWithPrettyTheme(t *testing.T) {
 .  III. Have dinner  .
 ......................
 `
-	assert.Equal(t, expected, rendered, "UI rendering with pretty theme should match expected output")
+		assert.Equal(t, expected, rendered, "UI rendering with pretty theme should match expected output")
+	})
 }
