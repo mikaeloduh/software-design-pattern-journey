@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -72,4 +73,54 @@ func TestUserHandlerMethodNotAllowed(t *testing.T) {
 
 	assert.Equal(t, http.StatusMethodNotAllowed, rr.Code, "Expected status code 405")
 	assert.Equal(t, "Unsupported request method\n", rr.Body.String(), "Response body does not match")
+}
+
+// TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
+func TestRouting(t *testing.T) {
+	// Create a new ServeMux and register handlers
+	mux := http.NewServeMux()
+	//mux.HandleFunc("/", homeHandler)
+	//mux.HandleFunc("/hello", helloHandler)
+	//mux.HandleFunc("/user", userHandler)
+	mux.HandleFunc("/", myHandler)
+
+	// Start a new test server using the mux
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	// Define test cases
+	tests := []struct {
+		method       string
+		path         string
+		expectedCode int
+		expectedBody string
+	}{
+		{"GET", "/", http.StatusOK, "Welcome to the homepage!"},
+		{"GET", "/hello", http.StatusOK, "Hello, World!"},
+		{"GET", "/user", http.StatusOK, "Retrieve user information"},
+		{"POST", "/user", http.StatusOK, "Create a new user"},
+		{"PUT", "/user", http.StatusMethodNotAllowed, "Unsupported request method\n"},
+		{"GET", "/nonexistent", http.StatusNotFound, "404 page not found\n"},
+	}
+
+	for _, tc := range tests {
+		// Create a new HTTP request
+		req, err := http.NewRequest(tc.method, ts.URL+tc.path, nil)
+		assert.NoError(t, err)
+
+		// Send the request
+		resp, err := http.DefaultClient.Do(req)
+		assert.NoError(t, err)
+
+		// Check the status code
+		assert.Equal(t, tc.expectedCode, resp.StatusCode, "Unexpected status code for path %s", tc.path)
+
+		// Read the response body
+		body, err := ioutil.ReadAll(resp.Body)
+		assert.NoError(t, err)
+		resp.Body.Close()
+
+		// Check the response body
+		assert.Equal(t, tc.expectedBody, string(body), "Unexpected response body for path %s", tc.path)
+	}
 }

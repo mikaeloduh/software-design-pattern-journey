@@ -11,8 +11,6 @@ func main() {
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/user", userHandler)
 
-	//http.HandleFunc("/", myHandler)
-
 	// Start the server
 	fmt.Println("Server is running on port 8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -22,6 +20,10 @@ func main() {
 
 // Home page handler
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	fmt.Fprintf(w, "Welcome to the homepage!")
 }
 
@@ -30,7 +32,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, World!")
 }
 
-// User handler, performs different actions based on the request method
+// User handler
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
