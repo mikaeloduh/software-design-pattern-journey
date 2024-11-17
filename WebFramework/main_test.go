@@ -9,32 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test the homeHandler function
-func TestHomeHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/", nil)
-	assert.NoError(t, err)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(homeHandler)
-	handler.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code 200")
-	assert.Equal(t, "Welcome to the homepage!", rr.Body.String(), "Response body does not match")
-}
-
-// Test the helloHandler function
-func TestHelloHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/hello", nil)
-	assert.NoError(t, err)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(helloHandler)
-	handler.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code 200")
-	assert.Equal(t, "Hello, World!", rr.Body.String(), "Response body does not match")
-}
-
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
 func TestRouting(t *testing.T) {
 	// Create a new ExactMux
@@ -46,9 +20,10 @@ func TestRouting(t *testing.T) {
 
 	// Create a sub-mux for "/user"
 	userMux := NewExactMux()
-	mux.Handle("/user", userMux)
+	mux.Router("/user", userMux)
 	userMux.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
 	userMux.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
+	userMux.Handle("/profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
 
 	// Start a new test server using the custom ExactMux
 	ts := httptest.NewServer(mux)
@@ -66,7 +41,10 @@ func TestRouting(t *testing.T) {
 		{"GET", "/user", http.StatusOK, "Retrieve user information"},
 		{"POST", "/user", http.StatusOK, "Create a new user"},
 		{"PUT", "/user", http.StatusMethodNotAllowed, "Unsupported request method\n"},
-		{"GET", "/nonexistent", http.StatusNotFound, "404 page not found\n"},
+		{"GET", "/user/profile", http.StatusOK, "User profile page"},
+		{"GET", "/user/settings", http.StatusNotFound, "404 page not found\n"},
+		{"GET", "/usersomething", http.StatusNotFound, "404 page not found\n"},
+		{"GET", "/userextra", http.StatusNotFound, "404 page not found\n"},
 	}
 
 	for _, tc := range tests {
