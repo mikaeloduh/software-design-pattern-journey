@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,54 +35,20 @@ func TestHelloHandler(t *testing.T) {
 	assert.Equal(t, "Hello, World!", rr.Body.String(), "Response body does not match")
 }
 
-// Test the userHandler function for GET request
-func TestUserHandlerGet(t *testing.T) {
-	req, err := http.NewRequest("GET", "/user", nil)
-	assert.NoError(t, err)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(userHandler)
-	handler.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code 200")
-	assert.Equal(t, "Retrieve user information", rr.Body.String(), "Response body does not match")
-}
-
-// Test the userHandler function for POST request
-func TestUserHandlerPost(t *testing.T) {
-	req, err := http.NewRequest("POST", "/user", strings.NewReader(""))
-	assert.NoError(t, err)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(userHandler)
-	handler.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code 200")
-	assert.Equal(t, "Create a new user", rr.Body.String(), "Response body does not match")
-}
-
-// Test the userHandler function for unsupported methods (e.g., PUT)
-func TestUserHandlerMethodNotAllowed(t *testing.T) {
-	req, err := http.NewRequest("PUT", "/user", nil)
-	assert.NoError(t, err)
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(userHandler)
-	handler.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusMethodNotAllowed, rr.Code, "Expected status code 405")
-	assert.Equal(t, "Unsupported request method\n", rr.Body.String(), "Response body does not match")
-}
-
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
 func TestRouting(t *testing.T) {
 	// Create a new ExactMux
 	mux := NewExactMux()
 
-	// Register handlers with exact path matching
-	mux.Handle("/", http.HandlerFunc(homeHandler))
-	mux.Handle("/hello", http.HandlerFunc(helloHandler))
-	mux.Handle("/user", http.HandlerFunc(userHandler))
+	// Register handlers with exact path and method matching
+	mux.Handle("/", http.MethodGet, http.HandlerFunc(homeHandler))
+	mux.Handle("/hello", http.MethodGet, http.HandlerFunc(helloHandler))
+
+	// Create a sub-mux for "/user"
+	userMux := NewExactMux()
+	mux.Handle("/user", userMux)
+	userMux.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
+	userMux.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
 
 	// Start a new test server using the custom ExactMux
 	ts := httptest.NewServer(mux)
