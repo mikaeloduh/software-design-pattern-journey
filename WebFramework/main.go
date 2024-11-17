@@ -47,17 +47,21 @@ func (e *ExactMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Check for sub-mux with matching path
+	// Check for sub-mux with exact path match
+	if subMux, ok := e.subMuxes[path]; ok {
+		// Adjust the request URL path
+		r2 := r.Clone(r.Context())
+		r2.URL.Path = "/"
+		subMux.ServeHTTP(w, r2)
+		return
+	}
+
+	// Check for sub-mux with path prefix match
 	for subPath, subMux := range e.subMuxes {
-		if path == subPath || strings.HasPrefix(path, subPath+"/") {
-			// Adjust the request URL path for the sub-mux
-			remainingPath := strings.TrimPrefix(path, subPath)
-			if remainingPath == "" {
-				remainingPath = "/"
-			}
+		if strings.HasPrefix(path, subPath+"/") {
+			// Adjust the request URL path
 			r2 := r.Clone(r.Context())
-			r2.URL.Path = remainingPath
-			// Recursively call ServeHTTP on the sub-mux
+			r2.URL.Path = strings.TrimPrefix(path, subPath)
 			subMux.ServeHTTP(w, r2)
 			return
 		}
