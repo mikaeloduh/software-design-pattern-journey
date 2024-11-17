@@ -77,14 +77,15 @@ func TestUserHandlerMethodNotAllowed(t *testing.T) {
 
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
 func TestRouting(t *testing.T) {
-	// Create a new ServeMux and register handlers
-	mux := http.NewServeMux()
-	//mux.HandleFunc("/", homeHandler)
-	//mux.HandleFunc("/hello", helloHandler)
-	//mux.HandleFunc("/user", userHandler)
-	mux.HandleFunc("/", myHandler)
+	// Create a new ExactMux
+	mux := NewExactMux()
 
-	// Start a new test server using the mux
+	// Register handlers with exact path matching
+	mux.Handle("/", http.HandlerFunc(homeHandler))
+	mux.Handle("/hello", http.HandlerFunc(helloHandler))
+	mux.Handle("/user", http.HandlerFunc(userHandler))
+
+	// Start a new test server using the custom ExactMux
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
