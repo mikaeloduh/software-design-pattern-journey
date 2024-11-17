@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -48,18 +47,17 @@ func (e *ExactMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Check for sub-mux
+	// Check for sub-mux with matching path
 	for subPath, subMux := range e.subMuxes {
-		if strings.HasPrefix(path, subPath) {
-			// Adjust the request URL path
-			r2 := new(http.Request)
-			*r2 = *r
-			r2.URL = new(url.URL)
-			*r2.URL = *r.URL
-			r2.URL.Path = strings.TrimPrefix(r.URL.Path, subPath)
-			if r2.URL.Path == "" {
-				r2.URL.Path = "/"
+		if path == subPath || strings.HasPrefix(path, subPath+"/") {
+			// Adjust the request URL path for the sub-mux
+			remainingPath := strings.TrimPrefix(path, subPath)
+			if remainingPath == "" {
+				remainingPath = "/"
 			}
+			r2 := r.Clone(r.Context())
+			r2.URL.Path = remainingPath
+			// Recursively call ServeHTTP on the sub-mux
 			subMux.ServeHTTP(w, r2)
 			return
 		}
