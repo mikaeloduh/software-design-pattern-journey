@@ -1,7 +1,6 @@
-package main
+package framework
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -71,47 +70,4 @@ func (e *ExactMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Not found
 	http.NotFound(w, r)
-}
-
-func main() {
-	// Create a new ExactMux
-	mux := NewExactMux()
-
-	// Register handlers with exact path and method matching
-	mux.Handle("/", http.MethodGet, http.HandlerFunc(homeHandler)) // Root path is stored as empty string
-	mux.Handle("hello", http.MethodGet, http.HandlerFunc(helloHandler))
-
-	// Create a sub-mux for "user"
-	userMux := NewExactMux()
-	mux.Router("user", userMux)
-	userMux.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
-	userMux.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
-	userMux.Handle("profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
-
-	// Start the server using the custom ExactMux
-	fmt.Println("Server is running on port 8080...")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
-		fmt.Println("Failed to start server:", err)
-	}
-}
-
-// Handler functions remain the same
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the homepage!")
-}
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
-}
-
-func getUserHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Retrieve user information")
-}
-
-func postUserHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Create a new user")
-}
-
-func userProfileHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "User profile page")
 }

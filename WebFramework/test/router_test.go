@@ -1,10 +1,11 @@
-package main
+package test
 
 import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"webframework/framework"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,14 +13,14 @@ import (
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
 func TestRouting(t *testing.T) {
 	// Create a new ExactMux
-	mux := NewExactMux()
+	mux := framework.NewExactMux()
 
 	// Register handlers with exact path and method matching
 	mux.Handle("/", http.MethodGet, http.HandlerFunc(homeHandler))
 	mux.Handle("/hello", http.MethodGet, http.HandlerFunc(helloHandler))
 
 	// Create a sub-mux for "/user"
-	userMux := NewExactMux()
+	userMux := framework.NewExactMux()
 	mux.Router("/user", userMux)
 	userMux.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
 	userMux.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
