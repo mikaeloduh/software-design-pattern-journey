@@ -6,9 +6,9 @@ import (
 )
 
 type RegisterRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string `json:"username" xml:"username"`
+	Email    string `json:"email" xml:"email"`
+	Password string `json:"password" xml:"password"`
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -18,8 +18,16 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := framework.WriteObjectAsJSON(w, reqData); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	accept := r.Header.Get("Accept")
+	if accept == "application/xml" {
+		if err := framework.WriteObjectAsXML(w, reqData); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if err := framework.WriteObjectAsJSON(w, reqData); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
