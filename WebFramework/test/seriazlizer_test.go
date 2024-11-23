@@ -18,7 +18,7 @@ func TestRegisterHandlerJSON(t *testing.T) {
 
 	Register(rr, req)
 
-	expectedResponse := jsonBody
+	expectedResponse := `{"username": "12345", "email": "John Doe"}`
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Expected status OK")
 	assert.JSONEq(t, expectedResponse, rr.Body.String(), "Response body mismatch")
@@ -35,7 +35,7 @@ func TestRegisterHandlerXML(t *testing.T) {
 
 	Register(rr, req)
 
-	expectedResponse := xmlBody
+	expectedResponse := `<RegisterResponse><username>12345</username><email>John Doe</email></RegisterResponse>`
 
 	assert.Equal(t, http.StatusOK, rr.Code, "Expected status OK")
 	assert.Equal(t, "application/xml", rr.Header().Get("Content-Type"), "Expected Content-Type application/xml")
