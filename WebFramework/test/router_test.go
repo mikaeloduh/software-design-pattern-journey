@@ -42,11 +42,11 @@ func TestRouting(t *testing.T) {
 		{"GET", "/hello", http.StatusOK, "Hello, World!"},
 		{"GET", "/user", http.StatusOK, "Retrieve user information"},
 		{"POST", "/user", http.StatusOK, "Create a new user"},
-		{"PUT", "/user", http.StatusMethodNotAllowed, "Unsupported request method\n"},
+		{"PUT", "/user", http.StatusMethodNotAllowed, "405 method not allowed"},
 		{"GET", "/user/profile", http.StatusOK, "User profile page"},
-		{"GET", "/user/settings", http.StatusNotFound, "404 page not found\n"},
-		{"GET", "/usersomething", http.StatusNotFound, "404 page not found\n"},
-		{"GET", "/userextra", http.StatusNotFound, "404 page not found\n"},
+		{"GET", "/user/settings", http.StatusNotFound, "404 page not found"},
+		{"GET", "/usersomething", http.StatusNotFound, "404 page not found"},
+		{"GET", "/userextra", http.StatusNotFound, "404 page not found"},
 	}
 
 	for _, tc := range tests {

@@ -52,16 +52,59 @@ func TestErrorHandling(t *testing.T) {
 		// Send the request
 		resp, err := http.DefaultClient.Do(req)
 		assert.NoError(t, err)
-
-		// Check the status code
-		assert.Equal(t, tc.expectedCode, resp.StatusCode, "Unexpected status code for path %s", tc.path)
+		defer resp.Body.Close()
 
 		// Read the response body
 		body, err := ioutil.ReadAll(resp.Body)
 		assert.NoError(t, err)
-		resp.Body.Close()
 
-		// Check the response body
+		// Check status code and response body
+		assert.Equal(t, tc.expectedCode, resp.StatusCode, "Unexpected status code for path %s", tc.path)
 		assert.Equal(t, tc.expectedBody, string(body), "Unexpected response body for path %s", tc.path)
 	}
+}
+
+func TestNotFoundHandler(t *testing.T) {
+	route := framework.NewRouter()
+	ts := httptest.NewServer(route)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/nonexistent")
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
+	assert.Equal(t, "404 page not found", string(body))
+}
+
+func TestMethodNotAllowedHandler(t *testing.T) {
+	route := framework.NewRouter()
+
+	// Register a handler for GET method only
+	route.Handle("test", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	}))
+
+	ts := httptest.NewServer(route)
+	defer ts.Close()
+
+	// Try to access with POST method
+	req, err := http.NewRequest(http.MethodPost, ts.URL+"/test", nil)
+	assert.NoError(t, err)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusMethodNotAllowed, resp.StatusCode)
+	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
+	assert.Equal(t, "405 method not allowed", string(body))
 }

@@ -52,10 +52,9 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check for exact route with method
 	if methodHandlers, ok := e.routes[path]; ok {
 		if h, ok := methodHandlers[method]; ok {
-			handler = h
+			handler = e.applyMiddleware(h)
 		} else {
-			http.Error(w, "Unsupported request method", http.StatusMethodNotAllowed)
-			return
+			handler = e.applyMiddleware(http.HandlerFunc(MethodNotAllowedHandler))
 		}
 	} else {
 		// Split the path into segments
@@ -74,17 +73,11 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+
+		handler = e.applyMiddleware(http.HandlerFunc(NotFoundHandler))
 	}
 
-	if handler != nil {
-		// apply middleware
-		handler = e.applyMiddleware(handler)
-		handler.ServeHTTP(w, r)
-		return
-	}
-
-	// Not found
-	http.NotFound(w, r)
+	handler.ServeHTTP(w, r)
 }
 
 func (e *Router) applyMiddleware(handler http.Handler) http.Handler {
