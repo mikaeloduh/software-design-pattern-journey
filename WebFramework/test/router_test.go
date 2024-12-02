@@ -22,10 +22,10 @@ func TestRouting(t *testing.T) {
 
 	// Create a sub-route for "/user"
 	userRoute := framework.NewRouter()
-	route.Router("/user", userRoute)
 	userRoute.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
 	userRoute.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
 	userRoute.Handle("/profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
+	route.Router("/user", userRoute)
 
 	// Start a new test server using the custom Router
 	ts := httptest.NewServer(route)
