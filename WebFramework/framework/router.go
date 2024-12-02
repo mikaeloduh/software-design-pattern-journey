@@ -5,20 +5,20 @@ import (
 	"strings"
 )
 
-type ExactMux struct {
-	routes   map[string]map[string]http.Handler // path -> method -> handler
-	subMuxes map[string]*ExactMux               // path segment -> sub-mux
+type Router struct {
+	routes    map[string]map[string]http.Handler // path -> method -> handler
+	subRoutes map[string]*Router                 // path segment -> sub-mux
 }
 
-func NewExactMux() *ExactMux {
-	return &ExactMux{
-		routes:   make(map[string]map[string]http.Handler),
-		subMuxes: make(map[string]*ExactMux),
+func NewRouter() *Router {
+	return &Router{
+		routes:    make(map[string]map[string]http.Handler),
+		subRoutes: make(map[string]*Router),
 	}
 }
 
 // Handle registers a handler for a specific path and method.
-func (e *ExactMux) Handle(path string, method string, handler http.Handler) {
+func (e *Router) Handle(path string, method string, handler http.Handler) {
 	// Remove leading and trailing slashes for consistent storage
 	path = strings.Trim(path, "/")
 	if _, exists := e.routes[path]; !exists {
@@ -28,14 +28,14 @@ func (e *ExactMux) Handle(path string, method string, handler http.Handler) {
 }
 
 // Router registers a sub-mux for a specific path segment.
-func (e *ExactMux) Router(path string, subMux *ExactMux) {
+func (e *Router) Router(path string, subMux *Router) {
 	// Remove leading and trailing slashes for consistent storage
 	path = strings.Trim(path, "/")
-	e.subMuxes[path] = subMux
+	e.subRoutes[path] = subMux
 }
 
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
-func (e *ExactMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Remove leading and trailing slashes from the request path
 	path := strings.Trim(r.URL.Path, "/")
 	method := r.Method
@@ -57,7 +57,7 @@ func (e *ExactMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check for sub-mux with matching first path segment
 	if len(segments) > 0 {
 		firstSegment := segments[0]
-		if subMux, ok := e.subMuxes[firstSegment]; ok {
+		if subMux, ok := e.subRoutes[firstSegment]; ok {
 			// Adjust the request URL path
 			remainingPath := strings.Join(segments[1:], "/")
 			r2 := r.Clone(r.Context())
