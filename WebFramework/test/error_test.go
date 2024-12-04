@@ -173,3 +173,74 @@ func TestCustomNotFound(t *testing.T) {
 		}
 	}
 }
+
+func TestCustomMethodNotAllowed(t *testing.T) {
+	router := framework.NewRouter()
+
+	// 創建自定義的 405 處理器
+	methodNotAllowedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		html := `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>405 - Method Not Allowed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 { color: #e67e22; }
+        .method { font-weight: bold; color: #c0392b; }
+    </style>
+</head>
+<body>
+    <h1>405 - Method Not Allowed</h1>
+    <p>The HTTP method <span class="method">` + r.Method + `</span> is not allowed for this resource.</p>
+    <p>Requested URL: ` + r.URL.Path + `</p>
+</body>
+</html>`
+		w.Write([]byte(html))
+	})
+
+	// 使用自定義的 405 處理中間件
+	router.Use(framework.CustomMethodNotAllowedMiddleware(methodNotAllowedHandler))
+
+	// 註冊一個只接受 GET 的路由
+	router.Handle("test", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK"))
+	}))
+
+	// 創建一個 POST 請求（不被允許的方法）
+	req := httptest.NewRequest(http.MethodPost, "/test", nil)
+	w := httptest.NewRecorder()
+
+	// 處理請求
+	router.ServeHTTP(w, req)
+
+	// 驗證回應
+	if w.Code != http.StatusMethodNotAllowed {
+		t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Code)
+	}
+
+	if contentType := w.Header().Get("Content-Type"); contentType != "text/html" {
+		t.Errorf("Expected Content-Type %q, got %q", "text/html", contentType)
+	}
+
+	// 確認回應包含預期的 HTML 內容
+	body := w.Body.String()
+	expectedContent := []string{
+		"405 - Method Not Allowed",
+		"is not allowed for this resource",
+		"POST",
+		"/test",
+	}
+
+	for _, content := range expectedContent {
+		if !strings.Contains(body, content) {
+			t.Errorf("Expected response to contain %q", content)
+		}
+	}
+}

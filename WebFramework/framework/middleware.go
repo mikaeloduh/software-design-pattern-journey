@@ -45,6 +45,14 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("404 page not found"))
 }
 
+func CustomMethodNotAllowedMiddleware(handler http.Handler) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handler.ServeHTTP(w, r)
+		})
+	}
+}
+
 func MethodNotAllowedMiddleware(_ http.Handler) http.Handler {
 	return http.HandlerFunc(MethodNotAllowedHandler)
 }
