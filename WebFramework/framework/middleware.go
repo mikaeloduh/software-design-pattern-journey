@@ -2,6 +2,8 @@ package framework
 
 import "net/http"
 
+type Middleware func(http.Handler) http.Handler
+
 func RecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -23,6 +25,14 @@ func CustomRecoverMiddleware(next http.Handler) http.Handler {
 		}()
 		next.ServeHTTP(w, r)
 	})
+}
+
+func CustomNotFoundMiddleware(handler http.Handler) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			handler.ServeHTTP(w, r)
+		})
+	}
 }
 
 func NotFoundMiddleware(_ http.Handler) http.Handler {

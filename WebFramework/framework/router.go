@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-type Middleware func(http.Handler) http.Handler
-
 type Router struct {
 	routes      map[string]map[string]http.Handler // path -> method -> handler
 	subRoutes   map[string]*Router                 // path segment -> sub-mux

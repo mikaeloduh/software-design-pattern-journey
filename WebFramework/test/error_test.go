@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"webframework/framework"
@@ -107,4 +108,68 @@ func TestMethodNotAllowedHandler(t *testing.T) {
 	assert.Equal(t, http.StatusMethodNotAllowed, resp.StatusCode)
 	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
 	assert.Equal(t, "405 method not allowed", string(body))
+}
+
+func TestCustomNotFound(t *testing.T) {
+	router := framework.NewRouter()
+
+	// 創建自定義的 404 處理器
+	customHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusNotFound)
+		html := `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>404 - Page Not Found</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>404 - Page Not Found</h1>
+    <p>The page you're looking for doesn't exist.</p>
+    <p>Requested URL: ` + r.URL.Path + `</p>
+</body>
+</html>`
+		w.Write([]byte(html))
+	})
+
+	// 使用自定義的 404 處理中間件
+	router.Use(framework.CustomNotFoundMiddleware(customHandler))
+
+	// 創建測試請求
+	req := httptest.NewRequest("GET", "/non-existent", nil)
+	w := httptest.NewRecorder()
+
+	// 處理請求
+	router.ServeHTTP(w, req)
+
+	// 驗證回應
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, w.Code)
+	}
+
+	if contentType := w.Header().Get("Content-Type"); contentType != "text/html" {
+		t.Errorf("Expected Content-Type %q, got %q", "text/html", contentType)
+	}
+
+	// 確認回應包含預期的 HTML 內容
+	body := w.Body.String()
+	expectedContent := []string{
+		"404 - Page Not Found",
+		"The page you're looking for doesn't exist",
+		"/non-existent", // 請求的 URL 路徑
+	}
+
+	for _, content := range expectedContent {
+		if !strings.Contains(body, content) {
+			t.Errorf("Expected response to contain %q", content)
+		}
+	}
 }
