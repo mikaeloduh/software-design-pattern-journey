@@ -1,14 +1,31 @@
 package framework
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 type Middleware func(http.Handler) http.Handler
+
+// ErrorAwareMiddleware 注入錯誤處理能力到請求上下文中
+func ErrorAwareMiddleware(errorAware ErrorAware) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := context.WithValue(r.Context(), "errorAware", errorAware)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
 
 func RecoverMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
+				if errorAware, ok := r.Context().Value("errorAware").(ErrorAware); ok {
+					errorAware.HandleError(NewError(ErrorTypeInternalServerError, "panic recovered", nil), w, r)
+				} else {
+					http.Error(w, "internal server error", http.StatusInternalServerError)
+				}
 			}
 		}()
 		next.ServeHTTP(w, r)
@@ -25,40 +42,4 @@ func CustomRecoverMiddleware(next http.Handler) http.Handler {
 		}()
 		next.ServeHTTP(w, r)
 	})
-}
-
-func CustomNotFoundMiddleware(handler http.Handler) Middleware {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			handler.ServeHTTP(w, r)
-		})
-	}
-}
-
-func NotFoundMiddleware(_ http.Handler) http.Handler {
-	return http.HandlerFunc(NotFoundHandler)
-}
-
-func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 page not found"))
-}
-
-func CustomMethodNotAllowedMiddleware(handler http.Handler) Middleware {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			handler.ServeHTTP(w, r)
-		})
-	}
-}
-
-func MethodNotAllowedMiddleware(_ http.Handler) http.Handler {
-	return http.HandlerFunc(MethodNotAllowedHandler)
-}
-
-func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write([]byte("405 method not allowed"))
 }

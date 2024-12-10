@@ -1,153 +1,225 @@
 package test
 
 import (
-	"io/ioutil"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"webframework/framework"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func errorProneHandler(w http.ResponseWriter, r *http.Request) {
-	panic("simulating internal server error")
+// JSONErrorHandler 自定義的 JSON 格式錯誤處理器
+type JSONErrorHandler struct {
+	errorTypes []framework.ErrorType
 }
 
-func userErrorHandler(w http.ResponseWriter, r *http.Request) {
-	panic("simulating internal server error")
+func NewJSONErrorHandler(types ...framework.ErrorType) *JSONErrorHandler {
+	return &JSONErrorHandler{errorTypes: types}
+}
+
+func (h *JSONErrorHandler) CanHandle(err framework.ErrorType) bool {
+	for _, t := range h.errorTypes {
+		if t == err {
+			return true
+		}
+	}
+	return false
+}
+
+func (h *JSONErrorHandler) HandleError(err *framework.Error, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	response := map[string]interface{}{
+		"error":   string(err.Type),
+		"path":    r.URL.String(), // 使用完整 URL
+		"message": err.Error(),
+	}
+
+	switch err.Type {
+	case framework.ErrorTypeNotFound:
+		w.WriteHeader(http.StatusNotFound)
+	case framework.ErrorTypeMethodNotAllowed:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		response["method"] = r.Method
+	case framework.ErrorTypeBadRequest:
+		w.WriteHeader(http.StatusBadRequest)
+	case framework.ErrorTypeUnauthorized:
+		w.WriteHeader(http.StatusUnauthorized)
+	case framework.ErrorTypeForbidden:
+		w.WriteHeader(http.StatusForbidden)
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	json.NewEncoder(w).Encode(response)
+}
+
+// 模擬處理用戶請求的處理器
+func userHandler(w http.ResponseWriter, r *http.Request) {
+	// 從上下文中獲取錯誤處理器
+	errorAware := r.Context().Value("errorAware").(framework.ErrorAware)
+
+	// 檢查必要的參數
+	userID := r.URL.Query().Get("id")
+	if userID == "" {
+		errorAware.HandleError(
+			framework.NewError(
+				framework.ErrorTypeBadRequest,
+				"missing required parameter: id",
+				nil,
+			),
+			w, r,
+		)
+		return
+	}
+
+	// 模擬用戶驗證
+	if userID == "unauthorized" {
+		errorAware.HandleError(
+			framework.NewError(
+				framework.ErrorTypeUnauthorized,
+				"invalid credentials",
+				nil,
+			),
+			w, r,
+		)
+		return
+	}
+
+	// 模擬權限檢查
+	if userID == "forbidden" {
+		errorAware.HandleError(
+			framework.NewError(
+				framework.ErrorTypeForbidden,
+				"access denied",
+				nil,
+			),
+			w, r,
+		)
+		return
+	}
+
+	// 模擬找不到用戶
+	if userID == "nonexistent" {
+		errorAware.HandleError(
+			framework.NewError(
+				framework.ErrorTypeNotFound,
+				"user not found",
+				nil,
+			),
+			w, r,
+		)
+		return
+	}
+
+	// 正常回應
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"id":      userID,
+		"message": "user found",
+	})
 }
 
 func TestErrorHandling(t *testing.T) {
-	// Create a new Router and use the middleware
-	route := framework.NewRouter()
-	route.Use(framework.RecoverMiddleware)
+	router := framework.NewRouter()
 
-	route.Handle("/error", http.MethodGet, http.HandlerFunc(errorProneHandler))
+	// 註冊自定義的錯誤處理器
+	jsonHandler := NewJSONErrorHandler(
+		framework.ErrorTypeNotFound,
+		framework.ErrorTypeMethodNotAllowed,
+	)
+	router.RegisterErrorHandler(jsonHandler)
 
-	userRoute := framework.NewRouter()
-	userRoute.Handle("/error", http.MethodGet, http.HandlerFunc(userErrorHandler))
-	route.Router("/user", userRoute)
-
-	// Start a new test server using the custom Router
-	ts := httptest.NewServer(route)
-	defer ts.Close()
-
-	tests := []struct {
-		method       string
-		path         string
-		expectedCode int
-		expectedBody string
-	}{
-		{"GET", "/error", http.StatusInternalServerError, "internal server error\n"},
-		{"GET", "/user/error", http.StatusInternalServerError, "internal server error\n"},
-	}
-
-	for _, tc := range tests {
-		// Create a new HTTP request
-		req, err := http.NewRequest(tc.method, ts.URL+tc.path, nil)
-		assert.NoError(t, err)
-
-		// Send the request
-		resp, err := http.DefaultClient.Do(req)
-		assert.NoError(t, err)
-		defer resp.Body.Close()
-
-		// Read the response body
-		body, err := ioutil.ReadAll(resp.Body)
-		assert.NoError(t, err)
-
-		// Check status code and response body
-		assert.Equal(t, tc.expectedCode, resp.StatusCode, "Unexpected status code for path %s", tc.path)
-		assert.Equal(t, tc.expectedBody, string(body), "Unexpected response body for path %s", tc.path)
-	}
-}
-
-func TestNotFoundHandler(t *testing.T) {
-	route := framework.NewRouter()
-	ts := httptest.NewServer(route)
-	defer ts.Close()
-
-	resp, err := http.Get(ts.URL + "/nonexistent")
-	assert.NoError(t, err)
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	assert.NoError(t, err)
-
-	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
-	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
-	assert.Equal(t, "404 page not found", string(body))
-}
-
-func TestMethodNotAllowedHandler(t *testing.T) {
-	route := framework.NewRouter()
-
-	// Register a handler for GET method only
-	route.Handle("test", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 註冊一個測試路由
+	router.Handle("/test", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK"))
 	}))
 
-	ts := httptest.NewServer(route)
-	defer ts.Close()
+	tests := []struct {
+		name           string
+		method         string
+		path           string
+		expectedCode   int
+		expectedError  string
+		expectedMethod string
+	}{
+		{
+			name:          "404 error - path not found",
+			method:        http.MethodGet,
+			path:          "/non-existent",
+			expectedCode:  http.StatusNotFound,
+			expectedError: string(framework.ErrorTypeNotFound),
+		},
+		{
+			name:           "405 error - method not allowed",
+			method:         http.MethodPost,
+			path:           "/test",
+			expectedCode:   http.StatusMethodNotAllowed,
+			expectedError:  string(framework.ErrorTypeMethodNotAllowed),
+			expectedMethod: http.MethodPost,
+		},
+	}
 
-	// Try to access with POST method
-	req, err := http.NewRequest(http.MethodPost, ts.URL+"/test", nil)
-	assert.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(tt.method, tt.path, nil)
+			w := httptest.NewRecorder()
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	assert.NoError(t, err)
-	defer resp.Body.Close()
+			router.ServeHTTP(w, req)
 
-	body, err := ioutil.ReadAll(resp.Body)
-	assert.NoError(t, err)
+			// 檢查狀態碼
+			if w.Code != tt.expectedCode {
+				t.Errorf("Expected status code %d, got %d", tt.expectedCode, w.Code)
+			}
 
-	assert.Equal(t, http.StatusMethodNotAllowed, resp.StatusCode)
-	assert.Equal(t, "text/plain; charset=utf-8", resp.Header.Get("Content-Type"))
-	assert.Equal(t, "405 method not allowed", string(body))
+			// 檢查 Content-Type
+			if contentType := w.Header().Get("Content-Type"); contentType != "application/json" {
+				t.Errorf("Expected Content-Type %q, got %q", "application/json", contentType)
+			}
+
+			// 解析回應
+			var response map[string]interface{}
+			if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+				t.Fatalf("Failed to decode response: %v", err)
+			}
+
+			// 檢查錯誤類型
+			if response["error"] != tt.expectedError {
+				t.Errorf("Expected error %q, got %q", tt.expectedError, response["error"])
+			}
+
+			// 檢查路徑
+			if response["path"] != tt.path {
+				t.Errorf("Expected path %q, got %q", tt.path, response["path"])
+			}
+
+			// 對於 405 錯誤，檢查方法
+			if tt.expectedMethod != "" {
+				if method, ok := response["method"].(string); !ok || method != tt.expectedMethod {
+					t.Errorf("Expected method %q, got %q", tt.expectedMethod, method)
+				}
+			}
+		})
+	}
 }
 
-func TestCustomNotFound(t *testing.T) {
+// 測試多個錯誤處理器的優先級
+func TestErrorHandlerPriority(t *testing.T) {
 	router := framework.NewRouter()
 
-	// 創建自定義的 404 處理器
-	customHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusNotFound)
-		html := `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>404 - Page Not Found</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 { color: #e74c3c; }
-    </style>
-</head>
-<body>
-    <h1>404 - Page Not Found</h1>
-    <p>The page you're looking for doesn't exist.</p>
-    <p>Requested URL: ` + r.URL.Path + `</p>
-</body>
-</html>`
-		w.Write([]byte(html))
-	})
+	// 創建兩個不同的錯誤處理器
+	handler1 := NewJSONErrorHandler(framework.ErrorTypeNotFound)
+	handler2 := NewJSONErrorHandler(framework.ErrorTypeNotFound)
 
-	// 使用自定義的 404 處理中間件
-	router.Use(framework.CustomNotFoundMiddleware(customHandler))
+	// 註冊處理器（後註冊的優先級更高）
+	router.RegisterErrorHandler(handler1)
+	router.RegisterErrorHandler(handler2)
 
-	// 創建測試請求
-	req := httptest.NewRequest("GET", "/non-existent", nil)
+	// 發送請求到不存在的路徑
+	req := httptest.NewRequest(http.MethodGet, "/non-existent", nil)
 	w := httptest.NewRecorder()
 
-	// 處理請求
 	router.ServeHTTP(w, req)
 
 	// 驗證回應
@@ -155,92 +227,109 @@ func TestCustomNotFound(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, w.Code)
 	}
 
-	if contentType := w.Header().Get("Content-Type"); contentType != "text/html" {
-		t.Errorf("Expected Content-Type %q, got %q", "text/html", contentType)
+	// 確認使用了正確的處理器
+	var response map[string]interface{}
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	// 確認回應包含預期的 HTML 內容
-	body := w.Body.String()
-	expectedContent := []string{
-		"404 - Page Not Found",
-		"The page you're looking for doesn't exist",
-		"/non-existent", // 請求的 URL 路徑
-	}
-
-	for _, content := range expectedContent {
-		if !strings.Contains(body, content) {
-			t.Errorf("Expected response to contain %q", content)
-		}
+	if response["error"] != string(framework.ErrorTypeNotFound) {
+		t.Errorf("Expected error %q, got %q", framework.ErrorTypeNotFound, response["error"])
 	}
 }
 
-func TestCustomMethodNotAllowed(t *testing.T) {
+func TestHandlerErrorHandling(t *testing.T) {
 	router := framework.NewRouter()
 
-	// 創建自定義的 405 處理器
-	methodNotAllowedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		html := `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>405 - Method Not Allowed</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 { color: #e67e22; }
-        .method { font-weight: bold; color: #c0392b; }
-    </style>
-</head>
-<body>
-    <h1>405 - Method Not Allowed</h1>
-    <p>The HTTP method <span class="method">` + r.Method + `</span> is not allowed for this resource.</p>
-    <p>Requested URL: ` + r.URL.Path + `</p>
-</body>
-</html>`
-		w.Write([]byte(html))
-	})
+	// 註冊錯誤處理器
+	jsonHandler := NewJSONErrorHandler(
+		framework.ErrorTypeBadRequest,
+		framework.ErrorTypeUnauthorized,
+		framework.ErrorTypeForbidden,
+		framework.ErrorTypeNotFound,
+	)
+	router.RegisterErrorHandler(jsonHandler)
 
-	// 使用自定義的 405 處理中間件
-	router.Use(framework.CustomMethodNotAllowedMiddleware(methodNotAllowedHandler))
+	// 註冊用戶處理器
+	router.Handle("/user", http.MethodGet, http.HandlerFunc(userHandler))
 
-	// 註冊一個只接受 GET 的路由
-	router.Handle("test", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("OK"))
-	}))
-
-	// 創建一個 POST 請求（不被允許的方法）
-	req := httptest.NewRequest(http.MethodPost, "/test", nil)
-	w := httptest.NewRecorder()
-
-	// 處理請求
-	router.ServeHTTP(w, req)
-
-	// 驗證回應
-	if w.Code != http.StatusMethodNotAllowed {
-		t.Errorf("Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Code)
+	tests := []struct {
+		name           string
+		path           string
+		expectedCode   int
+		expectedError  string
+		expectedMethod string
+	}{
+		{
+			name:          "400 error - missing id",
+			path:          "/user",
+			expectedCode:  http.StatusBadRequest,
+			expectedError: string(framework.ErrorTypeBadRequest),
+		},
+		{
+			name:          "401 error - unauthorized",
+			path:          "/user?id=unauthorized",
+			expectedCode:  http.StatusUnauthorized,
+			expectedError: string(framework.ErrorTypeUnauthorized),
+		},
+		{
+			name:          "403 error - forbidden",
+			path:          "/user?id=forbidden",
+			expectedCode:  http.StatusForbidden,
+			expectedError: string(framework.ErrorTypeForbidden),
+		},
+		{
+			name:          "404 error - user not found",
+			path:          "/user?id=nonexistent",
+			expectedCode:  http.StatusNotFound,
+			expectedError: string(framework.ErrorTypeNotFound),
+		},
+		{
+			name:          "200 success - valid user",
+			path:          "/user?id=123",
+			expectedCode:  http.StatusOK,
+			expectedError: "",
+		},
 	}
 
-	if contentType := w.Header().Get("Content-Type"); contentType != "text/html" {
-		t.Errorf("Expected Content-Type %q, got %q", "text/html", contentType)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
+			w := httptest.NewRecorder()
 
-	// 確認回應包含預期的 HTML 內容
-	body := w.Body.String()
-	expectedContent := []string{
-		"405 - Method Not Allowed",
-		"is not allowed for this resource",
-		"POST",
-		"/test",
-	}
+			router.ServeHTTP(w, req)
 
-	for _, content := range expectedContent {
-		if !strings.Contains(body, content) {
-			t.Errorf("Expected response to contain %q", content)
-		}
+			// 檢查狀態碼
+			if w.Code != tt.expectedCode {
+				t.Errorf("Expected status code %d, got %d", tt.expectedCode, w.Code)
+			}
+
+			// 解析回應
+			var response map[string]interface{}
+			if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+				t.Fatalf("Failed to decode response: %v", err)
+			}
+
+			// 對於錯誤情況，檢查錯誤類型和消息
+			if tt.expectedError != "" {
+				if response["error"] != tt.expectedError {
+					t.Errorf("Expected error %q, got %q", tt.expectedError, response["error"])
+				}
+				if response["path"] != tt.path {
+					t.Errorf("Expected path %q, got %q", tt.path, response["path"])
+				}
+				if msg, ok := response["message"].(string); !ok || msg == "" {
+					t.Error("Expected non-empty error message")
+				}
+			} else {
+				// 對於成功情況，檢查用戶數據
+				if id, ok := response["id"].(string); !ok || id != "123" {
+					t.Errorf("Expected user id %q, got %q", "123", id)
+				}
+				if msg, ok := response["message"].(string); !ok || msg != "user found" {
+					t.Errorf("Expected message %q, got %q", "user found", msg)
+				}
+			}
+		})
 	}
 }
