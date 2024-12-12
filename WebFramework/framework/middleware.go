@@ -43,3 +43,18 @@ func CustomRecoverMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func LoggerMiddleware(c *Context) {
+	// Just a demo: you might log the request here
+	// proceed
+	c.Next()
+}
+
+func RecoveryMiddleware(c *Context) {
+	defer func() {
+		if r := recover(); r != nil {
+			c.AbortWithError(http.ErrAbortHandler)
+		}
+	}()
+	c.Next()
+}

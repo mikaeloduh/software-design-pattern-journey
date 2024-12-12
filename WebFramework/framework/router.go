@@ -5,132 +5,164 @@ import (
 	"strings"
 )
 
+// node represents a route node for simple demonstration.
+type node struct {
+	path     string
+	children map[string]*node
+	handlers map[string]HandlerFunc // method -> handler
+}
+
+// Router represents the router with middleware and error handlers
 type Router struct {
-	routes        map[string]map[string]http.Handler
-	subRoutes     map[string]*Router
-	middlewares   []Middleware
-	errorHandlers []ErrorHandler
-	parent        *Router // 指向父路由器
+	root         *node
+	middlewares  []HandlerFunc
+	errorHandler ErrorHandler
 }
 
+// NewRouter creates a new Router instance
 func NewRouter() *Router {
-	r := &Router{
-		routes:        make(map[string]map[string]http.Handler),
-		subRoutes:     make(map[string]*Router),
-		errorHandlers: []ErrorHandler{&DefaultErrorHandler{}}, // 預設錯誤處理器
+	return &Router{
+		root: &node{
+			children: make(map[string]*node),
+			handlers: make(map[string]HandlerFunc),
+		},
+		errorHandler: &JSONErrorHandler{},
 	}
-	// 添加錯誤處理中間件
-	r.Use(ErrorAwareMiddleware(r))
-	return r
 }
 
-// RegisterErrorHandler 註冊一個錯誤處理器
-func (e *Router) RegisterErrorHandler(handler ErrorHandler) {
-	e.errorHandlers = append(e.errorHandlers, handler)
+// Use adds global middlewares
+func (r *Router) Use(m ...HandlerFunc) {
+	r.middlewares = append(r.middlewares, m...)
 }
 
-// HandleError 處理錯誤
-func (e *Router) HandleError(err *Error, w http.ResponseWriter, r *http.Request) {
-	// 從後往前查找，讓後註冊的處理器優先處理
-	for i := len(e.errorHandlers) - 1; i >= 0; i-- {
-		handler := e.errorHandlers[i]
-		if handler.CanHandle(err.Type) {
-			handler.HandleError(err, w, r)
-			return
-		}
-	}
-
-	// 如果沒有處理器可以處理，且有父路由器，則交給父路由器處理
-	if e.parent != nil {
-		e.parent.HandleError(err, w, r)
+// Handle registers a route with a specific HTTP method
+func (r *Router) Handle(method string, path string, handler HandlerFunc) {
+	trimmed := strings.Trim(path, "/")
+	if trimmed == "" {
+		// 是根路由
+		r.root.handlers[method] = handler
 		return
 	}
 
-	// 如果都沒有處理器可以處理，使用預設處理器
-	(&DefaultErrorHandler{}).HandleError(err, w, r)
-}
-
-// Use adds middleware to the router
-func (e *Router) Use(middleware ...Middleware) {
-	e.middlewares = append(e.middlewares, middleware...)
-}
-
-// Handle registers a new route with a matcher for the URL path and method
-func (e *Router) Handle(path string, method string, handler http.Handler) {
-	// 標準化路徑
-	path = strings.Trim(path, "/")
-	if path == "" {
-		path = "/"
-	}
-	if _, ok := e.routes[path]; !ok {
-		e.routes[path] = make(map[string]http.Handler)
-	}
-	e.routes[path][method] = handler
-}
-
-// Router registers a new sub-router
-func (e *Router) Router(path string, subRouter *Router) {
-	// 標準化路徑
-	path = strings.Trim(path, "/")
-	if path == "" {
-		path = "/"
-	}
-	subRouter.parent = e // 設置父路由器
-	e.subRoutes[path] = subRouter
-}
-
-// ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
-func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := strings.Trim(r.URL.Path, "/")
-	if path == "" {
-		path = "/"
-	}
-	method := r.Method
-
-	// 檢查完整路徑
-	if methodHandlers, ok := e.routes[path]; ok {
-		if h, ok := methodHandlers[method]; ok {
-			handler := e.applyMiddleware(h)
-			handler.ServeHTTP(w, r)
-			return
-		}
-		// 方法不允許
-		e.HandleError(NewError(ErrorTypeMethodNotAllowed, "", nil), w, r)
-		return
-	}
-
-	// 檢查子路由
-	segments := strings.Split(path, "/")
-	for i := len(segments); i > 0; i-- {
-		prefix := strings.Join(segments[:i], "/")
-		if prefix == "" {
-			prefix = "/"
-		}
-		if subMux, ok := e.subRoutes[prefix]; ok {
-			remainingPath := ""
-			if i < len(segments) {
-				remainingPath = strings.Join(segments[i:], "/")
+	segments := strings.Split(trimmed, "/")
+	current := r.root
+	for _, seg := range segments {
+		if current.children[seg] == nil {
+			current.children[seg] = &node{
+				path:     seg,
+				children: make(map[string]*node),
+				handlers: make(map[string]HandlerFunc),
 			}
-			r2 := r.Clone(r.Context())
-			r2.URL.Path = "/" + remainingPath
-			subMux.ServeHTTP(w, r2)
-			return
 		}
+		current = current.children[seg]
 	}
-
-	// 路徑不存在
-	e.HandleError(NewError(ErrorTypeNotFound, "", nil), w, r)
+	current.handlers[method] = handler
 }
 
-func (e *Router) applyMiddleware(handler http.Handler) http.Handler {
-	h := handler
-	for i := len(e.middlewares) - 1; i >= 0; i-- {
-		h = e.middlewares[i](h)
+// Group creates a route group with specific prefix
+func (r *Router) Group(prefix string) *RouteGroup {
+	return &RouteGroup{
+		prefix: prefix,
+		router: r,
 	}
-	return h
 }
 
-// GetErrorAware 返回一個實現了 ErrorAware 接口的對象
-func (e *Router) GetErrorAware() ErrorAware {
-	return e
+// ServeHTTP implements http.Handler
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	c := &Context{
+		ResponseWriter: w,
+		Request:        req,
+		Keys:           make(map[string]interface{}),
+		errorHandler:   r.errorHandler,
+		index:          -1,
+	}
+
+	pathSegments := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
+	if req.URL.Path == "/" {
+		pathSegments = []string{}
+	}
+
+	n, params := r.matchNode(pathSegments)
+	if n == nil {
+		c.AbortWithError(NewError(ErrorTypeNotFound, "not found", nil))
+		return
+	}
+
+	handler := n.handlers[req.Method]
+	if handler == nil {
+		c.AbortWithError(NewError(ErrorTypeMethodNotAllowed, "method not supported", nil))
+		return
+	}
+
+	// 將動態參數放入 c.params
+	c.params = params
+
+	// Combine global middlewares and final handler
+	c.handlers = append(r.middlewares, handler)
+	c.Next()
+}
+func (r *Router) matchNode(segments []string) (*node, map[string]string) {
+	current := r.root
+	params := make(map[string]string)
+
+	for _, seg := range segments {
+		var child *node
+		var paramKey string
+
+		if current.children[seg] != nil {
+			child = current.children[seg]
+		} else {
+			// Check for param node
+			for k, ch := range current.children {
+				if strings.HasPrefix(k, ":") {
+					child = ch
+					paramKey = k[1:] // remove ':' prefix
+					break
+				}
+			}
+		}
+
+		if child == nil {
+			return nil, nil
+		}
+
+		if paramKey != "" {
+			// Store the actual segment as the param value
+			params[paramKey] = seg
+		}
+		current = child
+	}
+
+	return current, params
+}
+
+// RouteGroup allows grouping routes
+type RouteGroup struct {
+	prefix string
+	router *Router
+	mws    []HandlerFunc
+}
+
+// Use adds middleware to the group
+func (g *RouteGroup) Use(m ...HandlerFunc) {
+	g.mws = append(g.mws, m...)
+}
+
+// Handle registers a handler under group prefix
+func (g *RouteGroup) Handle(method, path string, handler HandlerFunc) {
+	// Combine group prefix + path
+	fullpath := g.prefix + path
+	// Wrap handler with group's middleware
+	finalHandler := func(c *Context) {
+		// prepend group's middleware
+		finalChain := append(g.mws, handler)
+		c.handlers = append(c.handlers, finalChain...)
+		c.Next()
+	}
+	g.router.Handle(method, fullpath, finalHandler)
+}
+
+// GET is a shortcut for Handle("GET", path, handler)
+func (g *RouteGroup) GET(path string, handler HandlerFunc) {
+	g.Handle(http.MethodGet, path, handler)
 }

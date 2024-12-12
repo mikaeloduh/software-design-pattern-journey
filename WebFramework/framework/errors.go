@@ -41,14 +41,6 @@ func NewError(errType ErrorType, message string, err error) *Error {
 	}
 }
 
-// ErrorHandler 定義了錯誤處理器的接口
-type ErrorHandler interface {
-	// CanHandle 判斷是否可以處理該類型的錯誤
-	CanHandle(err ErrorType) bool
-	// HandleError 處理特定類型的錯誤
-	HandleError(err *Error, w http.ResponseWriter, r *http.Request)
-}
-
 // DefaultErrorHandler 提供預設的錯誤處理實現
 type DefaultErrorHandler struct{}
 
@@ -87,4 +79,21 @@ func (h *DefaultErrorHandler) HandleError(err *Error, w http.ResponseWriter, r *
 // ErrorAware 定義了可以處理錯誤的介面
 type ErrorAware interface {
 	HandleError(err *Error, w http.ResponseWriter, r *http.Request)
+}
+
+// ErrorHandler interface
+type ErrorHandler interface {
+	HandleError(err error, c *Context)
+}
+
+// JSONErrorHandler is a sample ErrorHandler returning errors in JSON
+type JSONErrorHandler struct{}
+
+func (j *JSONErrorHandler) HandleError(err error, c *Context) {
+	if err == nil {
+		return
+	}
+	c.JSON(http.StatusInternalServerError, map[string]string{
+		"error": err.Error(),
+	})
 }

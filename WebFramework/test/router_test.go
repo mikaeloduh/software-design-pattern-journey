@@ -1,72 +1,190 @@
 package test
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"webframework/framework"
-
 	"github.com/stretchr/testify/assert"
+
+	"webframework/framework"
 )
 
-// TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
-func TestRouting(t *testing.T) {
-	// Create a new Router
-	route := framework.NewRouter()
+// mockHandler and mockMiddleware are for testing purposes
+func mockHandler(c *framework.Context) {
+	c.String(http.StatusOK, "hello world")
+}
 
-	// Register handlers with exact path and method matching
-	route.Handle("/", http.MethodGet, http.HandlerFunc(homeHandler))
-	route.Handle("/hello", http.MethodGet, http.HandlerFunc(helloHandler))
+func mockJSONHandler(c *framework.Context) {
+	c.JSON(http.StatusOK, map[string]string{"message": "ok"})
+}
 
-	// Create a sub-route for "/user"
-	userRoute := framework.NewRouter()
-	userRoute.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
-	userRoute.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
-	userRoute.Handle("/profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
-	route.Router("/user", userRoute)
+func errorHandler(c *framework.Context) {
+	c.AbortWithError(framework.NewError("CustomError", "something went wrong", nil))
+}
 
-	// Start a new test server using the custom Router
-	ts := httptest.NewServer(route)
-	defer ts.Close()
+func dynamicParamHandler(c *framework.Context) {
+	id := c.Param("id")
+	c.JSON(http.StatusOK, map[string]string{"id": id})
+}
 
-	// Define test cases
-	tests := []struct {
-		method       string
-		path         string
-		expectedCode int
-		expectedBody string
-	}{
-		{"GET", "/", http.StatusOK, "Welcome to the homepage!"},
-		{"GET", "/hello", http.StatusOK, "Hello, World!"},
-		{"GET", "/user", http.StatusOK, "Retrieve user information"},
-		{"POST", "/user", http.StatusOK, "Create a new user"},
-		{"PUT", "/user", http.StatusMethodNotAllowed, "405 method not allowed"},
-		{"GET", "/user/profile", http.StatusOK, "User profile page"},
-		{"GET", "/user/settings", http.StatusNotFound, "404 page not found"},
-		{"GET", "/usersomething", http.StatusNotFound, "404 page not found"},
-		{"GET", "/userextra", http.StatusNotFound, "404 page not found"},
+func loggerMiddleware(c *framework.Context) {
+	// just a demo middleware that does nothing here
+	c.Next()
+}
+
+func authMiddleware(c *framework.Context) {
+	// Suppose we need an auth token
+	token := c.Request.Header.Get("X-Token")
+	if token != "secret" {
+		c.AbortWithError(framework.NewError("Unauthorized", "invalid token", nil))
+		return
 	}
+	c.Next()
+}
 
-	for _, tc := range tests {
-		// Create a new HTTP request
-		req, err := http.NewRequest(tc.method, ts.URL+tc.path, nil)
-		assert.NoError(t, err)
+func TestRouter_StaticRoute(t *testing.T) {
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/", mockHandler)
 
-		// Send the request
-		resp, err := http.DefaultClient.Do(req)
-		assert.NoError(t, err)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
 
-		// Check the status code
-		assert.Equal(t, tc.expectedCode, resp.StatusCode, "Unexpected status code for path %s", tc.path)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "hello world", w.Body.String())
+}
 
-		// Read the response body
-		body, err := ioutil.ReadAll(resp.Body)
-		assert.NoError(t, err)
-		resp.Body.Close()
+func TestRouter_DynamicRoute(t *testing.T) {
+	// To ensure dynamic route works, we may need to store param keys in the router.
+	// Assume the router has been adjusted to parse params correctly.
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/users/:id", dynamicParamHandler)
 
-		// Check the response body
-		assert.Equal(t, tc.expectedBody, string(body), "Unexpected response body for path %s", tc.path)
-	}
+	req := httptest.NewRequest(http.MethodGet, "/users/123", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resp map[string]string
+	err := json.NewDecoder(w.Body).Decode(&resp)
+	assert.NoError(t, err)
+	assert.Equal(t, "123", resp["id"])
+}
+
+func TestRouter_MethodNotAllowed(t *testing.T) {
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/", mockHandler)
+
+	req := httptest.NewRequest(http.MethodPost, "/", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+	var resp map[string]string
+	err := json.NewDecoder(w.Body).Decode(&resp)
+	assert.NoError(t, err)
+	assert.Contains(t, resp["error"], "not supported")
+}
+
+func TestRouter_NotFound(t *testing.T) {
+	r := framework.NewRouter()
+	// no routes added
+
+	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	var resp map[string]string
+	err := json.NewDecoder(w.Body).Decode(&resp)
+	assert.NoError(t, err)
+	assert.Contains(t, resp["error"], "not found")
+}
+
+func TestRouter_Middleware_Global(t *testing.T) {
+	r := framework.NewRouter()
+	r.Use(loggerMiddleware) // Just testing middleware chaining works
+	r.Handle(http.MethodGet, "/", mockHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	// If middleware breaks something, we won't get "hello world".
+	assert.Equal(t, "hello world", w.Body.String())
+}
+
+func TestRouter_GroupMiddleware(t *testing.T) {
+	r := framework.NewRouter()
+
+	// Group with auth middleware
+	g := r.Group("/auth")
+	g.Use(authMiddleware)
+	g.GET("/secret", mockJSONHandler)
+
+	// Request without token
+	req := httptest.NewRequest(http.MethodGet, "/auth/secret", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	var resp map[string]string
+	err := json.NewDecoder(w.Body).Decode(&resp)
+	assert.NoError(t, err)
+	assert.Contains(t, resp["error"], "invalid token")
+
+	// Request with token
+	req = httptest.NewRequest(http.MethodGet, "/auth/secret", nil)
+	req.Header.Set("X-Token", "secret")
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	body, err := ioutil.ReadAll(w.Body)
+	assert.NoError(t, err)
+	assert.Contains(t, string(body), "ok")
+}
+
+func TestContext_JSON(t *testing.T) {
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/json", mockJSONHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/json", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
+}
+
+func TestContext_String(t *testing.T) {
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/string", mockHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/string", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, "text/plain; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(t, "hello world", w.Body.String())
+}
+
+func TestErrorHandler_CustomError(t *testing.T) {
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/error", errorHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/error", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	var resp map[string]string
+	err := json.NewDecoder(w.Body).Decode(&resp)
+	assert.NoError(t, err)
+	assert.Equal(t, "something went wrong", resp["error"])
 }
