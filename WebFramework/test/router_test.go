@@ -21,10 +21,6 @@ func mockJSONHandler(c *framework.Context) {
 	c.JSON(http.StatusOK, map[string]string{"message": "ok"})
 }
 
-func errorHandler(c *framework.Context) {
-	c.AbortWithError(framework.NewError("CustomError", "something went wrong", nil))
-}
-
 func dynamicParamHandler(c *framework.Context) {
 	id := c.Param("id")
 	c.JSON(http.StatusOK, map[string]string{"id": id})
@@ -83,7 +79,7 @@ func TestRouter_MethodNotAllowed(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
 
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
@@ -99,7 +95,7 @@ func TestRouter_NotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
 	assert.NoError(t, err)
@@ -132,7 +128,7 @@ func TestRouter_GroupMiddleware(t *testing.T) {
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
 	assert.NoError(t, err)
@@ -174,17 +170,26 @@ func TestContext_String(t *testing.T) {
 	assert.Equal(t, "hello world", w.Body.String())
 }
 
-func TestErrorHandler_CustomError(t *testing.T) {
-	r := framework.NewRouter()
-	r.Handle(http.MethodGet, "/error", errorHandler)
+// Fake handler to trigger a custom error
+func customErrorHandler(c *framework.Context) {
+	c.AbortWithError(framework.NewError("PaymentRequired", "payment is required", nil))
+}
 
-	req := httptest.NewRequest(http.MethodGet, "/error", nil)
+func TestCustomErrorResponse(t *testing.T) {
+	// Register a status code
+	framework.RegisterErrorResponse("PaymentRequired", 402)
+
+	r := framework.NewRouter()
+	r.Handle(http.MethodGet, "/pay", customErrorHandler)
+
+	req := httptest.NewRequest(http.MethodGet, "/pay", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.Equal(t, 402, w.Code)
+
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
 	assert.NoError(t, err)
-	assert.Equal(t, "something went wrong", resp["error"])
+	assert.Equal(t, resp["error"], "payment is required")
 }
