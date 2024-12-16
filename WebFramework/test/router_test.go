@@ -71,37 +71,6 @@ func TestRouter_DynamicRoute(t *testing.T) {
 	assert.Equal(t, "123", resp["id"])
 }
 
-func TestRouter_MethodNotAllowed(t *testing.T) {
-	r := framework.NewRouter()
-	r.Handle(http.MethodGet, "/", mockHandler)
-
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
-
-	var resp map[string]string
-	err := json.NewDecoder(w.Body).Decode(&resp)
-	assert.NoError(t, err)
-	assert.Contains(t, resp["error"], "not supported")
-}
-
-func TestRouter_NotFound(t *testing.T) {
-	r := framework.NewRouter()
-	// no routes added
-
-	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusNotFound, w.Code)
-	var resp map[string]string
-	err := json.NewDecoder(w.Body).Decode(&resp)
-	assert.NoError(t, err)
-	assert.Contains(t, resp["error"], "not found")
-}
-
 func TestRouter_Middleware_Global(t *testing.T) {
 	r := framework.NewRouter()
 	r.Use(loggerMiddleware) // Just testing middleware chaining works

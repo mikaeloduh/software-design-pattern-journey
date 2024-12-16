@@ -7,7 +7,46 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"webframework/framework"
 )
+
+type RegisterRequest struct {
+	Username string `json:"username" xml:"username"`
+	Email    string `json:"email" xml:"email"`
+	Password string `json:"password" xml:"password"`
+}
+
+type RegisterResponse struct {
+	Username string `json:"username" xml:"username"`
+	Email    string `json:"email" xml:"email"`
+}
+
+func Register(c *framework.Context) {
+	var reqData RegisterRequest
+	if err := c.ReadBodyAsObject(&reqData); err != nil {
+		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "invalid token", err))
+		return
+	}
+
+	respData := RegisterResponse{
+		Username: reqData.Username,
+		Email:    reqData.Email,
+	}
+
+	accept := c.Request.Header.Get("Accept")
+	if accept == "application/xml" {
+		if err := c.WriteXML(respData); err != nil {
+			c.AbortWithError(framework.NewError(framework.ErrorTypeInternalServerError, "xml encode error", err))
+			return
+		}
+	} else {
+		if err := c.WriteJSON(respData); err != nil {
+			c.AbortWithError(framework.NewError(framework.ErrorTypeInternalServerError, "json encode error", err))
+			return
+		}
+	}
+}
 
 func TestRegisterHandlerJSON(t *testing.T) {
 	jsonBody := `{"username": "12345", "email": "John Doe", "password": "abc"}`
@@ -17,7 +56,10 @@ func TestRegisterHandlerJSON(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	Register(rr, req)
+	Register(&framework.Context{
+		ResponseWriter: rr,
+		Request:        req,
+	})
 
 	expectedResponse := `{"username": "12345", "email": "John Doe"}`
 
@@ -34,7 +76,10 @@ func TestRegisterHandlerXML(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	Register(rr, req)
+	Register(&framework.Context{
+		ResponseWriter: rr,
+		Request:        req,
+	})
 
 	expectedResponse := `<RegisterResponse><username>12345</username><email>John Doe</email></RegisterResponse>`
 
