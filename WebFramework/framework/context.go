@@ -58,6 +58,11 @@ func (c *Context) Param(key string) string {
 	return c.params[key]
 }
 
+// Status writes status code to header
+func (c *Context) Status(code int) {
+	c.ResponseWriter.WriteHeader(code)
+}
+
 // JSON sends a JSON response
 func (c *Context) JSON(code int, obj interface{}) {
 	c.ResponseWriter.Header().Set("Content-Type", "application/json")
