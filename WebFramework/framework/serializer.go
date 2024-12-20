@@ -22,14 +22,20 @@ func (c *Context) ReadBodyAsObject(obj interface{}) error {
 
 // WriteObjectAsJSON sets the Content-Type header to "application/json"
 // and writes the JSON-encoded object to the response writer.
-func (c *Context) WriteJSON(obj interface{}) error {
+func (c *Context) JSON(obj interface{}) {
 	c.ResponseWriter.Header().Set("Content-Type", "application/json")
-	return json.NewEncoder(c.ResponseWriter).Encode(obj)
+	if err := json.NewEncoder(c.ResponseWriter).Encode(obj); err != nil {
+		c.AbortWithError(err)
+		return
+	}
 }
 
 // WriteObjectAsXML sets the Content-Type header to "application/xml"
 // and writes the XML-encoded object to the response writer.
-func (c *Context) WriteXML(obj interface{}) error {
+func (c *Context) Xml(obj interface{}) {
 	c.ResponseWriter.Header().Set("Content-Type", "application/xml")
-	return xml.NewEncoder(c.ResponseWriter).Encode(obj)
+	if err := xml.NewEncoder(c.ResponseWriter).Encode(obj); err != nil {
+		c.AbortWithError(err)
+		return
+	}
 }

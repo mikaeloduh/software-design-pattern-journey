@@ -36,12 +36,34 @@ func (j *JSONErrorHandler) HandleError(err error, c *Context) {
 		if !exists {
 			code = http.StatusInternalServerError
 		}
-		c.JSON(code, map[string]string{
+		c.Status(code)
+		c.JSON(map[string]string{
 			"error": e.Error(),
 		})
 	} else {
-		c.JSON(http.StatusInternalServerError, map[string]string{
+		c.Status(http.StatusInternalServerError)
+		c.JSON(map[string]string{
 			"error": err.Error(),
 		})
+	}
+}
+
+// StringErrorHandler is an ErrorHandler using pain/text format
+type StringErrorHandler struct{}
+
+func (s *StringErrorHandler) HandleError(err error, c *Context) {
+	if err == nil {
+		return
+	}
+	if e, ok := err.(*Error); ok {
+		code, exists := errorStatusMap[e.Type]
+		if !exists {
+			code = http.StatusInternalServerError
+		}
+		c.Status(code)
+		c.String(e.Error())
+	} else {
+		c.Status(http.StatusInternalServerError)
+		c.String(err.Error())
 	}
 }

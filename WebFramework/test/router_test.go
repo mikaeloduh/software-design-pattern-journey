@@ -14,16 +14,18 @@ import (
 
 // mockHandler and mockMiddleware are for testing purposes
 func mockHandler(c *framework.Context) {
-	c.String(http.StatusOK, "hello world")
+	c.String("hello world")
 }
 
 func mockJSONHandler(c *framework.Context) {
-	c.JSON(http.StatusOK, map[string]string{"message": "ok"})
+	c.Status(http.StatusOK)
+	c.JSON(map[string]string{"message": "ok"})
 }
 
 func dynamicParamHandler(c *framework.Context) {
 	id := c.Param("id")
-	c.JSON(http.StatusOK, map[string]string{"id": id})
+	c.Status(http.StatusOK)
+	c.JSON(map[string]string{"id": id})
 }
 
 func loggerMiddleware(c *framework.Context) {

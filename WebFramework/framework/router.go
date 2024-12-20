@@ -59,6 +59,10 @@ func (r *Router) Handle(method string, path string, handler HandlerFunc) {
 	current.handlers[method] = handler
 }
 
+func (r *Router) HandleError(handler ErrorHandler) {
+	r.errorHandler = handler
+}
+
 // Group creates a route group with specific prefix
 func (r *Router) Group(prefix string) *RouteGroup {
 	return &RouteGroup{

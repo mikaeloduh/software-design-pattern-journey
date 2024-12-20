@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -34,17 +35,13 @@ func Register(c *framework.Context) {
 		Email:    reqData.Email,
 	}
 
-	accept := c.Request.Header.Get("Accept")
-	if accept == "application/xml" {
-		if err := c.WriteXML(respData); err != nil {
-			c.AbortWithError(framework.NewError(framework.ErrorTypeInternalServerError, "xml encode error", err))
-			return
-		}
-	} else {
-		if err := c.WriteJSON(respData); err != nil {
-			c.AbortWithError(framework.NewError(framework.ErrorTypeInternalServerError, "json encode error", err))
-			return
-		}
+	switch c.Request.Header.Get("Accept") {
+	case "application/xml":
+		c.Xml(respData)
+	case "application/json":
+		c.JSON(respData)
+	default:
+		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "unsupported accept", fmt.Errorf("accept header must be application/json")))
 	}
 }
 
@@ -53,6 +50,7 @@ func TestRegisterHandlerJSON(t *testing.T) {
 
 	req := httptest.NewRequest("POST", "/register", strings.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
 
 	rr := httptest.NewRecorder()
 

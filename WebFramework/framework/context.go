@@ -1,7 +1,6 @@
 package framework
 
 import (
-	"encoding/json"
 	"net/http"
 )
 
@@ -63,16 +62,11 @@ func (c *Context) Status(code int) {
 	c.ResponseWriter.WriteHeader(code)
 }
 
-// JSON sends a JSON response
-func (c *Context) JSON(code int, obj interface{}) {
-	c.ResponseWriter.Header().Set("Content-Type", "application/json")
-	c.ResponseWriter.WriteHeader(code)
-	json.NewEncoder(c.ResponseWriter).Encode(obj)
-}
-
 // String sends a plain text response
-func (c *Context) String(code int, format string) {
+func (c *Context) String(format string) {
 	c.ResponseWriter.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	c.ResponseWriter.WriteHeader(code)
-	c.ResponseWriter.Write([]byte(format))
+	if _, err := c.ResponseWriter.Write([]byte(format)); err != nil {
+		c.AbortWithError(err)
+		return
+	}
 }
