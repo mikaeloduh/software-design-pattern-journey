@@ -28,7 +28,7 @@ func NewRouter() *Router {
 			children: make(map[string]*node),
 			handlers: make(map[string]HandlerFunc),
 		},
-		errorHandler: &JSONErrorHandler{},
+		errorHandler: &DefaultErrorHandler{},
 	}
 }
 

@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"webframework/errors"
 	"webframework/framework"
 )
@@ -61,7 +62,7 @@ func Register(c *framework.Context) {
 
 func TestUserRegistration(t *testing.T) {
 	router := framework.NewRouter()
-	router.HandleError(&framework.StringErrorHandler{})
+	router.HandleError(&framework.DefaultErrorHandler{})
 	router.Handle(http.MethodPost, "/api/users", Register)
 
 	t.Run("register user successfully", func(t *testing.T) {

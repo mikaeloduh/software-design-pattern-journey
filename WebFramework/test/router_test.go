@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"webframework/errors"
 
+	"webframework/errors"
 	"webframework/framework"
 )
 
@@ -102,10 +102,7 @@ func TestRouter_GroupMiddleware(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
-	var resp map[string]string
-	err := json.NewDecoder(w.Body).Decode(&resp)
-	assert.NoError(t, err)
-	assert.Contains(t, resp["error"], "invalid token")
+	assert.Contains(t, "invalid token", w.Body.String())
 
 	// Request with token
 	req = httptest.NewRequest(http.MethodGet, "/auth/secret", nil)
@@ -158,8 +155,5 @@ func TestCustomErrorResponse(t *testing.T) {
 
 	assert.Equal(t, 402, w.Code)
 
-	var resp map[string]string
-	err := json.NewDecoder(w.Body).Decode(&resp)
-	assert.NoError(t, err)
-	assert.Equal(t, resp["error"], "payment is required")
+	assert.Equal(t, "payment is required", w.Body.String())
 }

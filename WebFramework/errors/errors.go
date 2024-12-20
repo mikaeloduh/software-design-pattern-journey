@@ -1,8 +1,6 @@
 package errors
 
-import (
-	"net/http"
-)
+import "net/http"
 
 var (
 	ErrorTypeNotFound            = NewError(http.StatusNotFound, nil)            // 404

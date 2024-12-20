@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
 	"webframework/framework"
 )
 
@@ -20,14 +21,12 @@ func TestRouter_MethodNotAllowed(t *testing.T) {
 
 	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
 
-	var resp map[string]string
-	err := json.NewDecoder(w.Body).Decode(&resp)
-	assert.NoError(t, err)
-	assert.Equal(t, resp["error"], http.StatusText(http.StatusMethodNotAllowed))
+	assert.Equal(t, http.StatusText(http.StatusMethodNotAllowed), w.Body.String())
 }
 
-func TestRouter_NotFound(t *testing.T) {
+func TestRouter_Custom_NotFound(t *testing.T) {
 	r := framework.NewRouter()
+	r.HandleError(&framework.JSONErrorHandler{})
 	// no routes added
 
 	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
@@ -38,5 +37,5 @@ func TestRouter_NotFound(t *testing.T) {
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
 	assert.NoError(t, err)
-	assert.Equal(t, resp["error"], http.StatusText(http.StatusNotFound))
+	assert.Equal(t, http.StatusText(http.StatusNotFound), resp["error"])
 }
