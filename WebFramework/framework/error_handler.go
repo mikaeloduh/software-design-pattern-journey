@@ -2,22 +2,9 @@ package framework
 
 import (
 	"net/http"
+
+	"webframework/errors"
 )
-
-// Global Error Types and Status Codes Mapping Table
-var errorStatusMap = map[ErrorType]int{
-	ErrorTypeNotFound:            http.StatusNotFound,            // 404
-	ErrorTypeMethodNotAllowed:    http.StatusMethodNotAllowed,    // 405
-	ErrorTypeBadRequest:          http.StatusBadRequest,          // 400
-	ErrorTypeUnauthorized:        http.StatusUnauthorized,        // 401
-	ErrorTypeForbidden:           http.StatusForbidden,           // 403
-	ErrorTypeInternalServerError: http.StatusInternalServerError, // 500
-}
-
-// RegisterErrorResponse allows developers to register or override the response status code for a given ErrorType.
-func RegisterErrorResponse(errType ErrorType, statusCode int) {
-	errorStatusMap[errType] = statusCode
-}
 
 // ErrorHandler handles errors
 type ErrorHandler interface {
@@ -31,9 +18,9 @@ func (j *JSONErrorHandler) HandleError(err error, c *Context) {
 	if err == nil {
 		return
 	}
-	if e, ok := err.(*Error); ok {
-		code, exists := errorStatusMap[e.Type]
-		if !exists {
+	if e, ok := err.(*errors.Error); ok {
+		code := e.Code
+		if code == 0 {
 			code = http.StatusInternalServerError
 		}
 		c.Status(code)
@@ -55,9 +42,9 @@ func (s *StringErrorHandler) HandleError(err error, c *Context) {
 	if err == nil {
 		return
 	}
-	if e, ok := err.(*Error); ok {
-		code, exists := errorStatusMap[e.Type]
-		if !exists {
+	if e, ok := err.(*errors.Error); ok {
+		code := e.Code
+		if code == 0 {
 			code = http.StatusInternalServerError
 		}
 		c.Status(code)

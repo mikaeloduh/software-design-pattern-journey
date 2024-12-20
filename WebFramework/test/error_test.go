@@ -23,7 +23,7 @@ func TestRouter_MethodNotAllowed(t *testing.T) {
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
 	assert.NoError(t, err)
-	assert.Contains(t, resp["error"], "not supported")
+	assert.Equal(t, resp["error"], http.StatusText(http.StatusMethodNotAllowed))
 }
 
 func TestRouter_NotFound(t *testing.T) {
@@ -38,5 +38,5 @@ func TestRouter_NotFound(t *testing.T) {
 	var resp map[string]string
 	err := json.NewDecoder(w.Body).Decode(&resp)
 	assert.NoError(t, err)
-	assert.Contains(t, resp["error"], "not found")
+	assert.Equal(t, resp["error"], http.StatusText(http.StatusNotFound))
 }

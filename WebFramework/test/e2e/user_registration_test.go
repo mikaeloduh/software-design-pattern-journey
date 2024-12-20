@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"webframework/errors"
 	"webframework/framework"
 )
 
@@ -29,7 +30,7 @@ type RegisterResponse struct {
 func Register(c *framework.Context) {
 	var req RegisterRequest
 	if err := c.ReadBodyAsObject(&req); err != nil {
-		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "invalid token", err))
+		c.AbortWithError(errors.ErrorTypeBadRequest)
 		return
 	}
 
@@ -39,12 +40,12 @@ func Register(c *framework.Context) {
 		return
 	}
 	if !matchString {
-		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "Registration's format incorrect.", fmt.Errorf("invalid email address: %s", req.Email)))
+		c.AbortWithError(errors.NewError(http.StatusBadRequest, fmt.Errorf(`Registration's format incorrect.`)))
 		return
 	}
 
 	if req.Email == "exist@email.com" {
-		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "Duplicate email", fmt.Errorf("duplicate email: %s", req.Email)))
+		c.AbortWithError(errors.NewError(http.StatusBadRequest, fmt.Errorf("Duplicate email")))
 		return
 	}
 

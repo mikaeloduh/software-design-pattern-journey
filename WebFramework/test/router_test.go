@@ -2,12 +2,14 @@ package test
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"webframework/errors"
 
 	"webframework/framework"
 )
@@ -37,7 +39,7 @@ func authMiddleware(c *framework.Context) {
 	// Suppose we need an auth token
 	token := c.Request.Header.Get("X-Token")
 	if token != "secret" {
-		c.AbortWithError(framework.NewError("Unauthorized", "invalid token", nil))
+		c.AbortWithError(errors.NewError(http.StatusUnauthorized, fmt.Errorf("invalid token")))
 		return
 	}
 	c.Next()
@@ -143,13 +145,10 @@ func TestContext_String(t *testing.T) {
 
 // Fake handler to trigger a custom error
 func customErrorHandler(c *framework.Context) {
-	c.AbortWithError(framework.NewError("PaymentRequired", "payment is required", nil))
+	c.AbortWithError(errors.NewError(http.StatusPaymentRequired, fmt.Errorf("payment is required")))
 }
 
 func TestCustomErrorResponse(t *testing.T) {
-	// Register a status code
-	framework.RegisterErrorResponse("PaymentRequired", 402)
-
 	r := framework.NewRouter()
 	r.Handle(http.MethodGet, "/pay", customErrorHandler)
 

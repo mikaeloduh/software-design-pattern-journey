@@ -3,6 +3,8 @@ package framework
 import (
 	"net/http"
 	"strings"
+
+	"webframework/errors"
 )
 
 // node represents a route node for simple demonstration.
@@ -88,13 +90,13 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	n, params := r.matchNode(pathSegments)
 	if n == nil {
-		c.AbortWithError(NewError(ErrorTypeNotFound, "not found", nil))
+		c.AbortWithError(errors.ErrorTypeNotFound)
 		return
 	}
 
 	handler := n.handlers[req.Method]
 	if handler == nil {
-		c.AbortWithError(NewError(ErrorTypeMethodNotAllowed, "method not supported", nil))
+		c.AbortWithError(errors.ErrorTypeMethodNotAllowed)
 		return
 	}
 

@@ -1,13 +1,13 @@
 package test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"webframework/errors"
 
 	"webframework/framework"
 )
@@ -26,7 +26,7 @@ type RegisterResponse struct {
 func Register(c *framework.Context) {
 	var reqData RegisterRequest
 	if err := c.ReadBodyAsObject(&reqData); err != nil {
-		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "invalid token", err))
+		c.AbortWithError(errors.ErrorTypeBadRequest)
 		return
 	}
 
@@ -41,7 +41,7 @@ func Register(c *framework.Context) {
 	case "application/json":
 		c.JSON(respData)
 	default:
-		c.AbortWithError(framework.NewError(framework.ErrorTypeBadRequest, "unsupported accept", fmt.Errorf("accept header must be application/json")))
+		c.AbortWithError(errors.ErrorTypeBadRequest)
 	}
 }
 
