@@ -20,6 +20,8 @@ type Context struct {
 	index    int
 
 	errorHandler ErrorHandler
+
+	router *Router
 }
 
 // HandlerFunc is a function that handles a request in the Context
@@ -42,7 +44,12 @@ func (c *Context) Abort() {
 func (c *Context) AbortWithError(err error) {
 	c.SetError(err)
 	c.Abort()
-	if c.errorHandler != nil {
+	// Instead of calling c.errorHandler directly, call Router's chain mechanism
+	// We might need a pointer to Router in Context for that:
+	if c.router != nil {
+		c.router.handleErrorChain(err, c)
+	} else if c.errorHandler != nil {
+		// fallback if no router
 		c.errorHandler.HandleError(err, c)
 	}
 }

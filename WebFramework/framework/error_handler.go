@@ -6,6 +6,8 @@ import (
 	"webframework/errors"
 )
 
+type ErrorHandlerFunc func(err error, c *Context, next func())
+
 // ErrorHandler handles errors
 type ErrorHandler interface {
 	HandleError(err error, c *Context)

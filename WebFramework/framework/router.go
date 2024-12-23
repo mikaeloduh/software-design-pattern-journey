@@ -16,9 +16,10 @@ type node struct {
 
 // Router represents the router with middleware and error handlers
 type Router struct {
-	root         *node
-	middlewares  []HandlerFunc
-	errorHandler ErrorHandler
+	root          *node
+	middlewares   []HandlerFunc
+	errorHandler  ErrorHandler
+	errorHandlers []ErrorHandlerFunc
 }
 
 // NewRouter creates a new Router instance
@@ -35,6 +36,11 @@ func NewRouter() *Router {
 // Use adds global middlewares
 func (r *Router) Use(m ...HandlerFunc) {
 	r.middlewares = append(r.middlewares, m...)
+}
+
+// UseErrorHandler appends error handlers to the chain
+func (r *Router) UseErrorHandler(handlers ...ErrorHandlerFunc) {
+	r.errorHandlers = append(r.errorHandlers, handlers...)
 }
 
 // Handle registers a route with a specific HTTP method
@@ -61,6 +67,32 @@ func (r *Router) Handle(method string, path string, handler HandlerFunc) {
 	current.handlers[method] = handler
 }
 
+// handleErrorChain executes the chain of error handlers in order
+func (r *Router) handleErrorChain(err error, c *Context) {
+	if err == nil {
+		return
+	}
+	if len(r.errorHandlers) == 0 {
+		r.errorHandler.HandleError(err, c)
+		return
+	}
+
+	var run func(int, error)
+	run = func(i int, e error) {
+		if i >= len(r.errorHandlers) {
+			r.errorHandler.HandleError(e, c)
+			return
+		}
+
+		handler := r.errorHandlers[i]
+		next := func() {
+			run(i+1, e)
+		}
+		handler(e, c, next)
+	}
+	run(0, err)
+}
+
 func (r *Router) HandleError(handler ErrorHandler) {
 	r.errorHandler = handler
 }
@@ -81,6 +113,7 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		Keys:           make(map[string]interface{}),
 		errorHandler:   r.errorHandler,
 		index:          -1,
+		router:         r,
 	}
 
 	pathSegments := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
