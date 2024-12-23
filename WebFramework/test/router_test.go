@@ -15,34 +15,34 @@ import (
 )
 
 // mockHandler and mockMiddleware are for testing purposes
-func mockHandler(c *framework.Context) {
-	c.String("hello world")
+func mockHandler(ctx *framework.Context) {
+	ctx.String("hello world")
 }
 
-func mockJSONHandler(c *framework.Context) {
-	c.Status(http.StatusOK)
-	c.JSON(map[string]string{"message": "ok"})
+func mockJSONHandler(ctx *framework.Context) {
+	ctx.Status(http.StatusOK)
+	ctx.JSON(map[string]string{"message": "ok"})
 }
 
-func dynamicParamHandler(c *framework.Context) {
-	id := c.Param("id")
-	c.Status(http.StatusOK)
-	c.JSON(map[string]string{"id": id})
+func dynamicParamHandler(ctx *framework.Context) {
+	id := ctx.Param("id")
+	ctx.Status(http.StatusOK)
+	ctx.JSON(map[string]string{"id": id})
 }
 
-func loggerMiddleware(c *framework.Context) {
+func loggerMiddleware(ctx *framework.Context) {
 	// just a demo middleware that does nothing here
-	c.Next()
+	ctx.Next()
 }
 
-func authMiddleware(c *framework.Context) {
+func authMiddleware(ctx *framework.Context) {
 	// Suppose we need an auth token
-	token := c.Request.Header.Get("X-Token")
+	token := ctx.Request.Header.Get("X-Token")
 	if token != "secret" {
-		c.AbortWithError(errors.NewError(http.StatusUnauthorized, fmt.Errorf("invalid token")))
+		ctx.AbortWithError(errors.NewError(http.StatusUnauthorized, fmt.Errorf("invalid token")))
 		return
 	}
-	c.Next()
+	ctx.Next()
 }
 
 func TestRouter_StaticRoute(t *testing.T) {

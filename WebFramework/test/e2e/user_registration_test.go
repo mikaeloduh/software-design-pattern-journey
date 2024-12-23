@@ -28,25 +28,25 @@ type RegisterResponse struct {
 	Name  string `json:"name"`
 }
 
-func Register(c *framework.Context) {
+func Register(ctx *framework.Context) {
 	var req RegisterRequest
-	if err := c.ReadBodyAsObject(&req); err != nil {
-		c.AbortWithError(errors.ErrorTypeBadRequest)
+	if err := ctx.ReadBodyAsObject(&req); err != nil {
+		ctx.AbortWithError(errors.ErrorTypeBadRequest)
 		return
 	}
 
 	matchString, err := regexp.MatchString("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", req.Email)
 	if err != nil {
-		c.AbortWithError(err)
+		ctx.AbortWithError(err)
 		return
 	}
 	if !matchString {
-		c.AbortWithError(errors.NewError(http.StatusBadRequest, fmt.Errorf(`Registration's format incorrect.`)))
+		ctx.AbortWithError(errors.NewError(http.StatusBadRequest, fmt.Errorf(`Registration's format incorrect.`)))
 		return
 	}
 
 	if req.Email == "exist@email.com" {
-		c.AbortWithError(errors.NewError(http.StatusBadRequest, fmt.Errorf("Duplicate email")))
+		ctx.AbortWithError(errors.NewError(http.StatusBadRequest, fmt.Errorf("Duplicate email")))
 		return
 	}
 
@@ -56,8 +56,8 @@ func Register(c *framework.Context) {
 		Name:  "TestName",
 	}
 
-	c.Status(http.StatusCreated)
-	c.JSON(resp)
+	ctx.Status(http.StatusCreated)
+	ctx.JSON(resp)
 }
 
 func TestUserRegistration(t *testing.T) {

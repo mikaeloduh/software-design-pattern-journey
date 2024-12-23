@@ -14,7 +14,7 @@ type ErrorHandler interface {
 // DefaultErrorHandler is an ErrorHandler using pain/text format
 type DefaultErrorHandler struct{}
 
-func (s *DefaultErrorHandler) HandleError(err error, c *Context) {
+func (h *DefaultErrorHandler) HandleError(err error, ctx *Context) {
 	if err == nil {
 		return
 	}
@@ -23,18 +23,18 @@ func (s *DefaultErrorHandler) HandleError(err error, c *Context) {
 		if code == 0 {
 			code = http.StatusInternalServerError
 		}
-		c.Status(code)
-		c.String(e.Error())
+		ctx.Status(code)
+		ctx.String(e.Error())
 	} else {
-		c.Status(http.StatusInternalServerError)
-		c.String(err.Error())
+		ctx.Status(http.StatusInternalServerError)
+		ctx.String(err.Error())
 	}
 }
 
 // JSONErrorHandler is a sample ErrorHandler returning errors in JSON
 type JSONErrorHandler struct{}
 
-func (j *JSONErrorHandler) HandleError(err error, c *Context) {
+func (h *JSONErrorHandler) HandleError(err error, c *Context) {
 	if err == nil {
 		return
 	}

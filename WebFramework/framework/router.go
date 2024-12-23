@@ -75,7 +75,7 @@ func (r *Router) Group(prefix string) *RouteGroup {
 
 // ServeHTTP implements http.Handler
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	c := &Context{
+	ctx := &Context{
 		ResponseWriter: w,
 		Request:        req,
 		Keys:           make(map[string]interface{}),
@@ -90,22 +90,22 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	n, params := r.matchNode(pathSegments)
 	if n == nil {
-		c.AbortWithError(errors.ErrorTypeNotFound)
+		ctx.AbortWithError(errors.ErrorTypeNotFound)
 		return
 	}
 
 	handler := n.handlers[req.Method]
 	if handler == nil {
-		c.AbortWithError(errors.ErrorTypeMethodNotAllowed)
+		ctx.AbortWithError(errors.ErrorTypeMethodNotAllowed)
 		return
 	}
 
-	// 將動態參數放入 c.params
-	c.params = params
+	// 將動態參數放入 ctx.params
+	ctx.params = params
 
 	// Combine global middlewares and final handler
-	c.handlers = append(r.middlewares, handler)
-	c.Next()
+	ctx.handlers = append(r.middlewares, handler)
+	ctx.Next()
 }
 func (r *Router) matchNode(segments []string) (*node, map[string]string) {
 	current := r.root

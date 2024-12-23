@@ -23,7 +23,7 @@ type Context struct {
 }
 
 // HandlerFunc is a function that handles a request in the Context
-type HandlerFunc func(c *Context)
+type HandlerFunc func(ctx *Context)
 
 // Next executes the next handler in the chain
 func (c *Context) Next() {
