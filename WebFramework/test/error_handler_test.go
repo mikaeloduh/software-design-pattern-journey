@@ -1,7 +1,6 @@
 package test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -68,32 +67,30 @@ func FinalFallbackHandler(err error, c *framework.Context, next func()) {
 	}
 }
 
-func TestRouter_MethodNotAllowed(t *testing.T) {
+func TestRouter_NotFound(t *testing.T) {
 	r := framework.NewRouter()
-	r.Handle(http.MethodGet, "/", mockHandler)
-
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
-	assert.Equal(t, http.StatusText(http.StatusMethodNotAllowed), w.Body.String())
-}
-
-func TestRouter_Custom_NotFound(t *testing.T) {
-	r := framework.NewRouter()
-	r.UseErrorHandler(framework.JSONErrorHandlerFunc)
+	r.UseErrorHandler(framework.DefaultNotFoundErrorHandler)
 	// no routes added
 
-	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/nonexistent", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
-	var resp map[string]string
-	err := json.NewDecoder(w.Body).Decode(&resp)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusText(http.StatusNotFound), resp["error"])
+	assert.Equal(t, `Cannot find the path "/api/nonexistent"`, w.Body.String())
+}
+
+func TestRouter_MethodNotAllowed(t *testing.T) {
+	r := framework.NewRouter()
+	r.UseErrorHandler(framework.DefaultMethodNotAllowedErrorHandler)
+	r.Handle(http.MethodGet, "/api/user", mockHandler)
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/user", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusMethodNotAllowed, w.Code)
+	assert.Equal(t, `The method "DELETE" is not allowed on the path "/api/user"`, w.Body.String())
 }
 
 // Test: ensure that a generic error is not mistaken for a DB error

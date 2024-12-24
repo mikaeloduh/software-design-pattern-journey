@@ -61,9 +61,9 @@ func TestRouter_DynamicRoute(t *testing.T) {
 	// To ensure dynamic route works, we may need to store param keys in the router.
 	// Assume the router has been adjusted to parse params correctly.
 	r := framework.NewRouter()
-	r.Handle(http.MethodGet, "/users/:id", dynamicParamHandler)
+	r.Handle(http.MethodGet, "/api/users/:id", dynamicParamHandler)
 
-	req := httptest.NewRequest(http.MethodGet, "/users/123", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/users/123", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
