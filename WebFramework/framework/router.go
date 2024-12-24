@@ -32,8 +32,6 @@ func NewRouter() *Router {
 			children: make(map[string]*node),
 			handlers: make(map[string]HandlerFunc),
 		},
-		// If user doesn't register any errorHandlers,
-		// we'll rely on our built-in fallback in handleErrorChain().
 	}
 }
 
@@ -79,7 +77,7 @@ func (r *Router) handleErrorChain(err error, c *Context) {
 
 	if len(r.errorHandlers) == 0 {
 		// If no custom error handlers, use built-in fallback
-		defaultErrorFallback(err, c)
+		DefaultFallbackHandler(err, c, func() {})
 		return
 	}
 
@@ -88,7 +86,7 @@ func (r *Router) handleErrorChain(err error, c *Context) {
 	run = func(i int, e error) {
 		if i >= len(r.errorHandlers) {
 			// done => fallback
-			defaultErrorFallback(e, c)
+			DefaultFallbackHandler(e, c, func() {})
 			return
 		}
 		handler := r.errorHandlers[i]
@@ -176,22 +174,6 @@ func (r *Router) matchNode(segments []string) (*node, map[string]string) {
 		current = child
 	}
 	return current, params
-}
-
-// defaultErrorFallback is our built-in fallback if no one handled the error
-func defaultErrorFallback(err error, c *Context) {
-	// Similar to the old DefaultErrorHandler
-	if e, ok := err.(*errors.Error); ok {
-		code := e.Code
-		if code == 0 {
-			code = http.StatusInternalServerError
-		}
-		c.Status(code)
-		c.String(e.Error())
-	} else {
-		c.Status(http.StatusInternalServerError)
-		c.String(err.Error())
-	}
 }
 
 // RouteGroup for grouping routes under a certain prefix
