@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,30 +31,26 @@ func (m MyGenericError) Error() string {
 }
 
 // Define an interceptor here to detect FakeDbError (declared in this file)
-func MyDbErrorInterceptor(err error, c *framework.Context, next func()) {
-	if e, ok := err.(*errors.Error); ok && e.Err != nil {
-		// Use the FakeDbError defined in this file for type assertion
-		if _, isFakeDbError := e.Err.(FakeDbError); isFakeDbError {
-			e.Code = http.StatusInternalServerError
-			c.Status(e.Code)
-			c.String("Database error occurred!")
-			return // Intercept and terminate the chain
-		}
+func MyDbErrorInterceptor(err error, c *framework.Context, next func(error)) {
+	if _, isFakeDbError := err.(FakeDbError); isFakeDbError {
+		e := errors.NewError(0, fmt.Errorf("Database error occurred!"))
+		next(e)
+		return
 	}
-	next()
+	next(err)
 }
 
-func MyDefaultErrorCoder(err error, c *framework.Context, next func()) {
+func MyDefaultErrorCoder(err error, c *framework.Context, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		if e.Code == 0 {
 			e.Code = http.StatusInternalServerError
 		}
 	}
-	next()
+	next(err)
 }
 
 // Final fallback
-func FinalFallbackHandler(err error, c *framework.Context, next func()) {
+func FinalFallbackHandler(err error, c *framework.Context, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		code := e.Code
 		if code == 0 {
@@ -107,7 +104,7 @@ func TestErrorHandlerChain(t *testing.T) {
 	// Simulated route #1: produce a DB error
 	r.Handle(http.MethodGet, "/db-error", func(ctx *framework.Context) {
 		dbErr := FakeDbError{"db connection timeout"}
-		ctx.AbortWithError(errors.NewError(0, dbErr))
+		ctx.AbortWithError(dbErr)
 	})
 
 	// Simulated route #2: generic error

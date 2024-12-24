@@ -74,27 +74,31 @@ func (r *Router) handleErrorChain(err error, c *Context) {
 	if err == nil {
 		return
 	}
-
 	if len(r.errorHandlers) == 0 {
-		// If no custom error handlers, use built-in fallback
-		DefaultFallbackHandler(err, c, func() {})
+		// No error handlers, fallback
+		DefaultFallbackHandler(err, c, func(error) {})
 		return
 	}
 
-	// We'll recursively (or iteratively) run through errorHandlers
-	var run func(i int, e error)
-	run = func(i int, e error) {
-		if i >= len(r.errorHandlers) {
-			// done => fallback
-			DefaultFallbackHandler(e, c, func() {})
+	var run func(idx int, currentErr error)
+	run = func(idx int, currentErr error) {
+		if idx >= len(r.errorHandlers) {
+			// Done => fallback
+			DefaultFallbackHandler(currentErr, c, func(error) {})
 			return
 		}
-		handler := r.errorHandlers[i]
-		next := func() {
-			run(i+1, e)
+		handler := r.errorHandlers[idx]
+
+		// next function takes a newErr and continues chain
+		next := func(newErr error) {
+			run(idx+1, newErr)
 		}
-		handler(e, c, next)
+
+		// call current handler, passing the current error + next
+		handler(currentErr, c, next)
 	}
+
+	// start from the first
 	run(0, err)
 }
 

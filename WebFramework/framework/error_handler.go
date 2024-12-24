@@ -7,9 +7,9 @@ import (
 	"webframework/errors"
 )
 
-type ErrorHandlerFunc func(err error, c *Context, next func())
+type ErrorHandlerFunc func(err error, c *Context, next func(error))
 
-func DefaultNotFoundErrorHandler(err error, c *Context, next func()) {
+func DefaultNotFoundErrorHandler(err error, c *Context, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		if e == errors.ErrorTypeNotFound {
 			c.Status(e.Code)
@@ -17,10 +17,10 @@ func DefaultNotFoundErrorHandler(err error, c *Context, next func()) {
 			return
 		}
 	}
-	next()
+	next(err)
 }
 
-func DefaultMethodNotAllowedErrorHandler(err error, c *Context, next func()) {
+func DefaultMethodNotAllowedErrorHandler(err error, c *Context, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		if e == errors.ErrorTypeMethodNotAllowed {
 			c.Status(e.Code)
@@ -28,11 +28,11 @@ func DefaultMethodNotAllowedErrorHandler(err error, c *Context, next func()) {
 			return
 		}
 	}
-	next()
+	next(err)
 }
 
 // DefaultFallbackHandler is our built-in fallback if no one handles the error.
-func DefaultFallbackHandler(err error, c *Context, next func()) {
+func DefaultFallbackHandler(err error, c *Context, next func(error)) {
 	// We ignore next(), because fallback is the end of chain.
 	if e, ok := err.(*errors.Error); ok {
 		code := e.Code
@@ -48,7 +48,7 @@ func DefaultFallbackHandler(err error, c *Context, next func()) {
 }
 
 // JSONErrorHandlerFunc: an example that forcibly returns JSON for certain errors
-func JSONErrorHandlerFunc(err error, c *Context, next func()) {
+func JSONErrorHandlerFunc(err error, c *Context, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		// if code in some range => do JSON response and return
 		c.Status(e.Code)
@@ -56,5 +56,5 @@ func JSONErrorHandlerFunc(err error, c *Context, next func()) {
 		return
 	}
 	// otherwise call next => pass to next error handler
-	next()
+	next(err)
 }
