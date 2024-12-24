@@ -62,7 +62,6 @@ func Register(ctx *framework.Context) {
 
 func TestUserRegistration(t *testing.T) {
 	router := framework.NewRouter()
-	router.HandleError(&framework.DefaultErrorHandler{})
 	router.Handle(http.MethodPost, "/api/users", Register)
 
 	t.Run("register user successfully", func(t *testing.T) {

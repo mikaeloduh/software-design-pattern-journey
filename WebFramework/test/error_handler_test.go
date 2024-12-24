@@ -27,7 +27,7 @@ func TestRouter_MethodNotAllowed(t *testing.T) {
 
 func TestRouter_Custom_NotFound(t *testing.T) {
 	r := framework.NewRouter()
-	r.HandleError(&framework.JSONErrorHandler{})
+	r.UseErrorHandler(framework.JSONErrorHandlerFunc)
 	// no routes added
 
 	req := httptest.NewRequest(http.MethodGet, "/nonexistent", nil)

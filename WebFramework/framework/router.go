@@ -7,18 +7,21 @@ import (
 	"webframework/errors"
 )
 
-// node represents a route node for simple demonstration.
+// node represents a route node
 type node struct {
 	path     string
 	children map[string]*node
 	handlers map[string]HandlerFunc // method -> handler
 }
 
-// Router represents the router with middleware and error handlers
+// Router represents the router with middleware and a chain of error handlers
 type Router struct {
-	root          *node
-	middlewares   []HandlerFunc
-	errorHandler  ErrorHandler
+	root *node
+
+	// middlewares for normal requests
+	middlewares []HandlerFunc
+
+	// errorHandlers is a chain for handling errors
 	errorHandlers []ErrorHandlerFunc
 }
 
@@ -29,16 +32,17 @@ func NewRouter() *Router {
 			children: make(map[string]*node),
 			handlers: make(map[string]HandlerFunc),
 		},
-		errorHandler: &DefaultErrorHandler{},
+		// If user doesn't register any errorHandlers,
+		// we'll rely on our built-in fallback in handleErrorChain().
 	}
 }
 
-// Use adds global middlewares
+// Use adds normal (request) middlewares
 func (r *Router) Use(m ...HandlerFunc) {
 	r.middlewares = append(r.middlewares, m...)
 }
 
-// UseErrorHandler appends error handlers to the chain
+// UseErrorHandler appends chainable error handlers
 func (r *Router) UseErrorHandler(handlers ...ErrorHandlerFunc) {
 	r.errorHandlers = append(r.errorHandlers, handlers...)
 }
@@ -47,7 +51,7 @@ func (r *Router) UseErrorHandler(handlers ...ErrorHandlerFunc) {
 func (r *Router) Handle(method string, path string, handler HandlerFunc) {
 	trimmed := strings.Trim(path, "/")
 	if trimmed == "" {
-		// 是根路由
+		// Root route
 		r.root.handlers[method] = handler
 		return
 	}
@@ -72,18 +76,21 @@ func (r *Router) handleErrorChain(err error, c *Context) {
 	if err == nil {
 		return
 	}
+
 	if len(r.errorHandlers) == 0 {
-		r.errorHandler.HandleError(err, c)
+		// If no custom error handlers, use built-in fallback
+		defaultErrorFallback(err, c)
 		return
 	}
 
-	var run func(int, error)
+	// We'll recursively (or iteratively) run through errorHandlers
+	var run func(i int, e error)
 	run = func(i int, e error) {
 		if i >= len(r.errorHandlers) {
-			r.errorHandler.HandleError(e, c)
+			// done => fallback
+			defaultErrorFallback(e, c)
 			return
 		}
-
 		handler := r.errorHandlers[i]
 		next := func() {
 			run(i+1, e)
@@ -93,11 +100,7 @@ func (r *Router) handleErrorChain(err error, c *Context) {
 	run(0, err)
 }
 
-func (r *Router) HandleError(handler ErrorHandler) {
-	r.errorHandler = handler
-}
-
-// Group creates a route group with specific prefix
+// Group creates a route group
 func (r *Router) Group(prefix string) *RouteGroup {
 	return &RouteGroup{
 		prefix: prefix,
@@ -111,7 +114,6 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		ResponseWriter: w,
 		Request:        req,
 		Keys:           make(map[string]interface{}),
-		errorHandler:   r.errorHandler,
 		index:          -1,
 		router:         r,
 	}
@@ -123,23 +125,26 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	n, params := r.matchNode(pathSegments)
 	if n == nil {
+		// Not found
 		ctx.AbortWithError(errors.ErrorTypeNotFound)
 		return
 	}
 
 	handler := n.handlers[req.Method]
 	if handler == nil {
+		// Method not allowed
 		ctx.AbortWithError(errors.ErrorTypeMethodNotAllowed)
 		return
 	}
 
-	// 將動態參數放入 ctx.params
 	ctx.params = params
 
-	// Combine global middlewares and final handler
+	// Combine global middlewares + final route handler
 	ctx.handlers = append(r.middlewares, handler)
 	ctx.Next()
 }
+
+// matchNode finds the route node matching the path segments
 func (r *Router) matchNode(segments []string) (*node, map[string]string) {
 	current := r.root
 	params := make(map[string]string)
@@ -166,34 +171,46 @@ func (r *Router) matchNode(segments []string) (*node, map[string]string) {
 		}
 
 		if paramKey != "" {
-			// Store the actual segment as the param value
 			params[paramKey] = seg
 		}
 		current = child
 	}
-
 	return current, params
 }
 
-// RouteGroup allows grouping routes
+// defaultErrorFallback is our built-in fallback if no one handled the error
+func defaultErrorFallback(err error, c *Context) {
+	// Similar to the old DefaultErrorHandler
+	if e, ok := err.(*errors.Error); ok {
+		code := e.Code
+		if code == 0 {
+			code = http.StatusInternalServerError
+		}
+		c.Status(code)
+		c.String(e.Error())
+	} else {
+		c.Status(http.StatusInternalServerError)
+		c.String(err.Error())
+	}
+}
+
+// RouteGroup for grouping routes under a certain prefix
 type RouteGroup struct {
 	prefix string
 	router *Router
 	mws    []HandlerFunc
 }
 
-// Use adds middleware to the group
+// Use adds group-level middlewares
 func (g *RouteGroup) Use(m ...HandlerFunc) {
 	g.mws = append(g.mws, m...)
 }
 
 // Handle registers a handler under group prefix
 func (g *RouteGroup) Handle(method, path string, handler HandlerFunc) {
-	// Combine group prefix + path
 	fullpath := g.prefix + path
-	// Wrap handler with group's middleware
 	finalHandler := func(c *Context) {
-		// prepend group's middleware
+		// prepend group's middlewares to the chain
 		finalChain := append(g.mws, handler)
 		c.handlers = append(c.handlers, finalChain...)
 		c.Next()
@@ -201,7 +218,7 @@ func (g *RouteGroup) Handle(method, path string, handler HandlerFunc) {
 	g.router.Handle(method, fullpath, finalHandler)
 }
 
-// GET is a shortcut for Handle("GET", path, handler)
+// GET is a shortcut
 func (g *RouteGroup) GET(path string, handler HandlerFunc) {
 	g.Handle(http.MethodGet, path, handler)
 }
