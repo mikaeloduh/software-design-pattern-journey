@@ -3,7 +3,6 @@ package test
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,8 +19,10 @@ func mockHandler(ctx *framework.Context) {
 }
 
 func mockJSONHandler(ctx *framework.Context) {
+	token := ctx.Request.Header.Get("X-Token")
+
 	ctx.Status(http.StatusOK)
-	ctx.JSON(map[string]string{"message": "ok"})
+	ctx.JSON(map[string]string{"token": token})
 }
 
 func dynamicParamHandler(ctx *framework.Context) {
@@ -92,9 +93,10 @@ func TestRouter_GroupMiddleware(t *testing.T) {
 	r := framework.NewRouter()
 
 	// Group with auth middleware
-	g := r.Group("/auth")
+	g := framework.NewRouter()
 	g.Use(authMiddleware)
-	g.GET("/secret", mockJSONHandler)
+	r.Route("/auth", g)
+	g.Handle(http.MethodGet, "/secret", mockJSONHandler)
 
 	// Request without token
 	req := httptest.NewRequest(http.MethodGet, "/auth/secret", nil)
@@ -111,9 +113,13 @@ func TestRouter_GroupMiddleware(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	body, err := ioutil.ReadAll(w.Body)
-	assert.NoError(t, err)
-	assert.Contains(t, string(body), "ok")
+	// body, err := ioutil.ReadAll(w.Body)
+	// assert.NoError(t, err)
+	// assert.Contains(t, string(body), "ok")
+
+	var resp map[string]string
+	json.NewDecoder(w.Body).Decode(&resp)
+	assert.Equal(t, "secret", resp["token"])
 }
 
 func TestContext_JSON(t *testing.T) {
