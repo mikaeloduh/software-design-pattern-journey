@@ -13,24 +13,29 @@ import (
 )
 
 // Handler functions remain the same
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func homeHandler(w http.ResponseWriter, r *http.Request) error {
 	fmt.Fprintf(w, "Welcome to the homepage!")
+	return nil
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
+func helloHandler(w http.ResponseWriter, r *http.Request) error {
 	fmt.Fprintf(w, "Hello, World!")
+	return nil
 }
 
-func getUserHandler(w http.ResponseWriter, r *http.Request) {
+func getUserHandler(w http.ResponseWriter, r *http.Request) error {
 	fmt.Fprintf(w, "Retrieve user information")
+	return nil
 }
 
-func postUserHandler(w http.ResponseWriter, r *http.Request) {
+func postUserHandler(w http.ResponseWriter, r *http.Request) error {
 	fmt.Fprintf(w, "Create a new user")
+	return nil
 }
 
-func userProfileHandler(w http.ResponseWriter, r *http.Request) {
+func userProfileHandler(w http.ResponseWriter, r *http.Request) error {
 	fmt.Fprintf(w, "User profile page")
+	return nil
 }
 
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
@@ -39,11 +44,11 @@ func TestRouting(t *testing.T) {
 	route := framework.NewRouter()
 
 	// Register handlers with exact path and method matching
-	route.Handle("/", http.MethodGet, http.HandlerFunc(homeHandler))
-	route.Handle("/hello", http.MethodGet, http.HandlerFunc(helloHandler))
-	route.Handle("/user", http.MethodGet, http.HandlerFunc(getUserHandler))
-	route.Handle("/user", http.MethodPost, http.HandlerFunc(postUserHandler))
-	route.Handle("/user/profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
+	route.Handle("/", http.MethodGet, framework.HandlerFunc(homeHandler))
+	route.Handle("/hello", http.MethodGet, framework.HandlerFunc(helloHandler))
+	route.Handle("/user", http.MethodGet, framework.HandlerFunc(getUserHandler))
+	route.Handle("/user", http.MethodPost, framework.HandlerFunc(postUserHandler))
+	route.Handle("/user/profile", http.MethodGet, framework.HandlerFunc(userProfileHandler))
 
 	// Start a new test server using the custom Router
 	ts := httptest.NewServer(route)

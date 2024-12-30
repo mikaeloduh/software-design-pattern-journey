@@ -178,8 +178,9 @@ func TestCustomErrorHandling(t *testing.T) {
 	router.RegisterErrorHandler(jsonHandler)
 
 	// 註冊一個測試路由
-	router.Handle("/test", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 		w.Write([]byte("OK"))
+		return nil
 	}))
 
 	tests := []struct {
@@ -283,10 +284,11 @@ func TestHandlerErrorHandling(t *testing.T) {
 	router.RegisterErrorHandler(jsonHandler)
 
 	// 註冊用戶處理器
-	router.Handle("/user", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.Handle("/user", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 		if err := userHandler(w, r); err != nil {
 			jsonHandler.HandleError(err, w, r)
 		}
+		return nil
 	}))
 
 	tests := []struct {

@@ -67,7 +67,7 @@ func (e *Router) Use(middleware ...Middleware) {
 }
 
 // Handle registers a new route with a matcher for the URL path and method
-func (e *Router) Handle(path string, method string, handler interface{}) {
+func (e *Router) Handle(path string, method string, handler Handler) {
 	// 標準化路徑
 	path = strings.Trim(path, "/")
 	if path == "" {
@@ -77,21 +77,7 @@ func (e *Router) Handle(path string, method string, handler interface{}) {
 		e.routes[path] = make(map[string]Handler)
 	}
 
-	var h Handler
-	switch handler := handler.(type) {
-	case Handler:
-		h = handler
-	case func(http.ResponseWriter, *http.Request) error:
-		h = HandlerFunc(handler)
-	case http.Handler:
-		h = WrapHandler(handler)
-	case func(http.ResponseWriter, *http.Request):
-		h = WrapHandler(http.HandlerFunc(handler))
-	default:
-		panic("unsupported handler type")
-	}
-
-	e.routes[path][method] = h
+	e.routes[path][method] = handler
 }
 
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
