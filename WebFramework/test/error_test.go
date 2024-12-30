@@ -12,6 +12,60 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestDefaultErrorHandler(t *testing.T) {
+	handler := framework.DefaultHandleErrorFunc
+	tests := []struct {
+		name           string
+		err            error
+		expectedCode   int
+		expectedStatus string
+	}{
+		{
+			name:           "400 error",
+			err:            errors.ErrorTypeBadRequest,
+			expectedCode:   http.StatusBadRequest,
+			expectedStatus: "400 Bad Request",
+		},
+		{
+			name:           "401 error",
+			err:            errors.ErrorTypeUnauthorized,
+			expectedCode:   http.StatusUnauthorized,
+			expectedStatus: "401 Unauthorized",
+		},
+		{
+			name:           "403 error",
+			err:            errors.ErrorTypeForbidden,
+			expectedCode:   http.StatusForbidden,
+			expectedStatus: "403 Forbidden",
+		},
+		{
+			name:           "404 error",
+			err:            errors.ErrorTypeNotFound,
+			expectedCode:   http.StatusNotFound,
+			expectedStatus: "404 Not Found",
+		},
+		{
+			name:           "500 error",
+			err:            errors.ErrorTypeInternalServerError,
+			expectedCode:   http.StatusInternalServerError,
+			expectedStatus: "500 Internal Server Error",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			r, err := http.NewRequest("GET", "/", nil)
+			assert.NoError(t, err)
+
+			handler(test.err, w, r)
+
+			assert.Equal(t, test.expectedCode, w.Code)
+			assert.Equal(t, test.expectedStatus, w.Result().Status)
+		})
+	}
+}
+
 // JSONErrorHandler 自定義的 JSON 格式錯誤處理器
 type JSONErrorHandler struct {
 	errorTypes []*errors.Error
@@ -42,7 +96,7 @@ func (h *JSONErrorHandler) HandleError(err error, w http.ResponseWriter, r *http
 	}
 
 	w.WriteHeader(e.Code)
-	
+
 	var message string
 	switch e {
 	case errors.ErrorTypeNotFound:
@@ -88,41 +142,25 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 檢查必要參數
 	if userID == "" {
-		errorAware.HandleError(
-			errors.ErrorTypeBadRequest,
-			w,
-			r,
-		)
+		errorAware.HandleError(errors.ErrorTypeBadRequest, w, r)
 		return
 	}
 
 	// 檢查授權
 	if userID == "unauthorized" {
-		errorAware.HandleError(
-			errors.ErrorTypeUnauthorized,
-			w,
-			r,
-		)
+		errorAware.HandleError(errors.ErrorTypeUnauthorized, w, r)
 		return
 	}
 
 	// 檢查權限
 	if userID == "forbidden" {
-		errorAware.HandleError(
-			errors.ErrorTypeForbidden,
-			w,
-			r,
-		)
+		errorAware.HandleError(errors.ErrorTypeForbidden, w, r)
 		return
 	}
 
 	// 檢查用戶是否存在
 	if userID == "nonexistent" {
-		errorAware.HandleError(
-			errors.ErrorTypeNotFound,
-			w,
-			r,
-		)
+		errorAware.HandleError(errors.ErrorTypeNotFound, w, r)
 		return
 	}
 
@@ -131,13 +169,13 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 		"id":      userID,
 		"message": "user found",
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(response)
 }
 
-func TestErrorHandling(t *testing.T) {
+func TestCustomErrorHandling(t *testing.T) {
 	router := framework.NewRouter()
 
 	// 註冊自定義的錯誤處理器
@@ -320,7 +358,7 @@ func TestHandlerErrorHandling(t *testing.T) {
 				id, ok := response["id"].(string)
 				assert.True(t, ok, "Expected id to be string")
 				assert.Equal(t, "123", id, "Expected user id %q, got %q", "123", id)
-				
+
 				msg, ok := response["message"].(string)
 				assert.True(t, ok, "Expected message to be string")
 				assert.Equal(t, "user found", msg, "Expected message %q, got %q", "user found", msg)

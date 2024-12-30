@@ -9,16 +9,13 @@ import (
 
 type Router struct {
 	routes        map[string]map[string]http.Handler
-	subRoutes     map[string]*Router
 	middlewares   []Middleware
 	errorHandlers []ErrorHandler
-	parent        *Router // 指向父路由器
 }
 
 func NewRouter() *Router {
 	r := &Router{
 		routes:        make(map[string]map[string]http.Handler),
-		subRoutes:     make(map[string]*Router),
 		errorHandlers: []ErrorHandler{&DefaultErrorHandler{}}, // 預設錯誤處理器
 	}
 	// 添加錯誤處理中間件
@@ -42,13 +39,7 @@ func (e *Router) HandleError(err error, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// 如果沒有處理器可以處理，且有父路由器，則交給父路由器處理
-	if e.parent != nil {
-		e.parent.HandleError(err, w, r)
-		return
-	}
-
-	// 如果都沒有處理器可以處理，使用預設處理器
+	// 如果沒有處理器可以處理，使用預設處理器
 	(&DefaultErrorHandler{}).HandleError(err, w, r)
 }
 
@@ -70,17 +61,6 @@ func (e *Router) Handle(path string, method string, handler http.Handler) {
 	e.routes[path][method] = handler
 }
 
-// Router registers a new sub-router
-func (e *Router) Router(path string, subRouter *Router) {
-	// 標準化路徑
-	path = strings.Trim(path, "/")
-	if path == "" {
-		path = "/"
-	}
-	subRouter.parent = e // 設置父路由器
-	e.subRoutes[path] = subRouter
-}
-
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
 func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.Trim(r.URL.Path, "/")
@@ -99,25 +79,6 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// 方法不允許
 		e.HandleError(errors.ErrorTypeMethodNotAllowed, w, r)
 		return
-	}
-
-	// 檢查子路由
-	segments := strings.Split(path, "/")
-	for i := len(segments); i > 0; i-- {
-		prefix := strings.Join(segments[:i], "/")
-		if prefix == "" {
-			prefix = "/"
-		}
-		if subMux, ok := e.subRoutes[prefix]; ok {
-			remainingPath := ""
-			if i < len(segments) {
-				remainingPath = strings.Join(segments[i:], "/")
-			}
-			r2 := r.Clone(r.Context())
-			r2.URL.Path = "/" + remainingPath
-			subMux.ServeHTTP(w, r2)
-			return
-		}
 	}
 
 	// 路徑不存在

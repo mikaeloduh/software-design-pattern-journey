@@ -41,13 +41,9 @@ func TestRouting(t *testing.T) {
 	// Register handlers with exact path and method matching
 	route.Handle("/", http.MethodGet, http.HandlerFunc(homeHandler))
 	route.Handle("/hello", http.MethodGet, http.HandlerFunc(helloHandler))
-
-	// Create a sub-route for "/user"
-	userRoute := framework.NewRouter()
-	userRoute.Handle("/", http.MethodGet, http.HandlerFunc(getUserHandler))
-	userRoute.Handle("/", http.MethodPost, http.HandlerFunc(postUserHandler))
-	userRoute.Handle("/profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
-	route.Router("/user", userRoute)
+	route.Handle("/user", http.MethodGet, http.HandlerFunc(getUserHandler))
+	route.Handle("/user", http.MethodPost, http.HandlerFunc(postUserHandler))
+	route.Handle("/user/profile", http.MethodGet, http.HandlerFunc(userProfileHandler))
 
 	// Start a new test server using the custom Router
 	ts := httptest.NewServer(route)
@@ -66,7 +62,6 @@ func TestRouting(t *testing.T) {
 		{"POST", "/user", http.StatusOK, "Create a new user"},
 		{"PUT", "/user", http.StatusMethodNotAllowed, "405 method not allowed"},
 		{"GET", "/user/profile", http.StatusOK, "User profile page"},
-		{"GET", "/user/settings", http.StatusNotFound, "404 page not found"},
 		{"GET", "/usersomething", http.StatusNotFound, "404 page not found"},
 		{"GET", "/userextra", http.StatusNotFound, "404 page not found"},
 	}
