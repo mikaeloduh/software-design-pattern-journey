@@ -2,7 +2,9 @@ package framework
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"webframework/errors"
 )
 
 type Middleware func(http.Handler) http.Handler
@@ -22,7 +24,7 @@ func RecoverMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				if errorAware, ok := r.Context().Value("errorAware").(ErrorAware); ok {
-					errorAware.HandleError(NewError(ErrorTypeInternalServerError, "panic recovered", nil), w, r)
+					errorAware.HandleError(errors.NewError(http.StatusInternalServerError, fmt.Errorf("panic recovered")), w, r)
 				} else {
 					http.Error(w, "internal server error", http.StatusInternalServerError)
 				}

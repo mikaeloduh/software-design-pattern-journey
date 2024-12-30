@@ -3,6 +3,8 @@ package framework
 import (
 	"net/http"
 	"strings"
+
+	"webframework/errors"
 )
 
 type Router struct {
@@ -30,11 +32,11 @@ func (e *Router) RegisterErrorHandler(handler ErrorHandler) {
 }
 
 // HandleError 處理錯誤
-func (e *Router) HandleError(err *Error, w http.ResponseWriter, r *http.Request) {
+func (e *Router) HandleError(err error, w http.ResponseWriter, r *http.Request) {
 	// 從後往前查找，讓後註冊的處理器優先處理
 	for i := len(e.errorHandlers) - 1; i >= 0; i-- {
 		handler := e.errorHandlers[i]
-		if handler.CanHandle(err.Type) {
+		if handler.CanHandle(err) {
 			handler.HandleError(err, w, r)
 			return
 		}
@@ -95,7 +97,7 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// 方法不允許
-		e.HandleError(NewError(ErrorTypeMethodNotAllowed, "", nil), w, r)
+		e.HandleError(errors.ErrorTypeMethodNotAllowed, w, r)
 		return
 	}
 
@@ -119,7 +121,7 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 路徑不存在
-	e.HandleError(NewError(ErrorTypeNotFound, "", nil), w, r)
+	e.HandleError(errors.ErrorTypeNotFound, w, r)
 }
 
 func (e *Router) applyMiddleware(handler http.Handler) http.Handler {

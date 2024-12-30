@@ -1,81 +1,49 @@
 package framework
 
-import "net/http"
+import (
+	"net/http"
 
-// ErrorType 表示錯誤類型
-type ErrorType string
-
-// 預定義的錯誤類型
-const (
-	ErrorTypeNotFound            ErrorType = "NotFound"
-	ErrorTypeMethodNotAllowed    ErrorType = "MethodNotAllowed"
-	ErrorTypeBadRequest          ErrorType = "BadRequest"
-	ErrorTypeUnauthorized        ErrorType = "Unauthorized"
-	ErrorTypeForbidden           ErrorType = "Forbidden"
-	ErrorTypeInternalServerError ErrorType = "InternalServerError"
+	"webframework/errors"
 )
 
-// Error 代表一個框架錯誤
-type Error struct {
-	Type    ErrorType
-	Message string
-	Err     error
-}
-
-func (e *Error) Error() string {
-	if e.Message != "" {
-		return e.Message
-	}
-	if e.Err != nil {
-		return e.Err.Error()
-	}
-	return string(e.Type)
-}
-
-// NewError 創建一個新的錯誤
-func NewError(errType ErrorType, message string, err error) *Error {
-	return &Error{
-		Type:    errType,
-		Message: message,
-		Err:     err,
-	}
-}
+// ErrorAwareKey 用於從請求上下文中獲取錯誤處理器
+const ErrorAwareKey = "errorAware"
 
 // ErrorHandler 定義了錯誤處理器的接口
 type ErrorHandler interface {
 	// CanHandle 判斷是否可以處理該類型的錯誤
-	CanHandle(err ErrorType) bool
+	CanHandle(err error) bool
 	// HandleError 處理特定類型的錯誤
-	HandleError(err *Error, w http.ResponseWriter, r *http.Request)
+	HandleError(err error, w http.ResponseWriter, r *http.Request)
 }
 
 // DefaultErrorHandler 提供預設的錯誤處理實現
 type DefaultErrorHandler struct{}
 
-func (h *DefaultErrorHandler) CanHandle(err ErrorType) bool {
+func (h *DefaultErrorHandler) CanHandle(err error) bool {
 	return true // 預設處理器可以處理所有類型的錯誤
 }
 
-func (h *DefaultErrorHandler) HandleError(err *Error, w http.ResponseWriter, r *http.Request) {
+func (h *DefaultErrorHandler) HandleError(err error, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	switch err.Type {
-	case ErrorTypeNotFound:
+	switch e, _ := err.(*errors.Error); {
+	case e == errors.ErrorTypeNotFound:
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 page not found"))
-	case ErrorTypeMethodNotAllowed:
+	case e == errors.ErrorTypeMethodNotAllowed:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Write([]byte("405 method not allowed"))
-	case ErrorTypeBadRequest:
+	case e == errors.ErrorTypeBadRequest:
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request: " + err.Error()))
-	case ErrorTypeUnauthorized:
+	case e == errors.ErrorTypeUnauthorized:
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("401 unauthorized: " + err.Error()))
-	case ErrorTypeForbidden:
+	case e == errors.ErrorTypeForbidden:
 		w.WriteHeader(http.StatusForbidden)
 		w.Write([]byte("403 forbidden: " + err.Error()))
-	case ErrorTypeInternalServerError:
+	case e == errors.ErrorTypeInternalServerError:
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("500 internal server error: " + err.Error()))
 	default:
@@ -86,5 +54,5 @@ func (h *DefaultErrorHandler) HandleError(err *Error, w http.ResponseWriter, r *
 
 // ErrorAware 定義了可以處理錯誤的介面
 type ErrorAware interface {
-	HandleError(err *Error, w http.ResponseWriter, r *http.Request)
+	HandleError(err error, w http.ResponseWriter, r *http.Request)
 }

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +11,27 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
+// Handler functions remain the same
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome to the homepage!")
+}
+
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, World!")
+}
+
+func getUserHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Retrieve user information")
+}
+
+func postUserHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Create a new user")
+}
+
+func userProfileHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "User profile page")
+}
 
 // TestRouting verifies that the routing is correctly set up and that each route returns the expected response.
 func TestRouting(t *testing.T) {
