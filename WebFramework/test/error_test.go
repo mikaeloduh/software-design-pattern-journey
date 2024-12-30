@@ -129,50 +129,42 @@ func (h *JSONErrorHandler) HandleError(err error, w http.ResponseWriter, r *http
 }
 
 // 模擬處理用戶請求的處理器
-func userHandler(w http.ResponseWriter, r *http.Request) {
+func userHandler(w http.ResponseWriter, r *http.Request) error {
 	// 從查詢參數中獲取用戶 ID
 	userID := r.URL.Query().Get("id")
 
-	// 獲取錯誤感知接口
-	errorAware, ok := r.Context().Value(framework.ErrorAwareKey).(framework.ErrorAware)
-	if !ok {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
 	// 檢查必要參數
 	if userID == "" {
-		errorAware.HandleError(errors.ErrorTypeBadRequest, w, r)
-		return
+		return errors.ErrorTypeBadRequest
 	}
 
 	// 檢查授權
 	if userID == "unauthorized" {
-		errorAware.HandleError(errors.ErrorTypeUnauthorized, w, r)
-		return
+		return errors.ErrorTypeUnauthorized
 	}
 
 	// 檢查權限
 	if userID == "forbidden" {
-		errorAware.HandleError(errors.ErrorTypeForbidden, w, r)
-		return
+		return errors.ErrorTypeForbidden
 	}
 
 	// 檢查用戶是否存在
 	if userID == "nonexistent" {
-		errorAware.HandleError(errors.ErrorTypeNotFound, w, r)
-		return
+		return errors.ErrorTypeNotFound
 	}
 
-	// 返回成功響應
-	response := map[string]interface{}{
+	// 模擬資料庫錯誤
+	if userID == "dberror" {
+		return errors.ErrorTypeInternalServerError
+	}
+
+	// 正常情況下返回用戶資訊
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
 		"id":      userID,
 		"message": "user found",
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	})
+	return nil
 }
 
 func TestCustomErrorHandling(t *testing.T) {
@@ -291,7 +283,11 @@ func TestHandlerErrorHandling(t *testing.T) {
 	router.RegisterErrorHandler(jsonHandler)
 
 	// 註冊用戶處理器
-	router.Handle("/user", http.MethodGet, http.HandlerFunc(userHandler))
+	router.Handle("/user", http.MethodGet, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := userHandler(w, r); err != nil {
+			jsonHandler.HandleError(err, w, r)
+		}
+	}))
 
 	tests := []struct {
 		name           string
@@ -329,6 +325,12 @@ func TestHandlerErrorHandling(t *testing.T) {
 			path:          "/user?id=123",
 			expectedCode:  http.StatusOK,
 			expectedError: "",
+		},
+		{
+			name:          "500 error - database error",
+			path:          "/user?id=dberror",
+			expectedCode:  http.StatusInternalServerError,
+			expectedError: "500 internal server error",
 		},
 	}
 

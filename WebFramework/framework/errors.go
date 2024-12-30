@@ -51,8 +51,3 @@ func (h *DefaultErrorHandler) HandleError(err error, w http.ResponseWriter, r *h
 		w.Write([]byte("500 internal server error"))
 	}
 }
-
-// ErrorAware 定義了可以處理錯誤的介面
-type ErrorAware interface {
-	HandleError(err error, w http.ResponseWriter, r *http.Request)
-}

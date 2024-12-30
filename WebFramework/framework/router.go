@@ -7,19 +7,37 @@ import (
 	"webframework/errors"
 )
 
+// Handler 是一個可以返回錯誤的 HTTP 處理器
+type Handler interface {
+	ServeHTTP(http.ResponseWriter, *http.Request) error
+}
+
+// HandlerFunc 是一個實現了 Handler 接口的函數類型
+type HandlerFunc func(http.ResponseWriter, *http.Request) error
+
+func (f HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) error {
+	return f(w, r)
+}
+
+// WrapHandler 將標準的 http.Handler 轉換為返回 error 的 Handler
+func WrapHandler(h http.Handler) Handler {
+	return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+		h.ServeHTTP(w, r)
+		return nil
+	})
+}
+
 type Router struct {
-	routes        map[string]map[string]http.Handler
+	routes        map[string]map[string]Handler
 	middlewares   []Middleware
 	errorHandlers []ErrorHandler
 }
 
 func NewRouter() *Router {
 	r := &Router{
-		routes:        make(map[string]map[string]http.Handler),
+		routes:        make(map[string]map[string]Handler),
 		errorHandlers: []ErrorHandler{&DefaultErrorHandler{}}, // 預設錯誤處理器
 	}
-	// 添加錯誤處理中間件
-	r.Use(ErrorAwareMiddleware(r))
 	return r
 }
 
@@ -49,16 +67,31 @@ func (e *Router) Use(middleware ...Middleware) {
 }
 
 // Handle registers a new route with a matcher for the URL path and method
-func (e *Router) Handle(path string, method string, handler http.Handler) {
+func (e *Router) Handle(path string, method string, handler interface{}) {
 	// 標準化路徑
 	path = strings.Trim(path, "/")
 	if path == "" {
 		path = "/"
 	}
 	if _, ok := e.routes[path]; !ok {
-		e.routes[path] = make(map[string]http.Handler)
+		e.routes[path] = make(map[string]Handler)
 	}
-	e.routes[path][method] = handler
+
+	var h Handler
+	switch handler := handler.(type) {
+	case Handler:
+		h = handler
+	case func(http.ResponseWriter, *http.Request) error:
+		h = HandlerFunc(handler)
+	case http.Handler:
+		h = WrapHandler(handler)
+	case func(http.ResponseWriter, *http.Request):
+		h = WrapHandler(http.HandlerFunc(handler))
+	default:
+		panic("unsupported handler type")
+	}
+
+	e.routes[path][method] = h
 }
 
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
@@ -73,7 +106,9 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if methodHandlers, ok := e.routes[path]; ok {
 		if h, ok := methodHandlers[method]; ok {
 			handler := e.applyMiddleware(h)
-			handler.ServeHTTP(w, r)
+			if err := handler.ServeHTTP(w, r); err != nil {
+				e.HandleError(err, w, r)
+			}
 			return
 		}
 		// 方法不允許
@@ -85,15 +120,17 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	e.HandleError(errors.ErrorTypeNotFound, w, r)
 }
 
-func (e *Router) applyMiddleware(handler http.Handler) http.Handler {
+func (e *Router) applyMiddleware(handler Handler) Handler {
 	h := handler
 	for i := len(e.middlewares) - 1; i >= 0; i-- {
-		h = e.middlewares[i](h)
+		mw := e.middlewares[i]
+		h = HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+			var err error
+			mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				err = h.ServeHTTP(w, r)
+			})).ServeHTTP(w, r)
+			return err
+		})
 	}
 	return h
-}
-
-// GetErrorAware 返回一個實現了 ErrorAware 接口的對象
-func (e *Router) GetErrorAware() ErrorAware {
-	return e
 }
