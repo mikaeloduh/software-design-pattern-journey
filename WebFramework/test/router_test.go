@@ -92,3 +92,60 @@ func TestRouting(t *testing.T) {
 		assert.Equal(t, tc.expectedBody, string(body), "Unexpected response body for path %s", tc.path)
 	}
 }
+
+// TestMiddleware verifies that middleware functions are correctly applied
+func TestMiddleware(t *testing.T) {
+	// Create a new Router
+	route := framework.NewRouter()
+
+	// Create a test middleware that checks for a specific header
+	testMiddleware := func(w http.ResponseWriter, r *http.Request, next func()) error {
+		if r.Header.Get("X-Test") != "test-value" {
+			return fmt.Errorf("missing or invalid X-Test header")
+		}
+		next()
+		return nil
+	}
+
+	// Register the middleware
+	route.Use(testMiddleware)
+
+	// Register a simple handler
+	route.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+		fmt.Fprintf(w, "test passed")
+		return nil
+	}))
+
+	// Start a new test server
+	ts := httptest.NewServer(route)
+	defer ts.Close()
+
+	// Test case 1: Request without required header should fail
+	t.Run("without header", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, ts.URL+"/test", nil)
+		assert.NoError(t, err)
+
+		resp, err := http.DefaultClient.Do(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	})
+
+	// Test case 2: Request with required header should succeed
+	t.Run("with header", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, ts.URL+"/test", nil)
+		assert.NoError(t, err)
+		req.Header.Set("X-Test", "test-value")
+
+		resp, err := http.DefaultClient.Do(req)
+		assert.NoError(t, err)
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+		body, err := ioutil.ReadAll(resp.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, "test passed", string(body))
+	})
+}

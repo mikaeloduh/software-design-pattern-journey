@@ -110,11 +110,15 @@ func (e *Router) applyMiddleware(handler Handler) Handler {
 	h := handler
 	for i := len(e.middlewares) - 1; i >= 0; i-- {
 		mw := e.middlewares[i]
+		currentHandler := h
 		h = HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 			var err error
-			mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				err = h.ServeHTTP(w, r)
-			})).ServeHTTP(w, r)
+			next := func() {
+				err = currentHandler.ServeHTTP(w, r)
+			}
+			if err := mw(w, r, next); err != nil {
+				return err
+			}
 			return err
 		})
 	}
