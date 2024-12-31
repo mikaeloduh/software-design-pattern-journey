@@ -7,12 +7,12 @@ import (
 	"webframework/errors"
 )
 
-// Handler 是一個可以返回錯誤的 HTTP 處理器
+// Handler is a function that implements the Handler interface
 type Handler interface {
 	ServeHTTP(http.ResponseWriter, *http.Request) error
 }
 
-// HandlerFunc 是一個實現了 Handler 接口的函數類型
+// HandlerFunc is a function that implements the Handler interface
 type HandlerFunc func(http.ResponseWriter, *http.Request) error
 
 func (f HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) error {
@@ -30,35 +30,48 @@ func WrapHandler(h http.Handler) Handler {
 type Router struct {
 	routes        map[string]map[string]Handler
 	middlewares   []Middleware
-	errorHandlers []ErrorHandler
+	errorHandlers []ErrorHandlerFunc
 }
 
 func NewRouter() *Router {
 	r := &Router{
 		routes:        make(map[string]map[string]Handler),
-		errorHandlers: []ErrorHandler{&DefaultErrorHandler{}}, // 預設錯誤處理器
+		errorHandlers: []ErrorHandlerFunc{},
 	}
+	// register default error handlers
+	r.RegisterErrorHandler(DefaultUnauthorizedErrorHandler)
+	r.RegisterErrorHandler(DefaultNotFoundErrorHandler)
+	r.RegisterErrorHandler(DefaultMethodNotAllowedErrorHandler)
 	return r
 }
 
-// RegisterErrorHandler 註冊一個錯誤處理器
-func (e *Router) RegisterErrorHandler(handler ErrorHandler) {
-	e.errorHandlers = append(e.errorHandlers, handler)
+// RegisterErrorHandler register an error handler
+func (e *Router) RegisterErrorHandler(handlerFunc ErrorHandlerFunc) {
+	// add at the beginning of the handler chain
+	e.errorHandlers = append([]ErrorHandlerFunc{handlerFunc}, e.errorHandlers...)
 }
 
 // HandleError 處理錯誤
 func (e *Router) HandleError(err error, w http.ResponseWriter, r *http.Request) {
-	// 從後往前查找，讓後註冊的處理器優先處理
-	for i := len(e.errorHandlers) - 1; i >= 0; i-- {
-		handler := e.errorHandlers[i]
-		if handler.CanHandle(err) {
-			handler.HandleError(err, w, r)
-			return
-		}
+	if len(e.errorHandlers) == 0 {
+		// use default error handlers if no error handlers
+		e.errorHandlers = []ErrorHandlerFunc{DefaultNotFoundErrorHandler, DefaultMethodNotAllowedErrorHandler}
 	}
 
-	// 如果沒有處理器可以處理，使用預設處理器
-	(&DefaultErrorHandler{}).HandleError(err, w, r)
+	var currentHandlerIndex = 0
+	var next func(error)
+	next = func(err error) {
+		if currentHandlerIndex >= len(e.errorHandlers) {
+			// use default error handler if no error handlers
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		handler := e.errorHandlers[currentHandlerIndex]
+		currentHandlerIndex++
+		handler(err, w, r, next)
+	}
+
+	next(err)
 }
 
 // Use adds middleware to the router
@@ -88,7 +101,7 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	method := r.Method
 
-	// 檢查完整路徑
+	// check full path
 	if methodHandlers, ok := e.routes[path]; ok {
 		if h, ok := methodHandlers[method]; ok {
 			handler := e.applyMiddleware(h)
@@ -97,12 +110,12 @@ func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		// 方法不允許
+		// 405
 		e.HandleError(errors.ErrorTypeMethodNotAllowed, w, r)
 		return
 	}
 
-	// 路徑不存在
+	// 404
 	e.HandleError(errors.ErrorTypeNotFound, w, r)
 }
 
