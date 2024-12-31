@@ -19,7 +19,7 @@ func (f HandlerFunc) ServeHTTP(w http.ResponseWriter, r *http.Request) error {
 	return f(w, r)
 }
 
-// WrapHandler 將標準的 http.Handler 轉換為返回 error 的 Handler
+// Convert the standard http.Handler to a Handler that returns an error
 func WrapHandler(h http.Handler) Handler {
 	return HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
 		h.ServeHTTP(w, r)
@@ -51,7 +51,7 @@ func (e *Router) RegisterErrorHandler(handlerFunc ErrorHandlerFunc) {
 	e.errorHandlers = append([]ErrorHandlerFunc{handlerFunc}, e.errorHandlers...)
 }
 
-// HandleError 處理錯誤
+// HandleError handles errors
 func (e *Router) HandleError(err error, w http.ResponseWriter, r *http.Request) {
 	if len(e.errorHandlers) == 0 {
 		// use default error handlers if no error handlers
