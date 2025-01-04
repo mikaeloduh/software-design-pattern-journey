@@ -6,11 +6,11 @@ import (
 	"reflect"
 )
 
-type Requestx struct {
+type Request struct {
 	*http.Request
 }
 
-func (r *Requestx) ReadBodyAsObject(objType interface{}) (interface{}, error) {
+func (r *Request) ReadBodyAsObject(objType interface{}) (interface{}, error) {
 	objValue := reflect.New(reflect.TypeOf(objType)).Interface()
 	err := json.NewDecoder(r.Body).Decode(objValue)
 	if err != nil {

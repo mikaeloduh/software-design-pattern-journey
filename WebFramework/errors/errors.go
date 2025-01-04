@@ -3,11 +3,12 @@ package errors
 import "net/http"
 
 var (
-	ErrorTypeNotFound            = NewError(http.StatusNotFound, nil)            // 404
-	ErrorTypeMethodNotAllowed    = NewError(http.StatusMethodNotAllowed, nil)    // 405
-	ErrorTypeBadRequest          = NewError(http.StatusBadRequest, nil)          // 400
-	ErrorTypeUnauthorized        = NewError(http.StatusUnauthorized, nil)        // 401
-	ErrorTypeForbidden           = NewError(http.StatusForbidden, nil)           // 403
+	ErrorTypeBadRequest       = NewError(http.StatusBadRequest, nil)       // 400
+	ErrorTypeUnauthorized     = NewError(http.StatusUnauthorized, nil)     // 401
+	ErrorTypeForbidden        = NewError(http.StatusForbidden, nil)        // 403
+	ErrorTypeNotFound         = NewError(http.StatusNotFound, nil)         // 404
+	ErrorTypeMethodNotAllowed = NewError(http.StatusMethodNotAllowed, nil) // 405
+
 	ErrorTypeInternalServerError = NewError(http.StatusInternalServerError, nil) // 500
 )
 
