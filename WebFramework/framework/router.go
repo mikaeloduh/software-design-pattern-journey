@@ -39,6 +39,7 @@ func NewRouter() *Router {
 		errorHandlers: []ErrorHandlerFunc{},
 	}
 	// register default error handlers
+	r.RegisterErrorHandler(DefaultFallbackErrorHandler)
 	r.RegisterErrorHandler(DefaultUnauthorizedErrorHandler)
 	r.RegisterErrorHandler(DefaultNotFoundErrorHandler)
 	r.RegisterErrorHandler(DefaultMethodNotAllowedErrorHandler)

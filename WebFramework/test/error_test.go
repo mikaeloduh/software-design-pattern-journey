@@ -30,6 +30,7 @@ func TestDefaultErrorHandler(t *testing.T) {
 
 		// Verify the response
 		assert.Equal(t, http.StatusNotFound, w.Code, "Expected status code %d, got %d", http.StatusNotFound, w.Code)
+		assert.Equal(t, "text/plain; charset=utf-8", w.Header().Get("Content-Type"), "Expected Content-Type %q, got %q", "text/plain; charset=utf-8", w.Header().Get("Content-Type"))
 		assert.Equal(t, "Cannot find the path \"/non-existent\"", w.Body.String(), "Expected error %q, got %q", "404 page not found", w.Body.String())
 	})
 
@@ -43,6 +44,7 @@ func TestDefaultErrorHandler(t *testing.T) {
 
 		// Verify the response
 		assert.Equal(t, http.StatusMethodNotAllowed, w.Code, "Expected status code %d, got %d", http.StatusMethodNotAllowed, w.Code)
+		assert.Equal(t, "text/plain; charset=utf-8", w.Header().Get("Content-Type"), "Expected Content-Type %q, got %q", "text/plain; charset=utf-8", w.Header().Get("Content-Type"))
 		assert.Equal(t, "Method \"DELETE\" is not allowed on path \"test\"", w.Body.String(), "Expected error %q, got %q", "405 method not allowed", w.Body.String())
 	})
 }

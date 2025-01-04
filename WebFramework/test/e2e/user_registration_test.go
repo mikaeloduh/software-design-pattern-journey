@@ -85,6 +85,10 @@ func (c *UserController) Register(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 
+	if reqData.Username == "" || reqData.Email == "" || reqData.Password == "" {
+		return errors.NewError(http.StatusBadRequest, fmt.Errorf("Registration's format incorrect."))
+	}
+
 	if c.UserService.FindUserByEmail(reqData.Email) != nil {
 		return errors.NewError(http.StatusBadRequest, fmt.Errorf("Duplicate email"))
 	}
@@ -134,7 +138,6 @@ func TestRegisterHandlerJSON(t *testing.T) {
 	})
 
 	t.Run("register fail: email exists", func(t *testing.T) {
-		t.Skip()
 		jsonBody := `{"username": "12345", "email": "John Doe", "password": "abc"}`
 		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
@@ -145,5 +148,18 @@ func TestRegisterHandlerJSON(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rr.Code, "Expected status BadRequest")
 		assert.Equal(t, "text/plain; charset=utf-8", rr.Header().Get("Content-Type"), "Expected Content-Type text/plain")
 		assert.Equal(t, "Duplicate email", rr.Body.String(), "Response body mismatch")
+	})
+
+	t.Run("register fail: invalid format", func(t *testing.T) {
+		jsonBody := `{"incorrectrequest": "this is a incorrect test request"}`
+		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(jsonBody))
+		req.Header.Set("Content-Type", "application/json")
+
+		rr := httptest.NewRecorder()
+		router.ServeHTTP(rr, req)
+
+		assert.Equal(t, http.StatusBadRequest, rr.Code, "Expected status BadRequest")
+		assert.Equal(t, "text/plain; charset=utf-8", rr.Header().Get("Content-Type"), "Expected Content-Type text/plain")
+		assert.Equal(t, "Registration's format incorrect.", rr.Body.String(), "Response body mismatch")
 	})
 }
