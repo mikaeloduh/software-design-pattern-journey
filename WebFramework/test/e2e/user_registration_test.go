@@ -60,9 +60,9 @@ type UserController struct {
 	UserService *UserService
 }
 
-func NewUserController() *UserController {
+func NewUserController(userService *UserService) *UserController {
 	return &UserController{
-		UserService: NewUserService(),
+		UserService: userService,
 	}
 }
 
@@ -118,19 +118,19 @@ func (c *UserController) Register(w http.ResponseWriter, r *http.Request) error 
 }
 
 func TestRegisterHandlerJSON(t *testing.T) {
+	userController := NewUserController(userService)
 	router := framework.NewRouter()
-	UserController := NewUserController()
-	router.Handle("/register", http.MethodPost, framework.HandlerFunc(UserController.Register))
+	router.Handle("/register", http.MethodPost, framework.HandlerFunc(userController.Register))
 
 	t.Run("test register user successfully", func(t *testing.T) {
-		jsonBody := `{"username": "12345", "email": "John Doe", "password": "abc"}`
+		jsonBody := `{"username": "John Doe", "email": "jdoe@example.com", "password": "abc"}`
 		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
 
 		rr := httptest.NewRecorder()
 		router.ServeHTTP(rr, req)
 
-		expectedResponse := `{"username": "12345", "email": "John Doe", "id": 1}`
+		expectedResponse := `{"username": "John Doe", "email": "jdoe@example.com", "id": 2}`
 
 		assert.Equal(t, http.StatusOK, rr.Code, "Expected status OK")
 		assert.Equal(t, "application/json", rr.Header().Get("Content-Type"), "Expected Content-Type application/json")
@@ -138,7 +138,7 @@ func TestRegisterHandlerJSON(t *testing.T) {
 	})
 
 	t.Run("register fail: email exists", func(t *testing.T) {
-		jsonBody := `{"username": "12345", "email": "John Doe", "password": "abc"}`
+		jsonBody := `{"username": "John Doe", "email": "jdoe@example.com", "password": "abc"}`
 		req := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
 

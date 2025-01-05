@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -8,56 +9,70 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"webframework/errors"
 	"webframework/framework"
 )
 
 type LoginRequest struct {
-	Username string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type LoginResponse struct {
+	Id       uint64 `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
 
-func Login(w http.ResponseWriter, r *http.Request) error {
+func (c *UserController) Login(w http.ResponseWriter, r *http.Request) error {
 	var reqData LoginRequest
 	if err := framework.ReadBodyAsObject(r, &reqData); err != nil {
 		return err
 	}
 
-	if reqData.Username == "correctName" && reqData.Password == "correctPassword" {
-		respData := LoginResponse{
-			Username: reqData.Username,
-			Email:    "q4o5D@example.com",
-		}
-		if err := framework.WriteObjectAsJSON(w, respData); err != nil {
-			return err
-		}
-	} else {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	if reqData.Password == "" || reqData.Email == "" {
+		return errors.NewError(http.StatusBadRequest, fmt.Errorf("Login's format incorrect."))
+	}
+
+	user := c.UserService.FindUserByEmail(reqData.Email)
+
+	if user == nil {
+		return errors.NewError(http.StatusUnauthorized, fmt.Errorf("User not found."))
+	}
+
+	if user.Password != reqData.Password {
+		return errors.NewError(http.StatusUnauthorized, fmt.Errorf("Password incorrect."))
+	}
+
+	respData := LoginResponse{
+		Id:       user.Id,
+		Username: user.Username,
+		Email:    user.Email,
+	}
+	if err := framework.WriteObjectAsJSON(w, respData); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func TestUserLogin(t *testing.T) {
-
+	userController := NewUserController(userService)
 	router := framework.NewRouter()
-	router.Handle("/login", http.MethodPost, framework.HandlerFunc(Login))
+	router.Handle("/login", http.MethodPost, framework.HandlerFunc(userController.Login))
 
 	t.Run("test login successfully", func(t *testing.T) {
-		jsonBody := `{"username": "correctName", "password": "correctPassword"}`
-		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(jsonBody))
+		loginBody := `{"email": "correctEmail@example.com",  "password": "correctPassword"}`
+		req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(loginBody))
 		req.Header.Set("Content-Type", "application/json")
 
 		rr := httptest.NewRecorder()
 		router.ServeHTTP(rr, req)
 
-		expectedResponse := `{"username": "correctName", "email": "q4o5D@example.com"}`
+		expectedResponse := `{"id": 1, "username": "correctName", "email": "correctEmail@example.com"}`
 
 		assert.Equal(t, http.StatusOK, rr.Code, "Expected status OK")
-		assert.JSONEq(t, expectedResponse, rr.Body.String(), "Response body mismatch")
+		assert.Equal(t, "application/json", rr.Header().Get("Content-Type"), "Expected Content-Type application/json")
+		assert.JSONEq(t, expectedResponse, rr.Body.String(), "Response body mismatch, hading: %v", rr.Body.String())
 	})
 }
