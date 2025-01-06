@@ -78,9 +78,9 @@ type RegisterResponse struct {
 	Email    string `json:"email" xml:"email"`
 }
 
-func (c *UserController) Register(w http.ResponseWriter, r *http.Request) error {
+func (c *UserController) Register(w http.ResponseWriter, r *framework.Request) error {
 	var reqData RegisterRequest
-	if err := framework.ReadBodyAsObject(r, &reqData); err != nil {
+	if err := r.DecodeBodyInto(&reqData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return err
 	}

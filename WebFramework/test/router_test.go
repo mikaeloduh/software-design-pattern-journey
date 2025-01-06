@@ -13,27 +13,27 @@ import (
 )
 
 // Handler functions remain the same
-func homeHandler(w http.ResponseWriter, r *http.Request) error {
+func homeHandler(w http.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Welcome to the homepage!")
 	return nil
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) error {
+func helloHandler(w http.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Hello, World!")
 	return nil
 }
 
-func getUserHandler(w http.ResponseWriter, r *http.Request) error {
+func getUserHandler(w http.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Retrieve user information")
 	return nil
 }
 
-func postUserHandler(w http.ResponseWriter, r *http.Request) error {
+func postUserHandler(w http.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Create a new user")
 	return nil
 }
 
-func userProfileHandler(w http.ResponseWriter, r *http.Request) error {
+func userProfileHandler(w http.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "User profile page")
 	return nil
 }
@@ -93,25 +93,25 @@ func TestRouting(t *testing.T) {
 	}
 }
 
+// Create a test middleware that checks for a specific header
+func testMiddleware(w http.ResponseWriter, r *framework.Request, next func()) error {
+	if r.Header.Get("X-Test") != "test-value" {
+		return fmt.Errorf("missing or invalid X-Test header")
+	}
+	next()
+	return nil
+}
+
 // TestMiddleware verifies that middleware functions are correctly applied
 func TestMiddleware(t *testing.T) {
 	// Create a new Router
 	route := framework.NewRouter()
 
-	// Create a test middleware that checks for a specific header
-	testMiddleware := func(w http.ResponseWriter, r *http.Request, next func()) error {
-		if r.Header.Get("X-Test") != "test-value" {
-			return fmt.Errorf("missing or invalid X-Test header")
-		}
-		next()
-		return nil
-	}
-
 	// Register the middleware
 	route.Use(testMiddleware)
 
 	// Register a simple handler
-	route.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error {
+	route.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *framework.Request) error {
 		fmt.Fprintf(w, "test passed")
 		return nil
 	}))

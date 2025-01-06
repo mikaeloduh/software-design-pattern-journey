@@ -16,7 +16,7 @@ type UserQueryResponse struct {
 	Email    string `json:"email"`
 }
 
-func UserQuery(w http.ResponseWriter, r *http.Request) error {
+func UserQuery(w http.ResponseWriter, r *framework.Request) error {
 	res := UserQueryResponse{
 		Username: "correctName",
 		Email:    "q4o5D@example.com",
@@ -28,7 +28,7 @@ func UserQuery(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func AuthMiddleware(w http.ResponseWriter, r *http.Request, next func()) error {
+func AuthMiddleware(w http.ResponseWriter, r *framework.Request, next func()) error {
 	token := r.Header.Get("Authorization")
 	if token != "secret" {
 		return errors.ErrorTypeUnauthorized

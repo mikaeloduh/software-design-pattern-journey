@@ -24,9 +24,9 @@ type LoginResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *UserController) Login(w http.ResponseWriter, r *http.Request) error {
+func (c *UserController) Login(w http.ResponseWriter, r *framework.Request) error {
 	var reqData LoginRequest
-	if err := framework.ReadBodyAsObject(r, &reqData); err != nil {
+	if err := r.DecodeBodyInto(&reqData); err != nil {
 		return err
 	}
 
