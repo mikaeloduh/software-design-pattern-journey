@@ -17,10 +17,10 @@ func TestRequest_ReadBodyAsObject(t *testing.T) {
 	req := httptest.NewRequest("POST", "/register", strings.NewReader(`{"field1":"value1","field2":123}`))
 	req.Header.Set("Content-Type", "application/json")
 
-	request := Request{req}
+	request := Request{Request: req, BodyParser: JSONDecoder}
 
 	var testReq TestRequest
-	err := request.DecodeBodyInto(&testReq)
+	err := request.ParseBodyInto(&testReq)
 	assert.NoError(t, err)
 
 	assert.Equal(t, "value1", testReq.Field1)

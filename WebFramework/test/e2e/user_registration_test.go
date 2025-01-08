@@ -80,7 +80,7 @@ type RegisterResponse struct {
 
 func (c *UserController) Register(w http.ResponseWriter, r *framework.Request) error {
 	var reqData RegisterRequest
-	if err := r.DecodeBodyInto(&reqData); err != nil {
+	if err := r.ParseBodyInto(&reqData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return err
 	}
@@ -120,6 +120,7 @@ func (c *UserController) Register(w http.ResponseWriter, r *framework.Request) e
 func TestRegisterHandlerJSON(t *testing.T) {
 	userController := NewUserController(userService)
 	router := framework.NewRouter()
+	router.Use(framework.JSONBodyParser)
 	router.Handle("/register", http.MethodPost, framework.HandlerFunc(userController.Register))
 
 	t.Run("test register user successfully", func(t *testing.T) {

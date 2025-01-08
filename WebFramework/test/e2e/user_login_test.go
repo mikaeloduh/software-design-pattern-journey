@@ -26,7 +26,7 @@ type LoginResponse struct {
 
 func (c *UserController) Login(w http.ResponseWriter, r *framework.Request) error {
 	var reqData LoginRequest
-	if err := r.DecodeBodyInto(&reqData); err != nil {
+	if err := r.ParseBodyInto(&reqData); err != nil {
 		return err
 	}
 
@@ -59,6 +59,7 @@ func (c *UserController) Login(w http.ResponseWriter, r *framework.Request) erro
 func TestUserLogin(t *testing.T) {
 	userController := NewUserController(userService)
 	router := framework.NewRouter()
+	router.Use(framework.JSONBodyParser)
 	router.Handle("/login", http.MethodPost, framework.HandlerFunc(userController.Login))
 
 	t.Run("test login successfully", func(t *testing.T) {

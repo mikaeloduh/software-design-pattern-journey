@@ -95,7 +95,7 @@ func (e *Router) Handle(path string, method string, handler Handler) {
 
 // ServeHTTP handles incoming HTTP requests and dispatches them to the registered handlers.
 func (e *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	req := &Request{r}
+	req := &Request{Request: r}
 
 	path := strings.Trim(req.URL.Path, "/")
 	if path == "" {
