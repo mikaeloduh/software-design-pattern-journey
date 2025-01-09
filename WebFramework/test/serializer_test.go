@@ -26,7 +26,10 @@ func TestReadBodyAsObject_JSON(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	var testObject TestObject
-	err := framework.ReadBodyAsObject(req, &testObject)
+	r := framework.Request{Request: req}
+	r.BodyParser = framework.JSONDecoder
+
+	err := r.ParseBodyInto(&testObject)
 	assert.NoError(t, err)
 
 	assert.Equal(t, body.Username, testObject.Username)
@@ -42,7 +45,10 @@ func TestReadBodyAsObject_XML(t *testing.T) {
 	req.Header.Set("Content-Type", "application/xml")
 
 	var testObject TestObject
-	err := framework.ReadBodyAsObject(req, &testObject)
+	r := framework.Request{Request: req}
+	r.BodyParser = framework.XMLDecoder
+
+	err := r.ParseBodyInto(&testObject)
 	assert.NoError(t, err)
 
 	assert.Equal(t, body.Username, testObject.Username)
@@ -55,10 +61,12 @@ func TestReadBodyAsObject_InvalidContentType(t *testing.T) {
 	req.Header.Set("Content-Type", "text/plain")
 
 	var testObject TestObject
-	err := framework.ReadBodyAsObject(req, &testObject)
+	r := framework.Request{Request: req}
+	r.BodyParser = framework.JSONDecoder
 
+	err := r.ParseBodyInto(&testObject)
 	assert.Error(t, err)
-	assert.ErrorContains(t, err, "unsupported Content-Type: text/plain")
+
 	assert.Empty(t, testObject)
 }
 
@@ -67,9 +75,12 @@ func TestReadBodyAsObject_InvalidBody(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 
 	var testObject TestObject
-	err := framework.ReadBodyAsObject(req, &testObject)
+	r := framework.Request{Request: req}
+	r.BodyParser = framework.JSONDecoder
 
+	err := r.ParseBodyInto(&testObject)
 	assert.Error(t, err)
+
 	assert.ErrorContains(t, err, "invalid character 'i' looking for beginning of value")
 	assert.Empty(t, testObject)
 }

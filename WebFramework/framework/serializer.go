@@ -3,7 +3,6 @@ package framework
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -17,21 +16,6 @@ func JSONDecoder(r io.Reader, v interface{}) error {
 
 func XMLDecoder(r io.Reader, v interface{}) error {
 	return xml.NewDecoder(r).Decode(v)
-}
-
-// ReadBodyAsObject reads the request body and un-marshals it into the provided object.
-// It supports both JSON and XML based on the Content-Type header.
-func ReadBodyAsObject(r *http.Request, obj interface{}) error {
-	contentType := r.Header.Get("Content-Type")
-
-	switch contentType {
-	case "application/json":
-		return JSONDecoder(r.Body, obj)
-	case "application/xml", "text/xml":
-		return XMLDecoder(r.Body, obj)
-	default:
-		return fmt.Errorf("unsupported Content-Type: %s", contentType)
-	}
 }
 
 // WriteObjectAsJSON sets the Content-Type header to "application/json"
