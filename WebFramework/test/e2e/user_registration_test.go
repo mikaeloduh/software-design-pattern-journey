@@ -78,7 +78,7 @@ type RegisterResponse struct {
 	Email    string `json:"email" xml:"email"`
 }
 
-func (c *UserController) Register(w http.ResponseWriter, r *framework.Request) error {
+func (c *UserController) Register(w *framework.ResponseWriter, r *framework.Request) error {
 	var reqData RegisterRequest
 	if err := r.ParseBodyInto(&reqData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -101,26 +101,18 @@ func (c *UserController) Register(w http.ResponseWriter, r *framework.Request) e
 		Email:    user.Email,
 	}
 
-	accept := r.Header.Get("Accept")
-	if accept == "application/xml" {
-		if err := framework.WriteObjectAsXML(w, respData); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return err
-		}
-	} else {
-		if err := framework.WriteObjectAsJSON(w, respData); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return err
-		}
-	}
+	w.Header().Set("Content-Type", "application/json")
 
-	return nil
+	return w.Encode(respData)
 }
 
 func TestRegisterHandlerJSON(t *testing.T) {
 	userController := NewUserController(userService)
 	router := framework.NewRouter()
 	router.Use(framework.JSONBodyParser)
+	router.Use(framework.JSONBodyEncoder)
+	router.Use(framework.XMLBodyParser)
+	router.Use(framework.XMLBodyEncoder)
 	router.Handle("/register", http.MethodPost, framework.HandlerFunc(userController.Register))
 
 	t.Run("test register user successfully", func(t *testing.T) {

@@ -14,7 +14,7 @@ import (
 
 func TestDefaultErrorHandler(t *testing.T) {
 	router := framework.NewRouter()
-	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *framework.Request) error {
+	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w *framework.ResponseWriter, r *framework.Request) error {
 		w.Write([]byte("OK"))
 		return nil
 	}))
@@ -99,7 +99,7 @@ func TestCustomErrorHandling(t *testing.T) {
 	router.RegisterErrorHandler(JSONNotFoundErrorHandler)
 	router.RegisterErrorHandler(JSONMethodNotAllowedErrorHandler)
 
-	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *framework.Request) error {
+	router.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w *framework.ResponseWriter, r *framework.Request) error {
 		w.Write([]byte("OK"))
 		return nil
 	}))

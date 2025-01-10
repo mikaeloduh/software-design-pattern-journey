@@ -89,26 +89,32 @@ func TestWriteObjectAsJSON(t *testing.T) {
 	testObject := TestObject{Username: "John Doe", Email: "jd@example.com", Id: 1}
 	expected, _ := json.Marshal(testObject)
 
-	w := httptest.NewRecorder()
+	wr := httptest.NewRecorder()
+	w := &framework.ResponseWriter{ResponseWriter: wr}
+	w.UseEncoder(framework.JSONEncoder)
+	w.Header().Set("Content-Type", "application/json")
 
-	err := framework.WriteObjectAsJSON(w, testObject)
+	err := w.Encode(testObject)
 	assert.NoError(t, err)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/json", w.Header().Get("Content-Type"))
-	assert.JSONEq(t, string(expected), w.Body.String())
+	assert.Equal(t, http.StatusOK, wr.Code)
+	assert.Equal(t, "application/json", wr.Header().Get("Content-Type"))
+	assert.JSONEq(t, string(expected), wr.Body.String())
 }
 
 func TestWriteObjectAsXML(t *testing.T) {
 	testObject := TestObject{Username: "John Doe", Email: "jd@example.com", Id: 1}
 	expected, _ := xml.Marshal(testObject)
 
-	w := httptest.NewRecorder()
+	wr := httptest.NewRecorder()
+	w := &framework.ResponseWriter{ResponseWriter: wr}
+	w.UseEncoder(framework.XMLEncoder)
+	w.Header().Set("Content-Type", "application/xml")
 
-	err := framework.WriteObjectAsXML(w, testObject)
+	err := w.Encode(testObject)
 	assert.NoError(t, err)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "application/xml", w.Header().Get("Content-Type"))
-	assert.Equal(t, string(expected), w.Body.String())
+	assert.Equal(t, http.StatusOK, wr.Code)
+	assert.Equal(t, "application/xml", wr.Header().Get("Content-Type"))
+	assert.Equal(t, string(expected), wr.Body.String())
 }

@@ -13,27 +13,27 @@ import (
 )
 
 // Handler functions remain the same
-func homeHandler(w http.ResponseWriter, r *framework.Request) error {
+func homeHandler(w *framework.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Welcome to the homepage!")
 	return nil
 }
 
-func helloHandler(w http.ResponseWriter, r *framework.Request) error {
+func helloHandler(w *framework.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Hello, World!")
 	return nil
 }
 
-func getUserHandler(w http.ResponseWriter, r *framework.Request) error {
+func getUserHandler(w *framework.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Retrieve user information")
 	return nil
 }
 
-func postUserHandler(w http.ResponseWriter, r *framework.Request) error {
+func postUserHandler(w *framework.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "Create a new user")
 	return nil
 }
 
-func userProfileHandler(w http.ResponseWriter, r *framework.Request) error {
+func userProfileHandler(w *framework.ResponseWriter, r *framework.Request) error {
 	fmt.Fprintf(w, "User profile page")
 	return nil
 }
@@ -94,7 +94,7 @@ func TestRouting(t *testing.T) {
 }
 
 // Create a test middleware that checks for a specific header
-func testMiddleware(w http.ResponseWriter, r *framework.Request, next func()) error {
+func testMiddleware(w *framework.ResponseWriter, r *framework.Request, next func()) error {
 	if r.Header.Get("X-Test") != "test-value" {
 		return fmt.Errorf("missing or invalid X-Test header")
 	}
@@ -111,7 +111,7 @@ func TestMiddleware(t *testing.T) {
 	route.Use(testMiddleware)
 
 	// Register a simple handler
-	route.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w http.ResponseWriter, r *framework.Request) error {
+	route.Handle("/test", http.MethodGet, framework.HandlerFunc(func(w *framework.ResponseWriter, r *framework.Request) error {
 		fmt.Fprintf(w, "test passed")
 		return nil
 	}))

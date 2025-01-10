@@ -16,19 +16,18 @@ type UserQueryResponse struct {
 	Email    string `json:"email"`
 }
 
-func UserQuery(w http.ResponseWriter, r *framework.Request) error {
+func UserQuery(w *framework.ResponseWriter, r *framework.Request) error {
 	res := UserQueryResponse{
 		Username: "correctName",
 		Email:    "q4o5D@example.com",
 	}
-	if err := framework.WriteObjectAsJSON(w, res); err != nil {
-		return err
-	}
 
-	return nil
+	w.Header().Set("Content-Type", "application/json")
+
+	return w.Encode(res)
 }
 
-func AuthMiddleware(w http.ResponseWriter, r *framework.Request, next func()) error {
+func AuthMiddleware(w *framework.ResponseWriter, r *framework.Request, next func()) error {
 	token := r.Header.Get("Authorization")
 	if token != "secret" {
 		return errors.ErrorTypeUnauthorized
@@ -41,6 +40,7 @@ func AuthMiddleware(w http.ResponseWriter, r *framework.Request, next func()) er
 func TestUserQuery(t *testing.T) {
 
 	router := framework.NewRouter()
+	router.Use(framework.JSONBodyEncoder)
 	router.Use(AuthMiddleware)
 	router.Handle("/query", http.MethodGet, framework.HandlerFunc(UserQuery))
 

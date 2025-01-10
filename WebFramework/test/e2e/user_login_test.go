@@ -24,7 +24,7 @@ type LoginResponse struct {
 	Email    string `json:"email"`
 }
 
-func (c *UserController) Login(w http.ResponseWriter, r *framework.Request) error {
+func (c *UserController) Login(w *framework.ResponseWriter, r *framework.Request) error {
 	var reqData LoginRequest
 	if err := r.ParseBodyInto(&reqData); err != nil {
 		return err
@@ -49,17 +49,17 @@ func (c *UserController) Login(w http.ResponseWriter, r *framework.Request) erro
 		Username: user.Username,
 		Email:    user.Email,
 	}
-	if err := framework.WriteObjectAsJSON(w, respData); err != nil {
-		return err
-	}
 
-	return nil
+	w.Header().Set("Content-Type", "application/json")
+
+	return w.Encode(respData)
 }
 
 func TestUserLogin(t *testing.T) {
 	userController := NewUserController(userService)
 	router := framework.NewRouter()
 	router.Use(framework.JSONBodyParser)
+	router.Use(framework.JSONBodyEncoder)
 	router.Handle("/login", http.MethodPost, framework.HandlerFunc(userController.Login))
 
 	t.Run("test login successfully", func(t *testing.T) {

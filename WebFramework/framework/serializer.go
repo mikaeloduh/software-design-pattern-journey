@@ -18,16 +18,25 @@ func XMLDecoder(r io.Reader, v interface{}) error {
 	return xml.NewDecoder(r).Decode(v)
 }
 
-// WriteObjectAsJSON sets the Content-Type header to "application/json"
-// and writes the JSON-encoded object to the response writer.
-func WriteObjectAsJSON(w http.ResponseWriter, obj interface{}) error {
-	w.Header().Set("Content-Type", "application/json")
-	return json.NewEncoder(w).Encode(obj)
+// Encoder is a function that encodes an object into a writer
+type Encoder func(http.ResponseWriter, interface{}) error
+
+type EncoderHandler func(Encoder) Encoder
+
+func JSONEncoder(next Encoder) Encoder {
+	return func(w http.ResponseWriter, obj interface{}) error {
+		if w.Header().Get("Content-Type") == "application/json" {
+			return json.NewEncoder(w).Encode(obj)
+		}
+		return next(w, obj)
+	}
 }
 
-// WriteObjectAsXML sets the Content-Type header to "application/xml"
-// and writes the XML-encoded object to the response writer.
-func WriteObjectAsXML(w http.ResponseWriter, obj interface{}) error {
-	w.Header().Set("Content-Type", "application/xml")
-	return xml.NewEncoder(w).Encode(obj)
+func XMLEncoder(next Encoder) Encoder {
+	return func(w http.ResponseWriter, obj interface{}) error {
+		if w.Header().Get("Content-Type") == "application/xml" {
+			return xml.NewEncoder(w).Encode(obj)
+		}
+		return next(w, obj)
+	}
 }
