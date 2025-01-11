@@ -4,12 +4,14 @@ type Scope int
 
 const (
 	Singleton Scope = iota
-	Transient
+	Prototype
 )
 
+type Factory func() any
+
 type ServiceDefinition struct {
-	instance interface{}
-	scope    Scope
+	factory Factory
+	scope   Scope
 }
 
 type Container struct {
@@ -22,16 +24,26 @@ func NewContainer() *Container {
 	}
 }
 
-func (c *Container) Register(name string, service interface{}, scope Scope) {
-	c.services[name] = &ServiceDefinition{
-		instance: service,
-		scope:    scope,
+func (c *Container) Register(name string, factory Factory, scope Scope) {
+	if scope == Singleton {
+		instance := factory()
+		c.services[name] = &ServiceDefinition{
+			factory: func() any {
+				return instance
+			},
+			scope: scope,
+		}
+	} else {
+		c.services[name] = &ServiceDefinition{
+			factory: factory,
+			scope:   scope,
+		}
 	}
 }
 
-func (c *Container) Get(name string) interface{} {
+func (c *Container) Get(name string) any {
 	if service, exists := c.services[name]; exists {
-		return service.instance
+		return service.factory()
 	}
 	return nil
 }
