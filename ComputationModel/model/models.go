@@ -22,11 +22,9 @@ var once sync.Once
 var modelsInstance *models
 
 func NewModels() IModels {
-	if modelsInstance == nil {
-		once.Do(func() {
-			modelsInstance = &models{}
-		})
-	}
+	once.Do(func() {
+		modelsInstance = &models{}
+	})
 	return modelsInstance
 }
 
@@ -47,6 +45,39 @@ func (m *models) CreateModel(name string) (IModel, error) {
 
 	return modelInstances[name], nil
 }
+
+// Solution A: lock on enter
+//
+// func (m *models) CreateModel(name string) (IModel, error) {
+// 	lock.Lock()
+// 	defer lock.Unlock()
+// 	if modelInstances[name] == nil {
+// 		modelInstances[name], _ = m.newModel(name)
+// 	}
+//
+// 	return modelInstances[name], nil
+// }
+
+// Solution B: syncMap
+//
+// var modelInstances2 sync.Map // key: string, value: IModel
+//
+// func (m *models) CreateModel(name string) (IModel, error) {
+// 	val, ok := modelInstances2.Load(name)
+//
+// 	if !ok {
+// 		// if not in map
+// 		model, err := m.newModel(name)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		// atomistic operation
+// 		actual, _ := modelInstances2.LoadOrStore(name, model)
+// 		return actual.(IModel), nil
+// 	}
+//
+// 	return val.(IModel), nil
+// }
 
 func (m *models) newModel(name string) (IModel, error) {
 	file, err := os.Open(fmt.Sprintf("./data/%s.mat", name))
