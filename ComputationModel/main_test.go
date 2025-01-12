@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 	"testing"
 
@@ -84,22 +83,54 @@ func Test_Main(t *testing.T) {
 	})
 }
 
-func Test_Async(t *testing.T) {
+func TestModels_Concurrency(t *testing.T) {
+	const concurrency = 100
 	var wg sync.WaitGroup
 
-	for i := 0; i < 100; i++ {
+	instances := make([]model.IModels, concurrency)
+
+	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
 
-			// Create a new subtest for each goroutine to ensure proper test isolation
-			t.Run(fmt.Sprintf("async-%02d", i), func(t *testing.T) {
-				Test_Main(t)
-			})
+			instances[i] = model.NewModels()
 		}(i)
 	}
 
 	wg.Wait()
+
+	for i := 0; i < concurrency; i++ {
+		assert.Same(t, instances[0], instances[i])
+	}
+}
+
+func TestModel_Concurrency(t *testing.T) {
+	const concurrency = 100
+	var wg sync.WaitGroup
+
+	models := model.NewModels()
+
+	instances := make([]model.IModel, concurrency+1)
+
+	instances[0], _ = models.CreateModel("Scaling")
+
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+
+			var err error
+			instances[i+1], err = models.CreateModel("Scaling")
+			assert.NoError(t, err)
+		}(i)
+	}
+
+	wg.Wait()
+
+	for i := 0; i < concurrency+1; i++ {
+		assert.Same(t, instances[0], instances[i])
+	}
 }
 
 // helpers
