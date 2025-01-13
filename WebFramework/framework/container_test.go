@@ -25,7 +25,7 @@ func TestContainer_Singleton(t *testing.T) {
 
 	container := NewContainer()
 
-	container.Register("TestService", func() any { return NewTestService() }, SingletonScope)
+	container.Register("TestService", func() any { return NewTestService() }, &SingletonStrategy{})
 
 	testInstance := container.Get("TestService").(*TestService)
 	expectedInstance := container.Get("TestService").(*TestService)
@@ -35,7 +35,7 @@ func TestContainer_Singleton(t *testing.T) {
 
 func TestContainer_Singleton_Parallel(t *testing.T) {
 	container := NewContainer()
-	container.Register("TestService", func() any { return NewTestService() }, SingletonScope)
+	container.Register("TestService", func() any { return NewTestService() }, &SingletonStrategy{})
 
 	const concurrency = 100
 	var wg sync.WaitGroup
@@ -63,7 +63,7 @@ func TestContainer_Prototype(t *testing.T) {
 
 	container := NewContainer()
 
-	container.Register("TestService", func() any { return NewTestService() }, PrototypeScope)
+	container.Register("TestService", func() any { return NewTestService() }, &PrototypeStrategy{})
 
 	service1 := container.Get("TestService").(*TestService)
 	service2 := container.Get("TestService").(*TestService)
@@ -72,7 +72,7 @@ func TestContainer_Prototype(t *testing.T) {
 
 func TestHttpRequestScope_SameRequest(t *testing.T) {
 	container := NewContainer()
-	container.Register("TestService", func() any { return NewTestService() }, HttpRequestScope)
+	container.Register("TestService", func() any { return NewTestService() }, &HttpRequestScopeStrategy{})
 
 	router := NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
@@ -102,7 +102,7 @@ func TestHttpRequestScope_SameRequest(t *testing.T) {
 
 func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 	container := NewContainer()
-	container.Register("TestService", func() any { return NewTestService() }, HttpRequestScope)
+	container.Register("TestService", func() any { return NewTestService() }, &HttpRequestScopeStrategy{})
 
 	router := NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))

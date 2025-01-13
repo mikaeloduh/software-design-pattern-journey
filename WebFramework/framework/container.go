@@ -5,19 +5,12 @@ import (
 	"sync"
 )
 
-type Scope int
-
-const (
-	SingletonScope Scope = iota
-	PrototypeScope
-	HttpRequestScope
-)
-
 type Factory func() any
 
 type ServiceDefinition struct {
-	factory Factory
-	scope   Scope
+	name     string
+	factory  Factory
+	strategy ScopeStrategy
 }
 
 type Container struct {
@@ -33,58 +26,31 @@ func NewContainer() *Container {
 	}
 }
 
-func (c *Container) Register(name string, factory Factory, scope Scope) {
-	switch scope {
-	case SingletonScope:
-		instance := factory()
-		c.services[name] = &ServiceDefinition{
-			factory: func() any { return instance },
-			scope:   scope,
-		}
-	case HttpRequestScope:
-		c.services[name] = &ServiceDefinition{
-			factory: factory,
-			scope:   scope,
-		}
-	default: // PrototypeScope
-		c.services[name] = &ServiceDefinition{
-			factory: factory,
-			scope:   scope,
-		}
+func (c *Container) Register(name string, factory Factory, strategy ScopeStrategy) {
+	def := &ServiceDefinition{
+		name:     name,
+		factory:  factory,
+		strategy: strategy,
 	}
+
+	def.strategy.Init(def)
+	c.services[name] = def
 }
 
 func (c *Container) Get(name string) any {
-	if service, exists := c.services[name]; exists {
-		return service.factory()
-	}
-	return nil
-}
-
-// for HttpRequestScope, we need to be able to receive requests
-func (c *Container) GetFromRequest(r *http.Request, name string) any {
-	def, ok := c.services[name]
-	if !ok {
+	def, exists := c.services[name]
+	if !exists {
 		return nil
 	}
+	return def.strategy.Resolve(c, nil, def)
+}
 
-	if def.scope != HttpRequestScope {
-		return def.factory()
+func (c *Container) GetFromRequest(r *http.Request, name string) any {
+	def, exists := c.services[name]
+	if !exists {
+		return nil
 	}
-
-	// HttpRequestScope: lookup instance map
-	val, _ := c.requestInstances.LoadOrStore(r, make(map[string]any))
-	instanceMap := val.(map[string]any)
-
-	if inst, found := instanceMap[name]; found {
-		// service already exists, return it
-		return inst
-	}
-
-	// instance doesn't exist, create it
-	newInst := def.factory()
-	instanceMap[name] = newInst
-	return newInst
+	return def.strategy.Resolve(c, r, def)
 }
 
 func (c *Container) ClearRequest(r *http.Request) {
