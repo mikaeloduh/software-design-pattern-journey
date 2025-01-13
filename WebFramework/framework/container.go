@@ -2,9 +2,6 @@ package framework
 
 import (
 	"context"
-	"fmt"
-	"strings"
-	"sync"
 	"sync/atomic"
 )
 
@@ -17,8 +14,7 @@ type ServiceDefinition struct {
 }
 
 type Container struct {
-	services       map[string]*ServiceDefinition
-	scopeInstances sync.Map // key: InstaceKey, value: instance
+	services map[string]*ServiceDefinition
 }
 
 func NewContainer() *Container {
@@ -67,14 +63,11 @@ func HttpRequestScopeMiddleware(container *Container) Middleware {
 		next()
 
 		// clean up all instances associated with this request
-		container.scopeInstances.Range(func(key, value any) bool {
-			if k, ok := key.(string); ok {
-				if strings.HasPrefix(k, fmt.Sprintf("%v-", requestID)) {
-					container.scopeInstances.Delete(key)
-				}
+		for _, def := range container.services {
+			if httpScope, ok := def.strategy.(*HttpRequestScopeStrategy); ok {
+				httpScope.ClearRequestInstances(requestID)
 			}
-			return true
-		})
+		}
 
 		return nil
 	}

@@ -3,6 +3,8 @@ package framework
 import (
 	"context"
 	"fmt"
+	"sync"
+	"strings"
 )
 
 type ScopeStrategy interface {
@@ -34,7 +36,9 @@ func (p *PrototypeStrategy) Resolve(_ *Container, _ context.Context, def *Servic
 }
 
 // HttpRequestScope
-type HttpRequestScopeStrategy struct{}
+type HttpRequestScopeStrategy struct {
+	instances sync.Map // key: requestID-serviceName, value: instance
+}
 
 func (h *HttpRequestScopeStrategy) Init(def *ServiceDefinition) {
 }
@@ -46,11 +50,22 @@ func (h *HttpRequestScopeStrategy) Resolve(c *Container, ctx context.Context, de
 	}
 
 	instanceKey := fmt.Sprintf("%v-%s", requestID, def.name)
-	if instance, ok := c.scopeInstances.Load(instanceKey); ok {
+	if instance, ok := h.instances.Load(instanceKey); ok {
 		return instance
 	}
 
 	instance := def.factory()
-	c.scopeInstances.Store(instanceKey, instance)
+	h.instances.Store(instanceKey, instance)
 	return instance
+}
+
+func (h *HttpRequestScopeStrategy) ClearRequestInstances(requestID any) {
+	h.instances.Range(func(key, value any) bool {
+		if k, ok := key.(string); ok {
+			if strings.HasPrefix(k, fmt.Sprintf("%v-", requestID)) {
+				h.instances.Delete(key)
+			}
+		}
+		return true
+	})
 }
