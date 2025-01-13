@@ -7,17 +7,25 @@ import (
 	"net/http/httptest"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type TestService struct {
+	ID    int64
 	value int
 }
 
+var testServiceCounter int64
+
 func NewTestService() *TestService {
-	return &TestService{value: 1}
+	return &TestService{
+		ID:    atomic.AddInt64(&testServiceCounter, 1),
+		value: 1,
+	}
 }
 
 func TestContainer_Singleton(t *testing.T) {
@@ -77,8 +85,8 @@ func TestHttpRequestScope_SameRequest(t *testing.T) {
 	router := NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
 	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
-		service1 := container.GetWithContext(&HttpScopeContext{req: r.Request}, "TestService").(*TestService)
-		service2 := container.GetWithContext(&HttpScopeContext{req: r.Request}, "TestService").(*TestService)
+		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
+		service2 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 
 		w.Write([]byte(fmt.Sprintf("%p %p", service1, service2)))
 		return nil
@@ -107,7 +115,7 @@ func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 	router := NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
 	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
-		service1 := container.GetWithContext(&HttpScopeContext{req: r.Request}, "TestService").(*TestService)
+		service1 := container.GetWithContext(r.Context(), "TestService").(*TestService)
 
 		w.Write([]byte(fmt.Sprintf("%p", service1)))
 		return nil
@@ -133,4 +141,43 @@ func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 	// body contains two service addresses
 	// confirm that they are not the same memory address
 	assert.NotEqual(t, string(body1), string(body2))
+}
+
+func TestHttpRequestScope_MultipleServices(t *testing.T) {
+	container := NewContainer()
+
+	// register two different services
+	container.Register("Service1", func() any {
+		return NewTestService()
+	}, &HttpRequestScopeStrategy{})
+
+	container.Register("Service2", func() any {
+		return NewTestService()
+	}, &HttpRequestScopeStrategy{})
+
+	router := NewRouter()
+	router.Use(HttpRequestScopeMiddleware(container))
+	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
+		// get two service instances in the same request
+		service1a := container.GetWithContext(r.Context(), "Service1").(*TestService)
+		service2a := container.GetWithContext(r.Context(), "Service2").(*TestService)
+		service1b := container.GetWithContext(r.Context(), "Service1").(*TestService)
+		service2b := container.GetWithContext(r.Context(), "Service2").(*TestService)
+
+		// ensure that the same service returns the same instance in the same request
+		require.Equal(t, service1a.ID, service1b.ID)
+		require.Equal(t, service2a.ID, service2b.ID)
+
+		// ensure that different services return different instances
+		require.NotEqual(t, service1a.ID, service2a.ID)
+
+		w.Write([]byte("ok"))
+		return nil
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/test-scope", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
 }
