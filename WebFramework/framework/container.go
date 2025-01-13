@@ -64,9 +64,7 @@ func HttpRequestScopeMiddleware(container *Container) Middleware {
 
 		// clean up all instances associated with this request
 		for _, def := range container.services {
-			if httpScope, ok := def.strategy.(*HttpRequestScopeStrategy); ok {
-				httpScope.ClearRequestInstances(requestID)
-			}
+			def.strategy.Cleanup(ctx)
 		}
 
 		return nil

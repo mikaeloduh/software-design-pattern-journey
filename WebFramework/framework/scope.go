@@ -3,13 +3,14 @@ package framework
 import (
 	"context"
 	"fmt"
-	"sync"
 	"strings"
+	"sync"
 )
 
 type ScopeStrategy interface {
 	Init(def *ServiceDefinition)
 	Resolve(c *Container, ctx context.Context, def *ServiceDefinition) any
+	Cleanup(ctx context.Context)
 }
 
 // SingletonScope
@@ -25,6 +26,10 @@ func (s *SingletonStrategy) Resolve(_ *Container, _ context.Context, _ *ServiceD
 	return s.instance
 }
 
+func (s *SingletonStrategy) Cleanup(ctx context.Context) {
+	// Singleton scope doesn't need cleanup
+}
+
 // PrototypeScope
 type PrototypeStrategy struct{}
 
@@ -33,6 +38,10 @@ func (p *PrototypeStrategy) Init(def *ServiceDefinition) {
 
 func (p *PrototypeStrategy) Resolve(_ *Container, _ context.Context, def *ServiceDefinition) any {
 	return def.factory()
+}
+
+func (p *PrototypeStrategy) Cleanup(ctx context.Context) {
+	// Prototype scope doesn't need cleanup
 }
 
 // HttpRequestScope
@@ -59,12 +68,18 @@ func (h *HttpRequestScopeStrategy) Resolve(c *Container, ctx context.Context, de
 	return instance
 }
 
-func (h *HttpRequestScopeStrategy) ClearRequestInstances(requestID any) {
+func (h *HttpRequestScopeStrategy) Cleanup(ctx context.Context) {
+	requestID, ok := ctx.Value(REQUESTID).(string)
+	if ok {
+		h.clearRequestInstances(requestID)
+	}
+}
+
+func (h *HttpRequestScopeStrategy) clearRequestInstances(requestID string) {
+	prefix := fmt.Sprintf("%s-", requestID)
 	h.instances.Range(func(key, value any) bool {
-		if k, ok := key.(string); ok {
-			if strings.HasPrefix(k, fmt.Sprintf("%v-", requestID)) {
-				h.instances.Delete(key)
-			}
+		if k, ok := key.(string); ok && strings.HasPrefix(k, prefix) {
+			h.instances.Delete(k)
 		}
 		return true
 	})
