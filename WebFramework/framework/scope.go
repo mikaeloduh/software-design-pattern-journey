@@ -1,10 +1,8 @@
 package framework
 
-import "net/http"
-
 type ScopeStrategy interface {
 	Init(def *ServiceDefinition)
-	Resolve(c *Container, r *http.Request, def *ServiceDefinition) any
+	Resolve(c *Container, ctx ScopeContext, def *ServiceDefinition) any
 }
 
 // SingletonScope
@@ -16,7 +14,7 @@ func (s *SingletonStrategy) Init(def *ServiceDefinition) {
 	s.instance = def.factory()
 }
 
-func (s *SingletonStrategy) Resolve(_ *Container, _ *http.Request, _ *ServiceDefinition) any {
+func (s *SingletonStrategy) Resolve(_ *Container, _ ScopeContext, _ *ServiceDefinition) any {
 	return s.instance
 }
 
@@ -26,7 +24,7 @@ type PrototypeStrategy struct{}
 func (p *PrototypeStrategy) Init(def *ServiceDefinition) {
 }
 
-func (p *PrototypeStrategy) Resolve(_ *Container, _ *http.Request, def *ServiceDefinition) any {
+func (p *PrototypeStrategy) Resolve(_ *Container, _ ScopeContext, def *ServiceDefinition) any {
 	return def.factory()
 }
 
@@ -34,19 +32,26 @@ func (p *PrototypeStrategy) Resolve(_ *Container, _ *http.Request, def *ServiceD
 type HttpRequestScopeStrategy struct{}
 
 func (h *HttpRequestScopeStrategy) Init(def *ServiceDefinition) {
+	// do nothing
 }
 
-func (h *HttpRequestScopeStrategy) Resolve(c *Container, r *http.Request, def *ServiceDefinition) any {
-	if r == nil {
-		panic("request is nil")
+func (h *HttpRequestScopeStrategy) Resolve(c *Container, ctx ScopeContext, def *ServiceDefinition) any {
+	// ctx should be HttpScopeContext
+	// if ctx is not HttpScopeContext, you should handle it (panic or default to Prototype)
+	httpCtx, ok := ctx.(*HttpScopeContext)
+	if !ok {
+		return def.factory()
 	}
 
-	val, _ := c.requestInstances.LoadOrStore(r, make(map[string]any))
+	// container may need to be changed to c.scopeInstances
+	// here we use httpCtx.ID() as key
+	val, _ := c.scopeInstances.LoadOrStore(httpCtx.ID(), make(map[string]any))
 	instanceMap := val.(map[string]any)
 
-	if inst, ok := instanceMap[def.name]; ok {
+	if inst, found := instanceMap[def.name]; found {
 		return inst
 	}
+
 	newInst := def.factory()
 	instanceMap[def.name] = newInst
 	return newInst

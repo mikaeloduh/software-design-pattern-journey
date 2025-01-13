@@ -1,7 +1,6 @@
 package framework
 
 import (
-	"net/http"
 	"sync"
 )
 
@@ -17,7 +16,7 @@ type Container struct {
 	services map[string]*ServiceDefinition
 	// key: *http.Request (or any other identifier you choose to use)
 	// value: map[string]any (serviceName -> instance)
-	requestInstances sync.Map
+	scopeInstances sync.Map
 }
 
 func NewContainer() *Container {
@@ -45,18 +44,19 @@ func (c *Container) Get(name string) any {
 	return def.strategy.Resolve(c, nil, def)
 }
 
-func (c *Container) GetFromRequest(r *http.Request, name string) any {
+func (c *Container) GetWithContext(ctx ScopeContext, name string) any {
 	def, exists := c.services[name]
 	if !exists {
 		return nil
 	}
-	return def.strategy.Resolve(c, r, def)
+	return def.strategy.Resolve(c, ctx, def)
 }
 
-func (c *Container) ClearRequest(r *http.Request) {
-	c.requestInstances.Delete(r)
+func (c *Container) ClearContext(ctx ScopeContext) {
+	c.scopeInstances.Delete(ctx.ID())
 }
 
+// HttpRequestScopeMiddleware is a Middleware that clears the instance map for each request
 func HttpRequestScopeMiddleware(container *Container) Middleware {
 	return func(w *ResponseWriter, r *Request, next func()) error {
 		// (1) entered Middleware, but not yet execute Handler
@@ -67,7 +67,7 @@ func HttpRequestScopeMiddleware(container *Container) Middleware {
 		next()
 
 		// (3) after Handler execution, make sure to clear this request's instance map
-		container.ClearRequest(r.Request)
+		container.ClearContext(&HttpScopeContext{req: r.Request})
 
 		// (4) return Handler execution result (if any)
 		return nil

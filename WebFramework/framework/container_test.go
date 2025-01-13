@@ -77,8 +77,8 @@ func TestHttpRequestScope_SameRequest(t *testing.T) {
 	router := NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
 	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
-		service1 := container.GetFromRequest(r.Request, "TestService").(*TestService)
-		service2 := container.GetFromRequest(r.Request, "TestService").(*TestService)
+		service1 := container.GetWithContext(&HttpScopeContext{req: r.Request}, "TestService").(*TestService)
+		service2 := container.GetWithContext(&HttpScopeContext{req: r.Request}, "TestService").(*TestService)
 
 		w.Write([]byte(fmt.Sprintf("%p %p", service1, service2)))
 		return nil
@@ -107,7 +107,7 @@ func TestHttpRequestScope_DifferentRequests(t *testing.T) {
 	router := NewRouter()
 	router.Use(HttpRequestScopeMiddleware(container))
 	router.Handle("/test-scope", http.MethodGet, HandlerFunc(func(w *ResponseWriter, r *Request) error {
-		service1 := container.GetFromRequest(r.Request, "TestService").(*TestService)
+		service1 := container.GetWithContext(&HttpScopeContext{req: r.Request}, "TestService").(*TestService)
 
 		w.Write([]byte(fmt.Sprintf("%p", service1)))
 		return nil
