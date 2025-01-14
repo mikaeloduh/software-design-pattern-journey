@@ -91,7 +91,7 @@ func TestWriteObjectAsJSON(t *testing.T) {
 
 	wr := httptest.NewRecorder()
 	w := &framework.ResponseWriter{ResponseWriter: wr}
-	w.UseEncoder(framework.JSONEncoder)
+	w.UseEncoder(framework.JSONEncoderHandler)
 	w.Header().Set("Content-Type", "application/json")
 
 	err := w.Encode(testObject)
@@ -108,7 +108,7 @@ func TestWriteObjectAsXML(t *testing.T) {
 
 	wr := httptest.NewRecorder()
 	w := &framework.ResponseWriter{ResponseWriter: wr}
-	w.UseEncoder(framework.XMLEncoder)
+	w.UseEncoder(framework.XMLEncoderHandler)
 	w.Header().Set("Content-Type", "application/xml")
 
 	err := w.Encode(testObject)

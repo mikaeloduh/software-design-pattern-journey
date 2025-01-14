@@ -53,7 +53,7 @@ func (e *Router) RegisterErrorHandler(handlerFunc ErrorHandlerFunc) {
 }
 
 // HandleError handles errors
-func (e *Router) HandleError(err error, w http.ResponseWriter, r *Request) {
+func (e *Router) HandleError(err error, w *ResponseWriter, r *Request) {
 	if len(e.errorHandlers) == 0 {
 		// use default error handlers if no error handlers
 		e.errorHandlers = []ErrorHandlerFunc{DefaultNotFoundErrorHandler, DefaultMethodNotAllowedErrorHandler}

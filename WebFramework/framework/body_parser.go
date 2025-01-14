@@ -25,7 +25,7 @@ func XMLBodyParser(w *ResponseWriter, r *Request, next func()) error {
 }
 
 func JSONBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
-	w.UseEncoder(JSONEncoder)
+	w.UseEncoder(JSONEncoderHandler)
 
 	accept := r.Header.Get("Accept")
 	if accept == "" || accept == "*/*" || strings.HasPrefix(accept, "application/json") {
@@ -38,7 +38,7 @@ func JSONBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
 }
 
 func XMLBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
-	w.UseEncoder(XMLEncoder)
+	w.UseEncoder(XMLEncoderHandler)
 
 	if strings.HasPrefix(r.Header.Get("Accept"), "application/xml") {
 		w.Header().Set("Content-Type", "application/xml")

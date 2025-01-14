@@ -9,10 +9,10 @@ import (
 )
 
 // ErrorHandlerFunc is an interface of error handler
-type ErrorHandlerFunc func(err error, w http.ResponseWriter, r *Request, next func(error))
+type ErrorHandlerFunc func(err error, w *ResponseWriter, r *Request, next func(error))
 
 // DefaultNotFoundErrorHandler return 404 page not found with detail message
-func DefaultNotFoundErrorHandler(err error, w http.ResponseWriter, r *Request, next func(error)) {
+func DefaultNotFoundErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		if e == errors.ErrorTypeNotFound {
 			w.WriteHeader(e.Code)
@@ -26,7 +26,7 @@ func DefaultNotFoundErrorHandler(err error, w http.ResponseWriter, r *Request, n
 }
 
 // DefaultMethodNotAllowedErrorHandler return 405 method not allowed with detail message
-func DefaultMethodNotAllowedErrorHandler(err error, w http.ResponseWriter, r *Request, next func(error)) {
+func DefaultMethodNotAllowedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		if e == errors.ErrorTypeMethodNotAllowed {
 			w.WriteHeader(e.Code)
@@ -43,7 +43,7 @@ func DefaultMethodNotAllowedErrorHandler(err error, w http.ResponseWriter, r *Re
 	next(err)
 }
 
-func DefaultUnauthorizedErrorHandler(err error, w http.ResponseWriter, r *Request, next func(error)) {
+func DefaultUnauthorizedErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		if e == errors.ErrorTypeUnauthorized {
 			w.WriteHeader(e.Code)
@@ -57,7 +57,7 @@ func DefaultUnauthorizedErrorHandler(err error, w http.ResponseWriter, r *Reques
 }
 
 // DefaultFallbackErrorHandler catch all remaining errors
-func DefaultFallbackErrorHandler(err error, w http.ResponseWriter, r *Request, next func(error)) {
+func DefaultFallbackErrorHandler(err error, w *ResponseWriter, r *Request, next func(error)) {
 	if e, ok := err.(*errors.Error); ok {
 		w.WriteHeader(e.Code)
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")

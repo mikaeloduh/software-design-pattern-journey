@@ -23,7 +23,7 @@ type Encoder func(http.ResponseWriter, interface{}) error
 
 type EncoderHandler func(Encoder) Encoder
 
-func JSONEncoder(next Encoder) Encoder {
+func JSONEncoderHandler(next Encoder) Encoder {
 	return func(w http.ResponseWriter, obj interface{}) error {
 		if w.Header().Get("Content-Type") == "application/json" {
 			return json.NewEncoder(w).Encode(obj)
@@ -32,7 +32,7 @@ func JSONEncoder(next Encoder) Encoder {
 	}
 }
 
-func XMLEncoder(next Encoder) Encoder {
+func XMLEncoderHandler(next Encoder) Encoder {
 	return func(w http.ResponseWriter, obj interface{}) error {
 		if w.Header().Get("Content-Type") == "application/xml" {
 			return xml.NewEncoder(w).Encode(obj)
