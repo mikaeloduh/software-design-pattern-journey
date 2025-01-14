@@ -33,7 +33,7 @@ func TestContainer_Singleton(t *testing.T) {
 
 	container := NewContainer()
 
-	container.Register("TestService", func() any { return NewTestService() }, &SingletonStrategy{})
+	container.Register("TestService", func() any { return NewTestService() }, &SingletonScopeStrategy{})
 
 	testInstance := container.Get("TestService").(*TestService)
 	expectedInstance := container.Get("TestService").(*TestService)
@@ -43,7 +43,7 @@ func TestContainer_Singleton(t *testing.T) {
 
 func TestContainer_Singleton_Parallel(t *testing.T) {
 	container := NewContainer()
-	container.Register("TestService", func() any { return NewTestService() }, &SingletonStrategy{})
+	container.Register("TestService", func() any { return NewTestService() }, &SingletonScopeStrategy{})
 
 	const concurrency = 100
 	var wg sync.WaitGroup
@@ -71,7 +71,7 @@ func TestContainer_Prototype(t *testing.T) {
 
 	container := NewContainer()
 
-	container.Register("TestService", func() any { return NewTestService() }, &PrototypeStrategy{})
+	container.Register("TestService", func() any { return NewTestService() }, &PrototypeScopeStrategy{})
 
 	service1 := container.Get("TestService").(*TestService)
 	service2 := container.Get("TestService").(*TestService)

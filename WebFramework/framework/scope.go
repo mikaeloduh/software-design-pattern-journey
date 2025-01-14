@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"sync/atomic"
 )
 
 type ScopeStrategy interface {
@@ -14,33 +15,33 @@ type ScopeStrategy interface {
 }
 
 // SingletonScope
-type SingletonStrategy struct {
+type SingletonScopeStrategy struct {
 	instance any
 }
 
-func (s *SingletonStrategy) Init(def *ServiceDefinition) {
+func (s *SingletonScopeStrategy) Init(def *ServiceDefinition) {
 	s.instance = def.factory()
 }
 
-func (s *SingletonStrategy) Resolve(_ *Container, _ context.Context, _ *ServiceDefinition) any {
+func (s *SingletonScopeStrategy) Resolve(_ *Container, _ context.Context, _ *ServiceDefinition) any {
 	return s.instance
 }
 
-func (s *SingletonStrategy) Cleanup(ctx context.Context) {
+func (s *SingletonScopeStrategy) Cleanup(ctx context.Context) {
 	// Singleton scope doesn't need cleanup
 }
 
 // PrototypeScope
-type PrototypeStrategy struct{}
+type PrototypeScopeStrategy struct{}
 
-func (p *PrototypeStrategy) Init(def *ServiceDefinition) {
+func (p *PrototypeScopeStrategy) Init(def *ServiceDefinition) {
 }
 
-func (p *PrototypeStrategy) Resolve(_ *Container, _ context.Context, def *ServiceDefinition) any {
+func (p *PrototypeScopeStrategy) Resolve(_ *Container, _ context.Context, def *ServiceDefinition) any {
 	return def.factory()
 }
 
-func (p *PrototypeStrategy) Cleanup(ctx context.Context) {
+func (p *PrototypeScopeStrategy) Cleanup(ctx context.Context) {
 	// Prototype scope doesn't need cleanup
 }
 
@@ -83,4 +84,25 @@ func (h *HttpRequestScopeStrategy) clearRequestInstances(requestID string) {
 		}
 		return true
 	})
+}
+
+// HttpRequestScopeMiddleware is a Middleware that manages request scoped services
+func HttpRequestScopeMiddleware(container *Container) Middleware {
+	var requestCounter uint64
+
+	return func(w *ResponseWriter, r *Request, next func()) error {
+		requestID := atomic.AddUint64(&requestCounter, 1)
+
+		ctx := context.WithValue(r.Context(), REQUESTID, requestID)
+		r.Request = r.Request.WithContext(ctx)
+
+		next()
+
+		// clean up all instances associated with this request
+		for _, def := range container.services {
+			def.strategy.Cleanup(ctx)
+		}
+
+		return nil
+	}
 }

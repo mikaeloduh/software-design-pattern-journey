@@ -2,7 +2,6 @@ package framework
 
 import (
 	"context"
-	"sync/atomic"
 )
 
 type Factory func() any
@@ -49,24 +48,3 @@ func (c *Container) GetWithContext(ctx context.Context, name string) any {
 type InstaceKey string
 
 const REQUESTID = InstaceKey("request_id")
-
-// HttpRequestScopeMiddleware is a Middleware that manages request scoped services
-func HttpRequestScopeMiddleware(container *Container) Middleware {
-	var requestCounter uint64
-
-	return func(w *ResponseWriter, r *Request, next func()) error {
-		requestID := atomic.AddUint64(&requestCounter, 1)
-
-		ctx := context.WithValue(r.Context(), REQUESTID, requestID)
-		r.Request = r.Request.WithContext(ctx)
-
-		next()
-
-		// clean up all instances associated with this request
-		for _, def := range container.services {
-			def.strategy.Cleanup(ctx)
-		}
-
-		return nil
-	}
-}

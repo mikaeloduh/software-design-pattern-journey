@@ -13,10 +13,12 @@ func JSONBodyParser(w *ResponseWriter, r *Request, next func()) error {
 	return nil
 }
 
-// XMLBodyParser is a middleware that sets the BodyParser to XMLDecoder
-func XMLBodyParser(w *ResponseWriter, r *Request, next func()) error {
-	if strings.HasPrefix(r.Header.Get("Content-Type"), "application/xml") {
-		r.BodyParser = XMLDecoder
+func JSONBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
+	w.UseEncoder(JSONEncoderHandler)
+
+	accept := r.Header.Get("Accept")
+	if accept == "" || accept == "*/*" || strings.HasPrefix(accept, "application/json") {
+		w.Header().Set("Content-Type", "application/json")
 	}
 
 	next()
@@ -24,12 +26,10 @@ func XMLBodyParser(w *ResponseWriter, r *Request, next func()) error {
 	return nil
 }
 
-func JSONBodyEncoder(w *ResponseWriter, r *Request, next func()) error {
-	w.UseEncoder(JSONEncoderHandler)
-
-	accept := r.Header.Get("Accept")
-	if accept == "" || accept == "*/*" || strings.HasPrefix(accept, "application/json") {
-		w.Header().Set("Content-Type", "application/json")
+// XMLBodyParser is a middleware that sets the BodyParser to XMLDecoder
+func XMLBodyParser(w *ResponseWriter, r *Request, next func()) error {
+	if strings.HasPrefix(r.Header.Get("Content-Type"), "application/xml") {
+		r.BodyParser = XMLDecoder
 	}
 
 	next()
