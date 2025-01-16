@@ -7,18 +7,18 @@ import (
 
 type WaitingState struct {
 	bot *Bot
-	libs.SuperState
+	libs.SuperState[IBotState]
 	UnimplementedBotState
 }
 
 func NewWaitingState(bot *Bot) *WaitingState {
 	return &WaitingState{
 		bot:        bot,
-		SuperState: libs.SuperState{},
+		SuperState: libs.SuperState[IBotState]{},
 	}
 }
 
-func (s *WaitingState) GetState() libs.IState {
+func (s *WaitingState) GetState() IBotState {
 	return s
 }
 

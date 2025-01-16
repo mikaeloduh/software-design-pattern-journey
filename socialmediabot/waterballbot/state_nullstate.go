@@ -3,5 +3,6 @@ package waterballbot
 import "socialmediabot/libs"
 
 type NullState struct {
-	libs.SuperState
+	libs.SuperState[IBotState]
+	UnimplementedBotState
 }

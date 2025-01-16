@@ -1,9 +1,14 @@
 package waterballbot
 
-import "socialmediabot/service"
+import (
+	"socialmediabot/libs"
+	"socialmediabot/service"
+)
 
 // IBotState
 type IBotState interface {
+	libs.IState[IBotState]
+
 	OnNewMessage(event service.NewMessageEvent)
 	OnNewPost(event service.NewPostEvent)
 	OnSpeak(event service.SpeakEvent)

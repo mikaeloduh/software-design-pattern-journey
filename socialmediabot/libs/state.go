@@ -1,9 +1,9 @@
 package libs
 
 // IState
-type IState interface {
+type IState[T any] interface {
 	Enter(event IEvent)
 	Exit()
-	GetState() IState
+	GetState() T
 	Trigger(event IEvent)
 }

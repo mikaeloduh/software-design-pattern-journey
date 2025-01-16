@@ -5,33 +5,33 @@ import (
 )
 
 // SuperFSM is a finite state machine, U is the subject type
-type SuperFSM struct {
-	states          []IState
+type SuperFSM[T IState[T]] struct {
+	states          []T
 	currentStateIdx int
-	transitions     []Transition
+	transitions     []Transition[T]
 }
 
-func NewSuperFSM(initState IState) SuperFSM {
-	return SuperFSM{
-		states:          []IState{initState},
+func NewSuperFSM[T IState[T]](initState T) SuperFSM[T] {
+	return SuperFSM[T]{
+		states:          []T{initState},
 		currentStateIdx: 0,
-		transitions:     make([]Transition, 0),
+		transitions:     make([]Transition[T], 0),
 	}
 }
 
-func (m *SuperFSM) Enter(_ IEvent) {
+func (m *SuperFSM[T]) Enter(_ IEvent) {
 	m.Trigger(EnterStateEvent{})
 }
 
-func (m *SuperFSM) Exit() {
+func (m *SuperFSM[T]) Exit() {
 	m.currentState().Exit()
 }
 
-func (m *SuperFSM) GetState() IState {
+func (m *SuperFSM[T]) GetState() T {
 	return m.currentState().GetState()
 }
 
-func (m *SuperFSM) SetState(state IState, event IEvent) {
+func (m *SuperFSM[T]) SetState(state T, event IEvent) {
 	for i, s := range m.states {
 		if reflect.TypeOf(s) == reflect.TypeOf(state) {
 			m.currentState().Exit()
@@ -42,15 +42,15 @@ func (m *SuperFSM) SetState(state IState, event IEvent) {
 	}
 }
 
-func (m *SuperFSM) AddState(state ...IState) {
+func (m *SuperFSM[T]) AddState(state ...T) {
 	m.states = append(m.states, state...)
 }
 
-func (m *SuperFSM) AddTransition(transitions ...Transition) {
+func (m *SuperFSM[T]) AddTransition(transitions ...Transition[T]) {
 	m.transitions = append(m.transitions, transitions...)
 }
 
-func (m *SuperFSM) Trigger(event IEvent) {
+func (m *SuperFSM[T]) Trigger(event IEvent) {
 	for _, transition := range m.transitions {
 		if reflect.TypeOf(transition.event) == reflect.TypeOf(event) && reflect.TypeOf(transition.from) == reflect.TypeOf(m.currentState()) && transition.guard(event) {
 			m.SetState(transition.to, event)
@@ -62,6 +62,6 @@ func (m *SuperFSM) Trigger(event IEvent) {
 	m.currentState().Trigger(event)
 }
 
-func (m *SuperFSM) currentState() IState {
+func (m *SuperFSM[T]) currentState() T {
 	return m.states[m.currentStateIdx]
 }

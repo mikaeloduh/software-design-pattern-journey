@@ -1,14 +1,14 @@
 package libs
 
 // Transition
-type Transition struct {
-	from   IState
-	to     IState
+type Transition[T IState[T]] struct {
+	from   T
+	to     T
 	event  IEvent
 	guard  Guard
 	action Action
 }
 
-func NewTransition(from IState, to IState, event IEvent, guard Guard, action Action) Transition {
-	return Transition{from: from, to: to, event: event, guard: guard, action: action}
+func NewTransition[T IState[T]](from T, to T, event IEvent, guard Guard, action Action) Transition[T] {
+	return Transition[T]{from: from, to: to, event: event, guard: guard, action: action}
 }

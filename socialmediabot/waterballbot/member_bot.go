@@ -23,57 +23,57 @@ func NewBot(waterball *service.Waterball) *Bot {
 	defaultConversationState := NewDefaultConversationState(bot)
 	interactingState := NewInteractingState(bot)
 	normalStateFSM := NewNormalStateFSM(bot,
-		[]libs.IState{
+		[]IBotState{
 			defaultConversationState,
 			interactingState,
 		},
-		[]libs.Transition{
-			libs.NewTransition(&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
-			libs.NewTransition(&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
-			libs.NewTransition(defaultConversationState, interactingState, service.NewLoginEvent{}, LoginEventGuard, NoAction),
-			libs.NewTransition(interactingState, defaultConversationState, service.NewLogoutEvent{}, LogoutEventGuard, NoAction),
+		[]libs.Transition[IBotState]{
+			libs.NewTransition[IBotState](&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
+			libs.NewTransition[IBotState](&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
+			libs.NewTransition[IBotState](defaultConversationState, interactingState, service.NewLoginEvent{}, LoginEventGuard, NoAction),
+			libs.NewTransition[IBotState](interactingState, defaultConversationState, service.NewLogoutEvent{}, LogoutEventGuard, NoAction),
 		},
 	)
 
 	waitingState := NewWaitingState(bot)
 	recordingState := NewRecordingState(bot)
 	recordStateFSM := NewRecordStateFSM(bot,
-		[]libs.IState{
+		[]IBotState{
 			waitingState,
 			recordingState,
 		},
-		[]libs.Transition{
-			libs.NewTransition(&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(waitingState, recordingState, service.GoBroadcastingEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(recordingState, waitingState, ExitRecordingStateEvent{}, PositiveGuard, NoAction),
+		[]libs.Transition[IBotState]{
+			libs.NewTransition[IBotState](&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition[IBotState](waitingState, recordingState, service.GoBroadcastingEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition[IBotState](recordingState, waitingState, ExitRecordingStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
 
 	questioningState := NewQuestioningState(bot)
 	thanksForJoiningState := NewThanksForJoiningState(bot)
 	knowledgeKingStateFSM := NewKnowledgeKingStateFSM(bot,
-		[]libs.IState{
+		[]IBotState{
 			questioningState,
 			thanksForJoiningState,
 		},
-		[]libs.Transition{
-			libs.NewTransition(&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
+		[]libs.Transition[IBotState]{
+			libs.NewTransition[IBotState](&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition[IBotState](questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
 		})
 
 	rootFSM := NewRootFSM(bot,
-		[]libs.IState{
+		[]IBotState{
 			normalStateFSM,
 			recordStateFSM,
 			knowledgeKingStateFSM,
 		},
-		[]libs.Transition{
-			libs.NewTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition(normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, SaveCurrentRecorderAction),
-			libs.NewTransition(recordStateFSM, normalStateFSM, service.TagEvent{}, StopRecordCommandGuard, ClearCurrentRecorderAction),
-			libs.NewTransition(normalStateFSM, knowledgeKingStateFSM, service.TagEvent{}, KingCommandGuard, NoAction),
-			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, service.TagEvent{}, KingStopCommandGuard, NoAction),
-			libs.NewTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
+		[]libs.Transition[IBotState]{
+			libs.NewTransition[IBotState](&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
+			libs.NewTransition[IBotState](normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, SaveCurrentRecorderAction),
+			libs.NewTransition[IBotState](recordStateFSM, normalStateFSM, service.TagEvent{}, StopRecordCommandGuard, ClearCurrentRecorderAction),
+			libs.NewTransition[IBotState](normalStateFSM, knowledgeKingStateFSM, service.TagEvent{}, KingCommandGuard, NoAction),
+			libs.NewTransition[IBotState](knowledgeKingStateFSM, normalStateFSM, service.TagEvent{}, KingStopCommandGuard, NoAction),
+			libs.NewTransition[IBotState](knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
 		},
 	)
 	rootFSM.Enter(nil)
@@ -144,6 +144,6 @@ func (b *Bot) SetRecorder(recorder service.IMember) {
 	b.recorder = recorder
 }
 
-func (b *Bot) GetState() libs.IState {
+func (b *Bot) GetState() IBotState {
 	return b.fsm.GetState()
 }

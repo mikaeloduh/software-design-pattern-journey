@@ -7,7 +7,7 @@ import (
 
 type InteractingState struct {
 	bot *Bot
-	libs.SuperState
+	libs.SuperState[IBotState]
 	UnimplementedBotState
 	talkCount int
 }
@@ -15,11 +15,11 @@ type InteractingState struct {
 func NewInteractingState(bot *Bot) *InteractingState {
 	return &InteractingState{
 		bot:        bot,
-		SuperState: libs.SuperState{},
+		SuperState: libs.SuperState[IBotState]{},
 	}
 }
 
-func (s *InteractingState) GetState() libs.IState {
+func (s *InteractingState) GetState() IBotState {
 	return s
 }
 

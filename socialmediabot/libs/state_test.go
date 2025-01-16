@@ -11,6 +11,8 @@ import (
 
 // ITestState
 type ITestState interface {
+	IState[ITestState]
+
 	PublicMethod()
 }
 
@@ -23,7 +25,7 @@ func (UnimplementedTestState) PublicMethod() {
 
 // TestStateFSM
 type TestStateFSM struct {
-	SuperFSM
+	SuperFSM[ITestState]
 	UnimplementedTestState
 }
 
@@ -34,11 +36,11 @@ func (f *TestStateFSM) PublicMethod() {
 // DefaultTestState
 type DefaultTestState struct {
 	writer io.Writer
-	SuperState
+	SuperState[ITestState]
 	UnimplementedTestState
 }
 
-func (s *DefaultTestState) GetState() IState {
+func (s *DefaultTestState) GetState() ITestState {
 	return s
 }
 
@@ -49,11 +51,11 @@ func (s *DefaultTestState) PublicMethod() {
 // AnotherTestState
 type AnotherTestState struct {
 	writer io.Writer
-	SuperState
+	SuperState[ITestState]
 	UnimplementedTestState
 }
 
-func (s *AnotherTestState) GetState() IState {
+func (s *AnotherTestState) GetState() ITestState {
 	return s
 }
 
@@ -80,18 +82,18 @@ func (AnotherEvent) GetData() IEvent {
 func TestFSM(t *testing.T) {
 	t.Run("test creating new FSM should have an initial state", func(t *testing.T) {
 		expectedState := &DefaultTestState{}
-		fsm := NewSuperFSM(expectedState)
+		fsm := NewSuperFSM[ITestState](expectedState)
 
 		assert.IsType(t, expectedState, fsm.GetState())
 	})
 
 	t.Run("test when an event occur meets the guardian criteria, it should trigger the transition", func(t *testing.T) {
-		fsm := TestStateFSM{SuperFSM: NewSuperFSM(&DefaultTestState{})}
+		fsm := TestStateFSM{SuperFSM: NewSuperFSM[ITestState](&DefaultTestState{})}
 
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, NoAction))
+		fsm.AddTransition(NewTransition[ITestState](&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, NoAction))
 
 		fsm.Trigger(testEvent)
 
@@ -100,12 +102,12 @@ func TestFSM(t *testing.T) {
 
 	t.Run("test when an event occur does not meet the guardian criteria, it should not trigger the transition", func(t *testing.T) {
 		initState := &DefaultTestState{}
-		fsm := TestStateFSM{SuperFSM: NewSuperFSM(initState)}
+		fsm := TestStateFSM{SuperFSM: NewSuperFSM[ITestState](initState)}
 
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, NegativeTestGuard, NoAction))
+		fsm.AddTransition(NewTransition[ITestState](initState, expectedState, testEvent, NegativeTestGuard, NoAction))
 
 		fsm.Trigger(testEvent)
 
@@ -114,12 +116,12 @@ func TestFSM(t *testing.T) {
 
 	t.Run("test when an event does not meet any transition, it should not change the state", func(t *testing.T) {
 		initState := &DefaultTestState{}
-		fsm := TestStateFSM{SuperFSM: NewSuperFSM(initState)}
+		fsm := TestStateFSM{SuperFSM: NewSuperFSM[ITestState](initState)}
 
 		testEvent := TestEvent{}
 		anotherState := &AnotherTestState{}
 		fsm.AddState(anotherState)
-		fsm.AddTransition(NewTransition(initState, anotherState, testEvent, PositiveTestGuard, NoAction))
+		fsm.AddTransition(NewTransition[ITestState](initState, anotherState, testEvent, PositiveTestGuard, NoAction))
 
 		anotherEvent := AnotherEvent{}
 		fsm.Trigger(anotherEvent)
@@ -131,12 +133,12 @@ func TestFSM(t *testing.T) {
 		var writer bytes.Buffer
 
 		initState := &DefaultTestState{writer: &writer}
-		fsm := TestStateFSM{SuperFSM: NewSuperFSM(initState)}
+		fsm := TestStateFSM{SuperFSM: NewSuperFSM[ITestState](initState)}
 
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{writer: &writer}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition(initState, expectedState, testEvent, PositiveTestGuard, NoAction))
+		fsm.AddTransition(NewTransition[ITestState](initState, expectedState, testEvent, PositiveTestGuard, NoAction))
 		statefulSubject := FakeStatefulSubject{fsm: &fsm, writer: &writer}
 		statefulSubject.PublicMethod()
 
@@ -156,11 +158,11 @@ func TestFSM(t *testing.T) {
 // DefaultConversationState
 type DefaultConversationState struct {
 	writer io.Writer
-	SuperState
+	SuperState[ITestState]
 	UnimplementedTestState
 }
 
-func (s *DefaultConversationState) GetState() IState {
+func (s *DefaultConversationState) GetState() ITestState {
 	return s
 }
 
@@ -171,11 +173,11 @@ func (s *DefaultConversationState) PublicMethod() {
 // InteractiveState
 type InteractiveState struct {
 	writer io.Writer
-	SuperState
+	SuperState[ITestState]
 	UnimplementedTestState
 }
 
-func (s *InteractiveState) GetState() IState {
+func (s *InteractiveState) GetState() ITestState {
 	return s
 }
 
@@ -185,7 +187,7 @@ func (s *InteractiveState) PublicMethod() {
 
 // NormalTestFSM
 type NormalTestFSM struct {
-	SuperFSM
+	SuperFSM[ITestState]
 	UnimplementedTestState
 }
 
@@ -195,13 +197,13 @@ func (s *NormalTestFSM) PublicMethod() {
 
 // RootTestFSM
 type RootTestFSM struct {
-	SuperFSM
+	SuperFSM[ITestState]
 	UnimplementedTestState
 }
 
 // RecordFSM
 type RecordFSM struct {
-	SuperFSM
+	SuperFSM[ITestState]
 	UnimplementedTestState
 }
 
@@ -212,11 +214,11 @@ func TestFSM_Composite(t *testing.T) {
 	defaultConversationState := &DefaultConversationState{writer: &writer}
 	interactiveState := &InteractiveState{writer: &writer}
 
-	normalStateFSM := &NormalTestFSM{SuperFSM: NewSuperFSM(defaultConversationState)}
+	normalStateFSM := &NormalTestFSM{SuperFSM: NewSuperFSM[ITestState](defaultConversationState)}
 	normalStateFSM.AddState(interactiveState)
 
 	recordStateFSM := &RecordFSM{}
-	rootFSM := RootTestFSM{SuperFSM: NewSuperFSM(normalStateFSM)}
+	rootFSM := RootTestFSM{SuperFSM: NewSuperFSM[ITestState](normalStateFSM)}
 	rootFSM.AddState(recordStateFSM)
 
 	t.Run("test NormalTestFSM contains DefaultConversationState and InteractiveState", func(t *testing.T) {
