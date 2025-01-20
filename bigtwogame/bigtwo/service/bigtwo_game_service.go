@@ -1,9 +1,10 @@
 package service
 
 import (
+	"fmt"
+
 	"bigtwogame/bigtwo/entity"
 	"bigtwogame/template"
-	"fmt"
 )
 
 type BigTwoGame struct {
