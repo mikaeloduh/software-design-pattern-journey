@@ -13,7 +13,7 @@ import (
 type ThanksForJoiningState struct {
 	bot *Bot
 	libs.SuperState[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 	timer *clock.Timer
 }
 

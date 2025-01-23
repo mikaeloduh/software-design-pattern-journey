@@ -8,7 +8,7 @@ import (
 type RecordStateFSM struct {
 	bot *Bot
 	libs.SuperFSM[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 }
 
 func NewRecordStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *RecordStateFSM {

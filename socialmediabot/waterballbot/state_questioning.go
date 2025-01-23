@@ -12,7 +12,7 @@ import (
 type QuestioningState struct {
 	bot *Bot
 	libs.SuperState[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 	talkCount  int
 	scoreBoard map[string]int
 	quitCh     chan bool

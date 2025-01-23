@@ -8,7 +8,7 @@ import (
 type KnowledgeKingStateFSM struct {
 	bot *Bot
 	libs.SuperFSM[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 }
 
 func NewKnowledgeKingStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *KnowledgeKingStateFSM {

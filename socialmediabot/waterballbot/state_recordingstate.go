@@ -10,7 +10,7 @@ import (
 type RecordingState struct {
 	bot *Bot
 	libs.SuperState[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 	record *Record
 }
 

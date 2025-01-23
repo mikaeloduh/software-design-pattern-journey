@@ -8,7 +8,7 @@ import (
 type InteractingState struct {
 	bot *Bot
 	libs.SuperState[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 	talkCount int
 }
 

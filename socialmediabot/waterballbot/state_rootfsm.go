@@ -8,7 +8,7 @@ import (
 type RootFSM struct {
 	bot *Bot
 	libs.SuperFSM[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 }
 
 func NewRootFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *RootFSM {

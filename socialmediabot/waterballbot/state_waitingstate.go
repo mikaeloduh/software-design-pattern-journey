@@ -8,7 +8,7 @@ import (
 type WaitingState struct {
 	bot *Bot
 	libs.SuperState[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 }
 
 func NewWaitingState(bot *Bot) *WaitingState {

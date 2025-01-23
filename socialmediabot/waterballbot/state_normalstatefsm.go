@@ -9,7 +9,7 @@ import (
 type NormalStateFSM struct {
 	bot *Bot
 	libs.SuperFSM[IBotState]
-	UnimplementedBotState
+	UnimplementedBotOperation
 }
 
 func NewNormalStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *NormalStateFSM {

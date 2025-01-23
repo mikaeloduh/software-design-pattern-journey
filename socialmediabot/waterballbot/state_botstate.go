@@ -8,27 +8,31 @@ import (
 // IBotState
 type IBotState interface {
 	libs.IState[IBotState]
+	IBotOperation
+}
 
+// IBotOperation
+type IBotOperation interface {
 	OnNewMessage(event service.NewMessageEvent)
 	OnNewPost(event service.NewPostEvent)
 	OnSpeak(event service.SpeakEvent)
 	OnBroadcastStop(event service.BroadcastStopEvent)
 }
 
-type UnimplementedBotState struct{}
+type UnimplementedBotOperation struct{}
 
-func (UnimplementedBotState) OnNewMessage(event service.NewMessageEvent) {
+func (UnimplementedBotOperation) OnNewMessage(event service.NewMessageEvent) {
 	panic("implement me")
 }
 
-func (UnimplementedBotState) OnNewPost(event service.NewPostEvent) {
+func (UnimplementedBotOperation) OnNewPost(event service.NewPostEvent) {
 	panic("implement me")
 }
 
-func (UnimplementedBotState) OnSpeak(event service.SpeakEvent) {
+func (UnimplementedBotOperation) OnSpeak(event service.SpeakEvent) {
 	panic("implement me")
 }
 
-func (UnimplementedBotState) OnBroadcastStop(event service.BroadcastStopEvent) {
+func (UnimplementedBotOperation) OnBroadcastStop(event service.BroadcastStopEvent) {
 	panic("implement me")
 }
