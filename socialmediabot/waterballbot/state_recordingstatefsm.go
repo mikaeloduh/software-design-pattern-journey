@@ -11,13 +11,11 @@ type RecordStateFSM struct {
 	UnimplementedBotOperation
 }
 
-func NewRecordStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *RecordStateFSM {
+func NewRecordStateFSM(bot *Bot, initialState IBotState) *RecordStateFSM {
 	fsm := &RecordStateFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](initialState),
 	}
-	fsm.AddState(states...)
-	fsm.AddTransition(transitions...)
 
 	return fsm
 }

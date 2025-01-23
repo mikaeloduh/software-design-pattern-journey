@@ -12,13 +12,11 @@ type NormalStateFSM struct {
 	UnimplementedBotOperation
 }
 
-func NewNormalStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *NormalStateFSM {
+func NewNormalStateFSM(bot *Bot, initialState IBotState) *NormalStateFSM {
 	fsm := &NormalStateFSM{
 		bot:      bot,
 		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
 	}
-	fsm.AddState(states...)
-	fsm.AddTransition(transitions...)
 
 	return fsm
 }

@@ -11,13 +11,11 @@ type KnowledgeKingStateFSM struct {
 	UnimplementedBotOperation
 }
 
-func NewKnowledgeKingStateFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *KnowledgeKingStateFSM {
+func NewKnowledgeKingStateFSM(bot *Bot, initialState IBotState) *KnowledgeKingStateFSM {
 	fsm := &KnowledgeKingStateFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](initialState),
 	}
-	fsm.AddState(states...)
-	fsm.AddTransition(transitions...)
 
 	return fsm
 }
@@ -27,9 +25,9 @@ func (f *KnowledgeKingStateFSM) Exit() {
 }
 
 func (f *KnowledgeKingStateFSM) OnSpeak(event service.SpeakEvent) {
-	f.GetState().(IBotState).OnSpeak(event)
+	f.GetState().OnSpeak(event)
 }
 
 func (f *KnowledgeKingStateFSM) OnBroadcastStop(event service.BroadcastStopEvent) {
-	f.GetState().(IBotState).OnBroadcastStop(event)
+	f.GetState().OnBroadcastStop(event)
 }

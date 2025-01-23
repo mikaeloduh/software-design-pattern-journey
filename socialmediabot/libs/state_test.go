@@ -93,7 +93,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition[ITestState](&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, NoAction))
+		fsm.AddTransition(&DefaultTestState{}, expectedState, testEvent, PositiveTestGuard, NoAction)
 
 		fsm.Trigger(testEvent)
 
@@ -107,7 +107,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition[ITestState](initState, expectedState, testEvent, NegativeTestGuard, NoAction))
+		fsm.AddTransition(initState, expectedState, testEvent, NegativeTestGuard, NoAction)
 
 		fsm.Trigger(testEvent)
 
@@ -121,7 +121,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		anotherState := &AnotherTestState{}
 		fsm.AddState(anotherState)
-		fsm.AddTransition(NewTransition[ITestState](initState, anotherState, testEvent, PositiveTestGuard, NoAction))
+		fsm.AddTransition(initState, anotherState, testEvent, PositiveTestGuard, NoAction)
 
 		anotherEvent := AnotherEvent{}
 		fsm.Trigger(anotherEvent)
@@ -138,7 +138,7 @@ func TestFSM(t *testing.T) {
 		testEvent := TestEvent{}
 		expectedState := &AnotherTestState{writer: &writer}
 		fsm.AddState(expectedState)
-		fsm.AddTransition(NewTransition[ITestState](initState, expectedState, testEvent, PositiveTestGuard, NoAction))
+		fsm.AddTransition(initState, expectedState, testEvent, PositiveTestGuard, NoAction)
 		statefulSubject := FakeStatefulSubject{fsm: &fsm, writer: &writer}
 		statefulSubject.PublicMethod()
 

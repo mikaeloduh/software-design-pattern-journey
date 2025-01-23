@@ -22,63 +22,48 @@ func NewBot(waterball *service.Waterball) *Bot {
 
 	defaultConversationState := NewDefaultConversationState(bot)
 	interactingState := NewInteractingState(bot)
-	normalStateFSM := NewNormalStateFSM(bot,
-		[]IBotState{
-			defaultConversationState,
-			interactingState,
-		},
-		[]libs.Transition[IBotState]{
-			libs.NewTransition[IBotState](&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction),
-			libs.NewTransition[IBotState](&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction),
-			libs.NewTransition[IBotState](defaultConversationState, interactingState, service.NewLoginEvent{}, LoginEventGuard, NoAction),
-			libs.NewTransition[IBotState](interactingState, defaultConversationState, service.NewLogoutEvent{}, LogoutEventGuard, NoAction),
-		},
-	)
+
+	normalStateFSM := NewNormalStateFSM(bot, &NullState{})
+	normalStateFSM.AddState(defaultConversationState)
+	normalStateFSM.AddState(interactingState)
+	normalStateFSM.AddTransition(&NullState{}, defaultConversationState, EnterNormalStateEvent{}, EnterDefaultConversationGuard, NoAction)
+	normalStateFSM.AddTransition(&NullState{}, interactingState, EnterNormalStateEvent{}, EnterInteractingGuard, NoAction)
+	normalStateFSM.AddTransition(defaultConversationState, interactingState, service.NewLoginEvent{}, LoginEventGuard, NoAction)
+	normalStateFSM.AddTransition(interactingState, defaultConversationState, service.NewLogoutEvent{}, LogoutEventGuard, NoAction)
 
 	waitingState := NewWaitingState(bot)
 	recordingState := NewRecordingState(bot)
-	recordStateFSM := NewRecordStateFSM(bot,
-		[]IBotState{
-			waitingState,
-			recordingState,
-		},
-		[]libs.Transition[IBotState]{
-			libs.NewTransition[IBotState](&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition[IBotState](waitingState, recordingState, service.GoBroadcastingEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition[IBotState](recordingState, waitingState, ExitRecordingStateEvent{}, PositiveGuard, NoAction),
-		},
-	)
+
+	recordStateFSM := NewRecordStateFSM(bot, &NullState{})
+	recordStateFSM.AddState(waitingState)
+	recordStateFSM.AddState(recordingState)
+	recordStateFSM.AddTransition(&NullState{}, waitingState, libs.EnterStateEvent{}, PositiveGuard, NoAction)
+	recordStateFSM.AddTransition(waitingState, recordingState, service.GoBroadcastingEvent{}, PositiveGuard, NoAction)
+	recordStateFSM.AddTransition(recordingState, waitingState, ExitRecordingStateEvent{}, PositiveGuard, NoAction)
 
 	questioningState := NewQuestioningState(bot)
 	thanksForJoiningState := NewThanksForJoiningState(bot)
-	knowledgeKingStateFSM := NewKnowledgeKingStateFSM(bot,
-		[]IBotState{
-			questioningState,
-			thanksForJoiningState,
-		},
-		[]libs.Transition[IBotState]{
-			libs.NewTransition[IBotState](&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition[IBotState](questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction),
-		})
 
-	rootFSM := NewRootFSM(bot,
-		[]IBotState{
-			normalStateFSM,
-			recordStateFSM,
-			knowledgeKingStateFSM,
-		},
-		[]libs.Transition[IBotState]{
-			libs.NewTransition[IBotState](&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction),
-			libs.NewTransition[IBotState](normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, SaveCurrentRecorderAction),
-			libs.NewTransition[IBotState](recordStateFSM, normalStateFSM, service.TagEvent{}, StopRecordCommandGuard, ClearCurrentRecorderAction),
-			libs.NewTransition[IBotState](normalStateFSM, knowledgeKingStateFSM, service.TagEvent{}, KingCommandGuard, NoAction),
-			libs.NewTransition[IBotState](knowledgeKingStateFSM, normalStateFSM, service.TagEvent{}, KingStopCommandGuard, NoAction),
-			libs.NewTransition[IBotState](knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction),
-		},
-	)
-	rootFSM.Enter(nil)
+	knowledgeKingStateFSM := NewKnowledgeKingStateFSM(bot, &NullState{})
+	knowledgeKingStateFSM.AddState(questioningState)
+	knowledgeKingStateFSM.AddState(thanksForJoiningState)
+	knowledgeKingStateFSM.AddTransition(&NullState{}, questioningState, libs.EnterStateEvent{}, PositiveGuard, NoAction)
+	knowledgeKingStateFSM.AddTransition(questioningState, thanksForJoiningState, ExitQuestioningStateEvent{}, PositiveGuard, NoAction)
+
+	rootFSM := NewRootFSM(bot, &NullState{})
+	rootFSM.AddState(normalStateFSM)
+	rootFSM.AddState(recordStateFSM)
+	rootFSM.AddState(knowledgeKingStateFSM)
+	rootFSM.AddTransition(&NullState{}, normalStateFSM, libs.EnterStateEvent{}, PositiveGuard, NoAction)
+	rootFSM.AddTransition(normalStateFSM, recordStateFSM, service.TagEvent{}, RecordCommandGuard, SaveCurrentRecorderAction)
+	rootFSM.AddTransition(recordStateFSM, normalStateFSM, service.TagEvent{}, StopRecordCommandGuard, ClearCurrentRecorderAction)
+	rootFSM.AddTransition(normalStateFSM, knowledgeKingStateFSM, service.TagEvent{}, KingCommandGuard, NoAction)
+	rootFSM.AddTransition(knowledgeKingStateFSM, normalStateFSM, service.TagEvent{}, KingStopCommandGuard, NoAction)
+	rootFSM.AddTransition(knowledgeKingStateFSM, normalStateFSM, ExitThanksForJoiningStateEvent{}, PositiveGuard, NoAction)
 
 	bot.fsm = rootFSM
+
+	rootFSM.Enter(nil)
 
 	return bot
 }

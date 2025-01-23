@@ -11,13 +11,11 @@ type RootFSM struct {
 	UnimplementedBotOperation
 }
 
-func NewRootFSM(bot *Bot, states []IBotState, transitions []libs.Transition[IBotState]) *RootFSM {
+func NewRootFSM(bot *Bot, initialState IBotState) *RootFSM {
 	fsm := &RootFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](initialState),
 	}
-	fsm.AddState(states...)
-	fsm.AddTransition(transitions...)
 
 	return fsm
 }
