@@ -15,7 +15,7 @@ type NormalStateFSM struct {
 func NewNormalStateFSM(bot *Bot, initialState IBotState) *NormalStateFSM {
 	fsm := &NormalStateFSM{
 		bot:      bot,
-		SuperFSM: libs.NewSuperFSM[IBotState](&NullState{}),
+		SuperFSM: libs.NewSuperFSM[IBotState](initialState),
 	}
 
 	return fsm
